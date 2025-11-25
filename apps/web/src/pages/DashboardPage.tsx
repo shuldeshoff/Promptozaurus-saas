@@ -2,12 +2,21 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/auth.store';
 import { useTranslation } from 'react-i18next';
 import ProjectList from '../components/ProjectList';
+import SaveStatus from '../components/SaveStatus';
 import { Project } from '../hooks/useProjects';
+import { useAutoSave } from '../hooks/useAutoSave';
 
 export default function DashboardPage() {
   const { user, logout } = useAuthStore();
   const { t, i18n } = useTranslation();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // Auto-save setup
+  const autoSave = useAutoSave({
+    project: selectedProject,
+    enabled: true,
+    debounceMs: 2000,
+  });
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ru' : 'en';
@@ -21,6 +30,14 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold text-white">🦖 Promptozaurus</h1>
+            {selectedProject && (
+              <SaveStatus
+                isSaving={autoSave.isSaving}
+                lastSaved={autoSave.lastSaved}
+                error={autoSave.error}
+                isOffline={autoSave.isOffline}
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-4">
