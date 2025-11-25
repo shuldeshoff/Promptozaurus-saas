@@ -65,11 +65,11 @@ export default function AIResponseModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-[90vh] flex flex-col border border-gray-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2 md:p-4">
+      <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-[95vh] md:h-[90vh] flex flex-col border border-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h2 className="text-2xl font-bold text-white">
+        <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-800">
+          <h2 className="text-xl md:text-2xl font-bold text-white">
             🤖 {t('labels.aiAssistant', 'AI Assistant')}
           </h2>
           <button
@@ -81,10 +81,10 @@ export default function AIResponseModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Left: Prompt Input */}
-          <div className="w-1/2 border-r border-gray-800 flex flex-col p-4">
-            <h3 className="text-lg font-semibold text-white mb-4">
+          <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col p-3 md:p-4">
+            <h3 className="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">
               {t('labels.prompt', 'Prompt')}
             </h3>
 
@@ -171,9 +171,9 @@ export default function AIResponseModal({
           </div>
 
           {/* Right: Response */}
-          <div className="w-1/2 flex flex-col p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
+          <div className="w-full md:w-1/2 flex flex-col p-3 md:p-4">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h3 className="text-base md:text-lg font-semibold text-white">
                 {t('labels.response', 'Response')}
               </h3>
               {response && (

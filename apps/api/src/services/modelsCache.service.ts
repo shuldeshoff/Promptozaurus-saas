@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js';
-import { redis } from './redis.service.js';
+import { redisService } from './redis.service.js';
 import { AIModel } from '../providers/base.provider.js';
 import { AiProvider } from '@promptozaurus/shared';
 import { AIProviderFactory } from '../providers/factory.js';
@@ -16,7 +16,7 @@ export const modelsCacheService = {
     try {
       // Try Redis first
       const redisKey = `${REDIS_KEY_PREFIX}${provider}`;
-      const cached = await redis.get(redisKey);
+      const cached = await redisService.get(redisKey);
       
       if (cached) {
         return JSON.parse(cached);
@@ -31,7 +31,7 @@ export const modelsCacheService = {
         const models = dbCache.models as AIModel[];
         
         // Update Redis cache
-        await redis.setex(redisKey, CACHE_TTL, JSON.stringify(models));
+        await redisService.set(redisKey, JSON.stringify(models), CACHE_TTL);
         
         return models;
       }
@@ -51,7 +51,7 @@ export const modelsCacheService = {
       const redisKey = `${REDIS_KEY_PREFIX}${provider}`;
       
       // Update Redis
-      await redis.setex(redisKey, CACHE_TTL, JSON.stringify(models));
+      await redisService.set(redisKey, JSON.stringify(models), CACHE_TTL);
       
       // Update database
       await prisma.modelsCache.upsert({
@@ -163,7 +163,7 @@ export const modelsCacheService = {
   async clearCache(provider: AiProvider): Promise<void> {
     try {
       const redisKey = `${REDIS_KEY_PREFIX}${provider}`;
-      await redis.del(redisKey);
+      await redisService.del(redisKey);
     } catch (error) {
       console.error(`Failed to clear cache for ${provider}:`, error);
     }

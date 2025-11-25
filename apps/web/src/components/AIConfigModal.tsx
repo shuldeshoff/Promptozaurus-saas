@@ -138,11 +138,11 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-gray-900 rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-gray-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-gray-900 rounded-lg w-full max-w-2xl max-h-[90vh] md:max-h-[80vh] flex flex-col border border-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h2 className="text-2xl font-bold text-white">
+        <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-800">
+          <h2 className="text-xl md:text-2xl font-bold text-white">
             🔑 {t('labels.aiApiKeys', 'AI API Keys')}
           </h2>
           <button

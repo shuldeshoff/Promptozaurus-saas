@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
+import ErrorBoundary from './components/ErrorBoundary';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 
@@ -21,9 +22,11 @@ function App() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {user ? <DashboardPage /> : <LandingPage />}
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        {user ? <DashboardPage /> : <LandingPage />}
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
