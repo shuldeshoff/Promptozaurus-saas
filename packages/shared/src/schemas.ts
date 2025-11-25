@@ -1,11 +1,54 @@
 import { z } from 'zod';
 
-// User schemas
-export const userSchema = z.object({
+// Context Block schemas
+export const ContextSubItemSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).max(200),
+  content: z.string(),
+  chars: z.number().min(0),
+});
+
+export const ContextItemSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).max(200),
+  content: z.string(),
+  chars: z.number().min(0),
+  subItems: z.array(ContextSubItemSchema),
+});
+
+export const ContextBlockSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).max(200),
+  items: z.array(ContextItemSchema),
+});
+
+// Prompt Block schemas
+export const SelectedContextSchema = z.object({
+  blockId: z.number(),
+  itemIds: z.array(z.number()),
+  subItemIds: z.array(z.string()), // Format: "itemId.subItemId"
+});
+
+export const PromptBlockSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).max(200),
+  template: z.string(),
+  templateFilename: z.string().nullable().optional(),
+  selectedContexts: z.array(SelectedContextSchema),
+});
+
+// Project Data schema
+export const ProjectDataSchema = z.object({
+  contextBlocks: z.array(ContextBlockSchema),
+  promptBlocks: z.array(PromptBlockSchema),
+});
+
+// User schema
+export const UserSchema = z.object({
   id: z.string().uuid(),
   googleId: z.string(),
   email: z.string().email(),
-  name: z.string(),
+  name: z.string().min(1).max(100),
   avatarUrl: z.string().url().optional(),
   language: z.enum(['en', 'ru']),
   theme: z.enum(['dark', 'light']),
@@ -13,40 +56,33 @@ export const userSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const updateUserSchema = z.object({
-  name: z.string().optional(),
-  language: z.enum(['en', 'ru']).optional(),
-  theme: z.enum(['dark', 'light']).optional(),
+// Project schema
+export const ProjectSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  data: ProjectDataSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-// Project schemas
-export const createProjectSchema = z.object({
-  name: z.string().min(1).max(255),
-});
-
-export const updateProjectSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  data: z.any().optional(), // ProjectData validation can be more specific
-});
-
-// Template schemas
-export const createTemplateSchema = z.object({
-  name: z.string().min(1).max(255),
+// Template schema
+export const TemplateSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  name: z.string().min(1).max(100),
   content: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const updateTemplateSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  content: z.string().optional(),
-});
-
-// API Key schemas
-export const createApiKeySchema = z.object({
+// API Key schema
+export const ApiKeySchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
   provider: z.enum(['openai', 'anthropic', 'gemini', 'grok', 'openrouter']),
-  apiKey: z.string().min(1),
+  status: z.enum(['not_configured', 'active', 'error']),
+  lastTestedAt: z.date().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
-
-export const updateApiKeySchema = z.object({
-  apiKey: z.string().min(1),
-});
-

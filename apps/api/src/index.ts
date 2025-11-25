@@ -8,6 +8,8 @@ import { redisService } from './services/redis.service.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { userRoutes } from './routes/user.routes.js';
 import { projectRoutes } from './routes/project.routes.js';
+import { promptRoutes } from './routes/prompt.routes.js';
+import { contextRoutes } from './routes/context.routes.js';
 
 config();
 
@@ -65,6 +67,8 @@ server.get('/', async () => {
 await server.register(authRoutes);
 await server.register(userRoutes);
 await server.register(projectRoutes);
+await server.register(promptRoutes);
+await server.register(contextRoutes);
 
 // Start server
 const start = async () => {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/auth.store';
 import { useTranslation } from 'react-i18next';
 import ProjectList from '../components/ProjectList';
+import ProjectEditor from '../components/ProjectEditor';
 import SaveStatus from '../components/SaveStatus';
 import { Project } from '../hooks/useProjects';
 import { useAutoSave } from '../hooks/useAutoSave';
@@ -88,23 +89,13 @@ export default function DashboardPage() {
         {/* Project Editor Area */}
         <div className="flex-1 overflow-y-auto">
           {selectedProject ? (
-            <div className="p-8">
-              <h2 className="text-2xl font-bold text-white mb-4">{selectedProject.name}</h2>
-              <p className="text-gray-400 mb-6">
-                {t('dashboard.projectEditorPlaceholder', 'Project editor will be implemented in Stage 3')}
-              </p>
-              <div className="bg-gray-800 rounded-lg p-6">
-                <pre className="text-sm text-gray-300 overflow-auto">
-                  {JSON.stringify(selectedProject, null, 2)}
-                </pre>
-              </div>
-            </div>
+            <ProjectEditor project={selectedProject} />
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-500">
                 <div className="text-6xl mb-4">🦖</div>
                 <p className="text-xl mb-2">{t('dashboard.selectProject', 'Select or create a project')}</p>
-                <p className="text-sm">{t('dashboard.stage2complete', 'Stage 2: Projects API - Complete! ✅')}</p>
+                <p className="text-sm">{t('dashboard.stage3progress', 'Stage 3: Context & Prompts - In Progress 🚧')}</p>
               </div>
             </div>
           )}

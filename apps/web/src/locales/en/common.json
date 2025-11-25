@@ -19,7 +19,11 @@
     "apply": "Apply",
     "reset": "Reset",
     "exit": "Exit",
-    "duplicate": "Duplicate"
+    "duplicate": "Duplicate",
+    "addBlock": "Add Block",
+    "addPrompt": "Add Prompt",
+    "compile": "Compile",
+    "compiling": "Compiling..."
   },
   "labels": {
     "project": "Project",
@@ -38,7 +42,12 @@
     "size": "Size",
     "path": "Path",
     "version": "Version",
-    "author": "Author"
+    "author": "Author",
+    "contextBlocks": "Context Blocks",
+    "prompts": "Prompts",
+    "items": "items",
+    "chars": "chars",
+    "contextsSelected": "contexts selected"
   },
   "messages": {
     "loading": "Loading...",
@@ -65,7 +74,13 @@
     "failedToDeleteProject": "Failed to delete project",
     "failedToDuplicateProject": "Failed to duplicate project",
     "failedToLoadProjects": "Failed to load projects",
-    "noProjects": "No projects yet. Create your first one!"
+    "noProjects": "No projects yet. Create your first one!",
+    "noContextBlocks": "No context blocks yet",
+    "createFirstContext": "Create your first context block to get started",
+    "noPrompts": "No prompts yet",
+    "createFirstPrompt": "Create your first prompt to get started",
+    "copiedToClipboard": "Copied to clipboard!",
+    "failedToCompile": "Failed to compile prompt"
   },
   "units": {
     "chars": "characters",
@@ -78,6 +93,7 @@
     "selectProject": "Select or create a project",
     "projectEditorPlaceholder": "Project editor will be implemented in Stage 3",
     "stage1complete": "Stage 1: Authentication - Complete! ✅",
-    "stage2complete": "Stage 2: Projects API - Complete! ✅"
+    "stage2complete": "Stage 2: Projects API - Complete! ✅",
+    "stage3progress": "Stage 3: Context & Prompts - In Progress 🚧"
   }
 }

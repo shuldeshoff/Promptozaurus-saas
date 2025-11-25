@@ -28,32 +28,31 @@ export interface ProjectData {
 
 export interface ContextBlock {
   id: number;
-  name: string;
+  title: string;
   items: ContextItem[];
 }
 
 export interface ContextItem {
   id: number;
-  name: string;
+  title: string;
   content: string;
-  charCount: number;
-  subItems?: SubItem[];
+  chars: number;
+  subItems: ContextSubItem[];
 }
 
-export interface SubItem {
-  id: string;
-  name: string;
+export interface ContextSubItem {
+  id: number;
+  title: string;
   content: string;
-  charCount: number;
+  chars: number;
 }
 
 export interface PromptBlock {
   id: number;
-  name: string;
+  title: string;
   template: string;
-  templateFilename?: string;
+  templateFilename?: string | null;
   selectedContexts: SelectedContext[];
-  charCount: number;
 }
 
 export interface SelectedContext {
