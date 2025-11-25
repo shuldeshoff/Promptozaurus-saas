@@ -7,6 +7,7 @@
     "delete": "Delete",
     "add": "Add",
     "create": "Create",
+    "creating": "Creating...",
     "open": "Open",
     "close": "Close",
     "import": "Import",
@@ -17,10 +18,14 @@
     "clear": "Clear",
     "apply": "Apply",
     "reset": "Reset",
-    "exit": "Exit"
+    "exit": "Exit",
+    "duplicate": "Duplicate"
   },
   "labels": {
     "project": "Project",
+    "projects": "Projects",
+    "newProject": "New Project",
+    "projectName": "Project Name",
     "name": "Name",
     "description": "Description",
     "settings": "Settings",
@@ -44,12 +49,19 @@
     "warning": "Warning",
     "info": "Information",
     "confirmDelete": "Are you sure you want to delete?",
+    "confirmDeleteProject": "Are you sure you want to delete this project?",
     "unsavedChanges": "You have unsaved changes",
     "noData": "No data",
     "empty": "Empty",
     "notFound": "Not found",
     "required": "Required field",
-    "optional": "Optional"
+    "optional": "Optional",
+    "projectLimitReached": "You have reached the maximum of 10 projects",
+    "failedToCreateProject": "Failed to create project",
+    "failedToDeleteProject": "Failed to delete project",
+    "failedToDuplicateProject": "Failed to duplicate project",
+    "failedToLoadProjects": "Failed to load projects",
+    "noProjects": "No projects yet. Create your first one!"
   },
   "units": {
     "chars": "characters",
@@ -57,5 +69,11 @@
     "lines": "lines",
     "items": "items",
     "blocks": "blocks"
+  },
+  "dashboard": {
+    "selectProject": "Select or create a project",
+    "projectEditorPlaceholder": "Project editor will be implemented in Stage 3",
+    "stage1complete": "Stage 1: Authentication - Complete! ✅",
+    "stage2complete": "Stage 2: Projects API - Complete! ✅"
   }
 }

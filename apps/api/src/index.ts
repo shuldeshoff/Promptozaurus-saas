@@ -7,6 +7,7 @@ import { config } from 'dotenv';
 import { redisService } from './services/redis.service.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { userRoutes } from './routes/user.routes.js';
+import { projectRoutes } from './routes/project.routes.js';
 
 config();
 
@@ -63,6 +64,7 @@ server.get('/', async () => {
 // Register routes
 await server.register(authRoutes);
 await server.register(userRoutes);
+await server.register(projectRoutes);
 
 // Start server
 const start = async () => {

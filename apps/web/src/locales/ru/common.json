@@ -7,6 +7,7 @@
     "delete": "Удалить",
     "add": "Добавить",
     "create": "Создать",
+    "creating": "Создание...",
     "open": "Открыть",
     "close": "Закрыть",
     "import": "Импорт",
@@ -17,10 +18,14 @@
     "clear": "Очистить",
     "apply": "Применить",
     "reset": "Сбросить",
-    "exit": "Выход"
+    "exit": "Выход",
+    "duplicate": "Дублировать"
   },
   "labels": {
     "project": "Проект",
+    "projects": "Проекты",
+    "newProject": "Новый проект",
+    "projectName": "Название проекта",
     "name": "Название",
     "description": "Описание",
     "settings": "Настройки",
@@ -44,12 +49,19 @@
     "warning": "Предупреждение",
     "info": "Информация",
     "confirmDelete": "Вы уверены, что хотите удалить?",
+    "confirmDeleteProject": "Вы уверены, что хотите удалить этот проект?",
     "unsavedChanges": "У вас есть несохраненные изменения",
     "noData": "Нет данных",
     "empty": "Пусто",
     "notFound": "Не найдено",
     "required": "Обязательное поле",
-    "optional": "Опционально"
+    "optional": "Опционально",
+    "projectLimitReached": "Вы достигли максимума из 10 проектов",
+    "failedToCreateProject": "Не удалось создать проект",
+    "failedToDeleteProject": "Не удалось удалить проект",
+    "failedToDuplicateProject": "Не удалось дублировать проект",
+    "failedToLoadProjects": "Не удалось загрузить проекты",
+    "noProjects": "Пока нет проектов. Создайте свой первый!"
   },
   "units": {
     "chars": "символов",
@@ -57,5 +69,11 @@
     "lines": "строк",
     "items": "элементов",
     "blocks": "блоков"
+  },
+  "dashboard": {
+    "selectProject": "Выберите или создайте проект",
+    "projectEditorPlaceholder": "Редактор проектов будет реализован на Этапе 3",
+    "stage1complete": "Этап 1: Аутентификация - Завершен! ✅",
+    "stage2complete": "Этап 2: API проектов - Завершен! ✅"
   }
 }
