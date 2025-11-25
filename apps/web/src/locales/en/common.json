@@ -23,7 +23,9 @@
     "addBlock": "Add Block",
     "addPrompt": "Add Prompt",
     "compile": "Compile",
-    "compiling": "Compiling..."
+    "compiling": "Compiling...",
+    "createTemplate": "Create Template",
+    "useTemplate": "Use Template"
   },
   "labels": {
     "project": "Project",
@@ -47,7 +49,14 @@
     "prompts": "Prompts",
     "items": "items",
     "chars": "chars",
-    "contextsSelected": "contexts selected"
+    "contextsSelected": "contexts selected",
+    "templates": "Templates",
+    "templateLibrary": "Template Library",
+    "templateName": "Template Name",
+    "searchTemplates": "Search templates...",
+    "content": "Content",
+    "enterName": "Enter name...",
+    "enterContent": "Enter template content..."
   },
   "messages": {
     "loading": "Loading...",
@@ -80,7 +89,14 @@
     "noPrompts": "No prompts yet",
     "createFirstPrompt": "Create your first prompt to get started",
     "copiedToClipboard": "Copied to clipboard!",
-    "failedToCompile": "Failed to compile prompt"
+    "failedToCompile": "Failed to compile prompt",
+    "fillAllFields": "Please fill all fields",
+    "failedToCreate": "Failed to create template",
+    "failedToUpdate": "Failed to update template",
+    "confirmDeleteTemplate": "Delete this template?",
+    "noSearchResults": "No templates found",
+    "noTemplates": "No templates yet",
+    "selectTemplate": "Select a template or create a new one"
   },
   "units": {
     "chars": "characters",

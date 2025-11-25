@@ -23,7 +23,9 @@
     "addBlock": "Добавить блок",
     "addPrompt": "Добавить промпт",
     "compile": "Скомпилировать",
-    "compiling": "Компиляция..."
+    "compiling": "Компиляция...",
+    "createTemplate": "Создать шаблон",
+    "useTemplate": "Использовать шаблон"
   },
   "labels": {
     "project": "Проект",
@@ -47,7 +49,14 @@
     "prompts": "Промпты",
     "items": "элементов",
     "chars": "символов",
-    "contextsSelected": "контекстов выбрано"
+    "contextsSelected": "контекстов выбрано",
+    "templates": "Шаблоны",
+    "templateLibrary": "Библиотека шаблонов",
+    "templateName": "Название шаблона",
+    "searchTemplates": "Поиск шаблонов...",
+    "content": "Содержимое",
+    "enterName": "Введите название...",
+    "enterContent": "Введите содержимое шаблона..."
   },
   "messages": {
     "loading": "Загрузка...",
@@ -80,7 +89,14 @@
     "noPrompts": "Пока нет промптов",
     "createFirstPrompt": "Создайте свой первый промпт",
     "copiedToClipboard": "Скопировано в буфер обмена!",
-    "failedToCompile": "Не удалось скомпилировать промпт"
+    "failedToCompile": "Не удалось скомпилировать промпт",
+    "fillAllFields": "Пожалуйста, заполните все поля",
+    "failedToCreate": "Не удалось создать шаблон",
+    "failedToUpdate": "Не удалось обновить шаблон",
+    "confirmDeleteTemplate": "Удалить этот шаблон?",
+    "noSearchResults": "Шаблоны не найдены",
+    "noTemplates": "Пока нет шаблонов",
+    "selectTemplate": "Выберите шаблон или создайте новый"
   },
   "units": {
     "chars": "символов",

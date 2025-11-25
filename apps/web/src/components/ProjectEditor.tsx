@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Project, ContextBlock, PromptBlock } from '@promptozaurus/shared';
-import { useUpdateContextBlocks, useUpdatePromptBlocks, useCompilePrompt } from '../hooks/useContextPrompt';
+import { Project, Template } from '@promptozaurus/shared';
+import { useCompilePrompt } from '../hooks/useContextPrompt';
+import TemplateLibraryModal from './TemplateLibraryModal';
 
 interface ProjectEditorProps {
   project: Project;
@@ -10,13 +11,18 @@ interface ProjectEditorProps {
 export default function ProjectEditor({ project }: ProjectEditorProps) {
   const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState<'context' | 'prompts'>('context');
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   
-  const updateContextMutation = useUpdateContextBlocks();
-  const updatePromptMutation = useUpdatePromptBlocks();
   const compileMutation = useCompilePrompt();
 
   const contextBlocks = project.data.contextBlocks || [];
   const promptBlocks = project.data.promptBlocks || [];
+
+  const handleTemplateSelect = (template: Template) => {
+    // Use template content in current prompt
+    console.log('Selected template:', template);
+    // TODO: Implement template insertion into current prompt
+  };
 
   const handleCompilePrompt = async (promptId: number) => {
     try {
@@ -29,7 +35,7 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
       // Copy to clipboard
       await navigator.clipboard.writeText(result.compiled);
       alert(t('messages.copiedToClipboard', 'Copied to clipboard!'));
-    } catch (error) {
+    } catch (_error) {
       alert(t('messages.failedToCompile', 'Failed to compile prompt'));
     }
   };
@@ -58,7 +64,21 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
         >
           {t('labels.prompts', 'Prompts')} ({promptBlocks.length})
         </button>
+        <div className="flex-1"></div>
+        <button
+          onClick={() => setIsTemplateModalOpen(true)}
+          className="px-6 py-3 font-medium text-gray-400 hover:text-gray-300 transition-colors"
+        >
+          📚 {t('labels.templates', 'Templates')}
+        </button>
       </div>
+
+      {/* Template Library Modal */}
+      <TemplateLibraryModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+        onSelectTemplate={handleTemplateSelect}
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
