@@ -2,7 +2,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
 import { projectRoutes } from '../routes/project.routes';
 
-describe('E2E: Project Management Flow', () => {
+// Skip E2E tests if DATABASE_URL is not set for PostgreSQL
+const shouldSkip = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes('file:');
+const describeOrSkip = shouldSkip ? describe.skip : describe;
+
+describeOrSkip('E2E: Project Management Flow', () => {
   let app: FastifyInstance;
   const mockUserId = 'e2e-test-user';
   let createdProjectId: string;

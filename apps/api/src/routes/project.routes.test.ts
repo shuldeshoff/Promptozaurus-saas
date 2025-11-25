@@ -3,7 +3,11 @@ import Fastify from 'fastify';
 import { projectRoutes } from '../routes/project.routes';
 import { authenticate } from '../middleware/auth.middleware';
 
-describe('Project Routes Integration Tests', () => {
+// Skip integration tests if DATABASE_URL is not set
+const shouldSkip = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes('file:');
+const describeOrSkip = shouldSkip ? describe.skip : describe;
+
+describeOrSkip('Project Routes Integration Tests', () => {
   const app = Fastify();
   const mockUserId = 'test-user-123';
 
