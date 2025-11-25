@@ -1,0 +1,91 @@
+{
+  "modal": {
+    "title": "AI Interaction",
+    "simulationMode": "Simulation Mode",
+    "error": {
+      "title": "Error",
+      "noModel": "No AI model selected. Please select a model from the list.",
+      "noModelForRegenerate": "No model selected for regeneration",
+      "unknownError": "Unknown error",
+      "copyError": "Error copying to clipboard",
+      "saveError": "Error saving AI response",
+      "blockNotFound": "Context block not found",
+      "retry": "Try Again"
+    },
+    "modelSelection": {
+      "title": "Select Model for Generation",
+      "noModels": "No AI models configured",
+      "closeAndConfigure": "Close and Configure",
+      "lastUsed": "Last Used",
+      "temperature": "Temperature",
+      "maxTokens": "Max Tokens",
+      "generate": "Generate Response",
+      "cancel": "Cancel"
+    },
+    "sending": {
+      "title": "Sending your prompt to AI...",
+      "prompt": "Prompt",
+      "characters": "Characters"
+    },
+    "receiving": {
+      "title": "Receiving response...",
+      "tokens": "tokens",
+      "characters": "characters",
+      "stop": "Stop"
+    },
+    "response": {
+      "complete": "Complete",
+      "modified": "Modified",
+      "seconds": "sec",
+      "placeholder": "AI response will appear here...",
+      "copy": "Copy",
+      "regenerate": "Regenerate",
+      "regenerateTooltip": "Regenerate response with model",
+      "close": "Close",
+      "save": "Save"
+    },
+    "saveOptions": {
+      "title": "Save response as:",
+      "newBlock": "New context block:",
+      "newBlockPlaceholder": "New block name",
+      "existingBlock": "To existing block:",
+      "selectBlock": "Select context block"
+    },
+    "saving": {
+      "title": "Saving AI response...",
+      "description": "Adding to project context"
+    },
+    "notifications": {
+      "regenerating": "Regenerating response with model",
+      "copied": "AI response copied to clipboard",
+      "savedNewBlock": "AI response saved to new block",
+      "savedExistingBlock": "AI response added to block",
+      "selectBlock": "Select context block for saving"
+    },
+    "defaultTitles": {
+      "aiResponse": "AI Response",
+      "aiResponseBlock": "AI Response:",
+      "aiAnalysis": "AI Analysis:"
+    },
+    "mockResponse": {
+      "analysis": "Analysis of your prompt",
+      "structuralAnalysis": "Structural Analysis",
+      "structuralAnalysisText": "Your prompt is well-structured and contains clear instructions. Content volume is {{length}} characters, which is optimal for most tasks.",
+      "recommendations": "Improvement Recommendations",
+      "recommendation1": "Add more specific examples for better understanding",
+      "recommendation2": "Clarify target audience and usage context",
+      "recommendation3": "Consider breaking down into subtasks",
+      "potentialIssues": "Potential Issues",
+      "issue1": "Possible ambiguity in interpreting some instructions",
+      "issue2": "May require additional context for specific domains",
+      "conclusion": "Conclusion",
+      "conclusionText": "The prompt demonstrates good task understanding and can be effectively used with minor improvements."
+    }
+  },
+  "config": {
+    "title": "AI Settings",
+    "apiKey": "API Key",
+    "temperature": "Temperature",
+    "maxTokens": "Max Tokens"
+  }
+}

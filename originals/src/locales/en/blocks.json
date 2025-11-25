@@ -1,0 +1,32 @@
+{
+  "context": {
+    "addButton": "+ Add Context",
+    "placeholder": "New context name...",
+    "empty": {
+      "title": "No context blocks",
+      "description": "Click the + button in the navigation panel to create a new block",
+      "hint": "Context blocks store information that will be included in your prompts"
+    },
+    "noSelection": {
+      "title": "No block selected",
+      "description": "Select a context block from the navigation panel"
+    }
+  },
+  "prompt": {
+    "addButton": "+ Add Prompt",
+    "placeholder": "New prompt name...",
+    "empty": {
+      "title": "No prompt blocks",
+      "description": "Click the + button in the navigation panel to create a new block",
+      "hint": "Prompt blocks contain templates that combine with context"
+    },
+    "noSelection": {
+      "title": "No block selected",
+      "description": "Select a prompt block from the navigation panel"
+    }
+  },
+  "buttons": {
+    "create": "Create",
+    "cancel": "Cancel"
+  }
+}

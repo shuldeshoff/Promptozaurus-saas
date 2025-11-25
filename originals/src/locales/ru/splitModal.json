@@ -1,0 +1,69 @@
+{
+  "title": "Разделение текста",
+  "previewButton": "Предпросмотр",
+  "apply": "Применить",
+  "cancel": "Отмена",
+  "settings": {
+    "methodLabel": "Метод разделения",
+    "methods": {
+      "equal": "На равные части",
+      "delimiter": "По разделителю",
+      "paragraphs": "По абзацам",
+      "pattern": "По шаблону"
+    },
+    "equalParts": {
+      "partsCount": "Количество частей",
+      "endingOn": "Завершать на",
+      "endingSentence": "Конце предложения",
+      "endingParagraph": "Конце абзаца",
+      "endingExact": "Строго по числу символов",
+      "endingDelimiter": "По разделителю",
+      "delimiterLabel": "Разделитель",
+      "delimiterPlaceholder": "Например: Глава"
+    },
+    "delimiter": {
+      "delimiterLabel": "Разделитель",
+      "delimiterPlaceholder": "Например: ---",
+      "caseSensitive": "Учитывать регистр",
+      "includeDelimiter": "Включать разделитель в результат"
+    },
+    "paragraphs": {
+      "paragraphsPerGroup": "Абзацев в группе",
+      "minSize": "Минимальный размер абзаца (символов)"
+    },
+    "pattern": {
+      "presetLabel": "Предустановленные шаблоны",
+      "selectTemplate": "Выберите шаблон...",
+      "chaptersAndSections": "Главы и разделы",
+      "numberedItems": "Нумерованные пункты",
+      "datesTimestamps": "Даты/Временные отметки",
+      "patternLabel": "Шаблон (регулярное выражение)",
+      "patternPlaceholder": "Например: (Глава|Часть)\\s*(\\d+)",
+      "includeMatch": "Включать совпадение в результат"
+    },
+    "options": {
+      "createSubItems": "В подэлементы",
+      "createSubItemsHint": "Создать подэлементы вместо новых элементов",
+      "keepOriginal": "Сохранить исходный текст",
+      "keepOriginalHint": "Оставить исходный текст в элементе"
+    }
+  },
+  "previewSection": {
+    "resultsTitle": "Результаты разделения текста",
+    "settingsTitle": "Настройки разделения текста",
+    "selected": "Выбрано",
+    "of": "из",
+    "backToSettings": "Вернуться к настройкам"
+  },
+  "errors": {
+    "splitFailed": "Не удалось разделить текст на части с текущими настройками.",
+    "noSelection": "Необходимо выбрать хотя бы одну часть текста.",
+    "regexError": "Ошибка в регулярном выражении"
+  },
+  "previewList": {
+    "selectAll": "Выбрать все",
+    "deselectAll": "Отменить все",
+    "characters": "символов",
+    "noItems": "Нет элементов для отображения"
+  }
+}

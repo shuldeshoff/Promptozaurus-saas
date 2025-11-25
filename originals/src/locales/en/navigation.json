@@ -1,0 +1,20 @@
+{
+  "contexts": {
+    "title": "Contexts",
+    "add": "Add new context",
+    "empty": "No contexts",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "alreadyTop": "Block is already at the top",
+    "alreadyBottom": "Block is already at the bottom"
+  },
+  "prompts": {
+    "title": "Prompts",
+    "add": "Add new prompt",
+    "empty": "No prompts",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "alreadyTop": "Block is already at the top",
+    "alreadyBottom": "Block is already at the bottom"
+  }
+}

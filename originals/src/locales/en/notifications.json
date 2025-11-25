@@ -1,0 +1,39 @@
+{
+  "project": {
+    "saved": "Project saved",
+    "saveFailed": "Failed to save project",
+    "opened": "Project opened",
+    "openFailed": "Failed to open project",
+    "created": "New project created",
+    "exported": "Project exported",
+    "imported": "Project imported"
+  },
+  "context": {
+    "added": "Context added",
+    "deleted": "Context deleted",
+    "updated": "Context updated",
+    "imported": "Context imported",
+    "importFailed": "Failed to import context"
+  },
+  "prompt": {
+    "added": "Prompt added",
+    "deleted": "Prompt deleted",
+    "updated": "Prompt updated",
+    "copied": "Prompt copied to clipboard",
+    "sent": "Prompt sent to AI",
+    "sendFailed": "Failed to send prompt"
+  },
+  "ai": {
+    "configSaved": "AI settings saved",
+    "connectionSuccess": "AI connection established",
+    "connectionFailed": "Failed to connect to AI",
+    "responseReceived": "Response received",
+    "responseFailed": "Error getting response"
+  },
+  "general": {
+    "error": "An error occurred",
+    "success": "Operation completed successfully",
+    "warning": "Warning",
+    "info": "Information"
+  }
+}
