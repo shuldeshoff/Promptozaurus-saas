@@ -1,8 +1,12 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import jwt from '@fastify/jwt';
+import cookie from '@fastify/cookie';
 import { config } from 'dotenv';
 import { redisService } from './services/redis.service.js';
+import { authRoutes } from './routes/auth.routes.js';
+import { userRoutes } from './routes/user.routes.js';
 
 config();
 
@@ -13,12 +17,26 @@ const server = Fastify({
 });
 
 // Security
-await server.register(helmet);
+await server.register(helmet, {
+  contentSecurityPolicy: false, // Disable for development
+});
 
 // CORS
 await server.register(cors, {
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
+});
+
+// Cookie support
+await server.register(cookie);
+
+// JWT
+await server.register(jwt, {
+  secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this',
+  cookie: {
+    cookieName: 'token',
+    signed: false,
+  },
 });
 
 // Routes
@@ -36,10 +54,15 @@ server.get('/', async () => {
     version: '1.0.0',
     endpoints: {
       health: '/health',
+      auth: '/auth',
       api: '/api',
     },
   };
 });
+
+// Register routes
+await server.register(authRoutes);
+await server.register(userRoutes);
 
 // Start server
 const start = async () => {

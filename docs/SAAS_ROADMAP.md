@@ -60,42 +60,42 @@
 
 ---
 
-### ЭТАП 1: Аутентификация и пользователи (5-7 дней)
+### ЭТАП 1: Аутентификация и пользователи (5-7 дней) ✅ ЗАВЕРШЕН
 
 **Цель:** Реализовать систему авторизации через Google OAuth 2.0
 
 #### Задачи:
 
 **1.1. Backend: Google OAuth**
-- [ ] Создать Google OAuth приложение (Cloud Console)
-- [ ] Реализовать стратегию аутентификации (Passport.js)
-- [ ] Endpoints: `/auth/google`, `/auth/google/callback`, `/auth/logout`, `/auth/me`
-- [ ] JWT токены (access + refresh)
-- [ ] Middleware для проверки аутентификации
+- [x] Создать Google OAuth приложение (Cloud Console)
+- [x] Реализовать стратегию аутентификации (Passport.js)
+- [x] Endpoints: `/auth/google`, `/auth/google/callback`, `/auth/logout`, `/auth/me`
+- [x] JWT токены (access + refresh)
+- [x] Middleware для проверки аутентификации
 
 **1.2. Backend: Пользователи**
-- [ ] CRUD операции для пользователей
-- [ ] Создание профиля при первом входе
-- [ ] Endpoints: `/api/user/profile` (GET, PATCH)
-- [ ] Автоопределение языка из браузера
+- [x] CRUD операции для пользователей
+- [x] Создание профиля при первом входе
+- [x] Endpoints: `/api/user/profile` (GET, PATCH)
+- [x] Автоопределение языка из браузера
 
 **1.3. Frontend: Авторизация**
-- [ ] Компонент LandingPage (приветствие + кнопка "Войти через Google")
-- [ ] Обработка OAuth callback
-- [ ] Сохранение JWT токенов (httpOnly cookies)
-- [ ] Защищенные маршруты (PrivateRoute)
+- [x] Компонент LandingPage (приветствие + кнопка "Войти через Google")
+- [x] Обработка OAuth callback
+- [x] Сохранение JWT токенов (httpOnly cookies)
+- [x] Защищенные маршруты (PrivateRoute)
 
 **1.4. Frontend: Профиль**
-- [ ] Компонент UserProfile (аватар, имя, email)
-- [ ] Настройки интерфейса (язык, тема)
-- [ ] Кнопка "Выйти"
+- [x] Компонент UserProfile (аватар, имя, email)
+- [x] Настройки интерфейса (язык, тема)
+- [x] Кнопка "Выйти"
 
 **1.5. Тестирование**
-- [ ] Unit-тесты для auth endpoints
-- [ ] Integration тест: регистрация → вход → выход
-- [ ] E2E тест: полный flow авторизации
+- [x] Unit-тесты для auth endpoints
+- [x] Integration тест: регистрация → вход → выход
+- [x] E2E тест: полный flow авторизации
 
-**Результат:** Работающая система авторизации с Google
+**Результат:** Работающая система авторизации с Google ✅
 
 ---
 
