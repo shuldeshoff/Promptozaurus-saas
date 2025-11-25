@@ -25,7 +25,10 @@
     "compile": "Скомпилировать",
     "compiling": "Компиляция...",
     "createTemplate": "Создать шаблон",
-    "useTemplate": "Использовать шаблон"
+    "useTemplate": "Использовать шаблон",
+    "test": "Тест",
+    "send": "Отправить",
+    "sending": "Отправка..."
   },
   "labels": {
     "project": "Проект",
@@ -56,7 +59,22 @@
     "searchTemplates": "Поиск шаблонов...",
     "content": "Содержимое",
     "enterName": "Введите название...",
-    "enterContent": "Введите содержимое шаблона..."
+    "enterContent": "Введите содержимое шаблона...",
+    "aiApiKeys": "API ключи AI",
+    "active": "Активен",
+    "error": "Ошибка",
+    "notConfigured": "Не настроен",
+    "aiAssistant": "AI Ассистент",
+    "prompt": "Промпт",
+    "model": "Модель",
+    "selectModel": "Выберите модель...",
+    "systemPrompt": "Системный промпт",
+    "optional": "опционально",
+    "systemPromptPlaceholder": "Вы - полезный ассистент...",
+    "temperature": "Температура",
+    "yourPrompt": "Ваш промпт",
+    "enterPrompt": "Введите ваш промпт...",
+    "response": "Ответ"
   },
   "messages": {
     "loading": "Загрузка...",
@@ -96,7 +114,15 @@
     "confirmDeleteTemplate": "Удалить этот шаблон?",
     "noSearchResults": "Шаблоны не найдены",
     "noTemplates": "Пока нет шаблонов",
-    "selectTemplate": "Выберите шаблон или создайте новый"
+    "selectTemplate": "Выберите шаблон или создайте новый",
+    "failedToSave": "Не удалось сохранить",
+    "testFailed": "Тест не пройден",
+    "apiKeysInfo": "Ваши API ключи зашифрованы и надежно хранятся на наших серверах.",
+    "selectModelAndPrompt": "Пожалуйста, выберите модель и введите промпт",
+    "failedToSend": "Не удалось отправить сообщение",
+    "thinking": "Думаю...",
+    "noResponse": "Пока нет ответа",
+    "sendPromptHint": "Выберите модель и отправьте промпт"
   },
   "units": {
     "chars": "символов",

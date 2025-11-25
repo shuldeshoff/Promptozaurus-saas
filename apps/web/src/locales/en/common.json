@@ -25,7 +25,10 @@
     "compile": "Compile",
     "compiling": "Compiling...",
     "createTemplate": "Create Template",
-    "useTemplate": "Use Template"
+    "useTemplate": "Use Template",
+    "test": "Test",
+    "send": "Send",
+    "sending": "Sending..."
   },
   "labels": {
     "project": "Project",
@@ -56,7 +59,22 @@
     "searchTemplates": "Search templates...",
     "content": "Content",
     "enterName": "Enter name...",
-    "enterContent": "Enter template content..."
+    "enterContent": "Enter template content...",
+    "aiApiKeys": "AI API Keys",
+    "active": "Active",
+    "error": "Error",
+    "notConfigured": "Not Configured",
+    "aiAssistant": "AI Assistant",
+    "prompt": "Prompt",
+    "model": "Model",
+    "selectModel": "Select a model...",
+    "systemPrompt": "System Prompt",
+    "optional": "optional",
+    "systemPromptPlaceholder": "You are a helpful assistant...",
+    "temperature": "Temperature",
+    "yourPrompt": "Your Prompt",
+    "enterPrompt": "Enter your prompt here...",
+    "response": "Response"
   },
   "messages": {
     "loading": "Loading...",
@@ -96,7 +114,15 @@
     "confirmDeleteTemplate": "Delete this template?",
     "noSearchResults": "No templates found",
     "noTemplates": "No templates yet",
-    "selectTemplate": "Select a template or create a new one"
+    "selectTemplate": "Select a template or create a new one",
+    "failedToSave": "Failed to save",
+    "testFailed": "Test failed",
+    "apiKeysInfo": "Your API keys are encrypted and stored securely on our servers.",
+    "selectModelAndPrompt": "Please select a model and enter a prompt",
+    "failedToSend": "Failed to send message",
+    "thinking": "Thinking...",
+    "noResponse": "No response yet",
+    "sendPromptHint": "Select a model and send a prompt"
   },
   "units": {
     "chars": "characters",

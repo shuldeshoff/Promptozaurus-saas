@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import ProjectList from '../components/ProjectList';
 import ProjectEditor from '../components/ProjectEditor';
 import SaveStatus from '../components/SaveStatus';
+import AIConfigModal from '../components/AIConfigModal';
+import AIResponseModal from '../components/AIResponseModal';
 import { Project } from '../hooks/useProjects';
 import { useAutoSave } from '../hooks/useAutoSave';
 
@@ -11,6 +13,8 @@ export default function DashboardPage() {
   const { user, logout } = useAuthStore();
   const { t, i18n } = useTranslation();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isAIConfigModalOpen, setIsAIConfigModalOpen] = useState(false);
+  const [isAIResponseModalOpen, setIsAIResponseModalOpen] = useState(false);
 
   // Auto-save setup
   const autoSave = useAutoSave({
@@ -42,6 +46,24 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* AI Config Button */}
+            <button
+              onClick={() => setIsAIConfigModalOpen(true)}
+              className="px-3 py-1 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
+              title={t('labels.aiApiKeys', 'AI API Keys')}
+            >
+              🔑 AI
+            </button>
+
+            {/* AI Assistant Button */}
+            <button
+              onClick={() => setIsAIResponseModalOpen(true)}
+              className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+              title={t('labels.aiAssistant', 'AI Assistant')}
+            >
+              🤖 AI
+            </button>
+
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
@@ -101,6 +123,16 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+
+      {/* AI Modals */}
+      <AIConfigModal
+        isOpen={isAIConfigModalOpen}
+        onClose={() => setIsAIConfigModalOpen(false)}
+      />
+      <AIResponseModal
+        isOpen={isAIResponseModalOpen}
+        onClose={() => setIsAIResponseModalOpen(false)}
+      />
     </div>
   );
 }

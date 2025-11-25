@@ -35,7 +35,7 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
       // Copy to clipboard
       await navigator.clipboard.writeText(result.compiled);
       alert(t('messages.copiedToClipboard', 'Copied to clipboard!'));
-    } catch (_error) {
+    } catch {
       alert(t('messages.failedToCompile', 'Failed to compile prompt'));
     }
   };

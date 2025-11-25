@@ -13,5 +13,6 @@ prisma.$connect()
     console.error('❌ Database connection failed:', error);
   });
 
+export { prisma };
 export default prisma;
 
