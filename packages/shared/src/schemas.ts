@@ -76,11 +76,14 @@ export const TemplateSchema = z.object({
   updatedAt: z.date(),
 });
 
+// AI Provider schema
+export const AiProviderSchema = z.enum(['openai', 'anthropic', 'gemini', 'grok', 'openrouter']);
+
 // API Key schema
 export const ApiKeySchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
-  provider: z.enum(['openai', 'anthropic', 'gemini', 'grok', 'openrouter']),
+  provider: AiProviderSchema,
   status: z.enum(['not_configured', 'active', 'error']),
   lastTestedAt: z.date().optional(),
   createdAt: z.date(),
