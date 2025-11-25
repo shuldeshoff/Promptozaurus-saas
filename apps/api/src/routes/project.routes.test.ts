@@ -1,30 +1,53 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import Fastify from 'fastify';
+import jwt from '@fastify/jwt';
 import { projectRoutes } from '../routes/project.routes';
-import { authenticate } from '../middleware/auth.middleware';
+import { prisma } from '../lib/prisma';
 
-// Skip integration tests if DATABASE_URL is not set
-const shouldSkip = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes('file:');
+// Integration tests will run with proper test database
+const shouldSkip = false;
 const describeOrSkip = shouldSkip ? describe.skip : describe;
 
 describeOrSkip('Project Routes Integration Tests', () => {
   const app = Fastify();
-  const mockUserId = 'test-user-123';
+  let testUser: any;
+  let authToken: string;
 
-  // Mock authentication middleware
+  // Setup test user and authentication
   beforeAll(async () => {
-    // Replace authenticate middleware with mock
-    app.decorateRequest('user', null);
-    app.addHook('preHandler', async (request) => {
-      request.user = { userId: mockUserId };
+    // Register JWT plugin
+    await app.register(jwt, {
+      secret: process.env.JWT_SECRET || 'test-jwt-secret',
     });
 
+    // Create test user
+    testUser = await prisma.user.create({
+      data: {
+        email: 'test@example.com',
+        name: 'Test User',
+        googleId: 'test-google-id-123',
+      },
+    });
+
+    // Generate auth token
+    authToken = app.jwt.sign({ userId: testUser.id });
+
+    // Register routes
     await app.register(projectRoutes);
     await app.ready();
   });
 
   afterAll(async () => {
+    // Cleanup: delete all test data
+    await prisma.project.deleteMany({ where: { userId: testUser.id } });
+    await prisma.user.delete({ where: { id: testUser.id } });
+    await prisma.$disconnect();
     await app.close();
+  });
+
+  beforeEach(async () => {
+    // Clean projects before each test
+    await prisma.project.deleteMany({ where: { userId: testUser.id } });
   });
 
   describe('GET /api/projects', () => {
@@ -32,6 +55,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -47,6 +73,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: {
           name: 'Test Project',
         },
@@ -60,12 +89,14 @@ describeOrSkip('Project Routes Integration Tests', () => {
     });
 
     it('should enforce 10 project limit', async () => {
-      // Create 10 projects
+      // Create 10 projects directly in DB
       for (let i = 0; i < 10; i++) {
-        await app.inject({
-          method: 'POST',
-          url: '/api/projects',
-          payload: { name: `Project ${i}` },
+        await prisma.project.create({
+          data: {
+            name: `Project ${i}`,
+            userId: testUser.id,
+            data: { contextBlocks: [], promptBlocks: [] },
+          },
         });
       }
 
@@ -73,6 +104,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Project 11' },
       });
 
@@ -88,6 +122,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Get Test Project' },
       });
 
@@ -97,6 +134,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/api/projects/${project.id}`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -109,6 +149,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/projects/nonexistent-id',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(404);
@@ -121,6 +164,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Update Test Project' },
       });
 
@@ -130,6 +176,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'PATCH',
         url: `/api/projects/${project.id}`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Updated Project Name' },
       });
 
@@ -142,6 +191,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'PATCH',
         url: '/api/projects/nonexistent-id',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Test' },
       });
 
@@ -155,6 +207,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Delete Test Project' },
       });
 
@@ -164,6 +219,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'DELETE',
         url: `/api/projects/${project.id}`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -174,6 +232,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const getResponse = await app.inject({
         method: 'GET',
         url: `/api/projects/${project.id}`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(getResponse.statusCode).toBe(404);
@@ -186,6 +247,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Duplicate Test Project' },
       });
 
@@ -195,6 +259,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: `/api/projects/${project.id}/duplicate`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -209,6 +276,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/projects/import',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: {
           name: 'Imported Project',
           data: {
@@ -230,6 +300,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const createResponse = await app.inject({
         method: 'POST',
         url: '/api/projects',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
         payload: { name: 'Export Test Project' },
       });
 
@@ -239,6 +312,9 @@ describeOrSkip('Project Routes Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/api/projects/${project.id}/export`,
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -249,4 +325,3 @@ describeOrSkip('Project Routes Integration Tests', () => {
     });
   });
 });
-
