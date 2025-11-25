@@ -28,13 +28,14 @@
 
 ## 🚀 Быстрый старт
 
-### Desktop версия (текущая)
+### SaaS версия (в разработке)
 
 **Требования:**
-- Node.js 20+
-- npm 9+
+- Node.js 18+
+- PostgreSQL 14+
+- Redis 7+
 
-**Установка:**
+**Установка для разработки:**
 
 ```bash
 # Клонировать репозиторий
@@ -44,17 +45,52 @@ cd promptozaurus-saas
 # Установить зависимости
 npm install
 
-# Запустить в режиме разработки
+# Настроить environment variables
+cd apps/api
+cp .env.example .env
+# Заполните DATABASE_URL, REDIS_URL, GOOGLE_CLIENT_ID и др.
+
+# Применить миграции базы данных
+npx prisma migrate dev
+
+# Запустить backend
+npm run dev
+
+# В новом терминале: запустить frontend
+cd apps/web
 npm run dev
 ```
 
 **Доступные команды:**
 
 ```bash
-npm start        # Запуск приложения
-npm run dev      # Режим разработки с hot reload
-npm run build    # Сборка production версии
-npm run package  # Создание установочного пакета (Windows)
+# Root команды
+npm run dev          # Запуск всех сервисов
+npm run build        # Сборка всех приложений
+npm test             # Запуск всех тестов
+
+# Backend (apps/api)
+npm run dev          # Режим разработки с hot reload
+npm run build        # Сборка TypeScript
+npm test             # Запуск тестов
+npm run lint         # Проверка линтером
+
+# Frontend (apps/web)
+npm run dev          # Vite dev server
+npm run build        # Production сборка
+npm run preview      # Предпросмотр production сборки
+```
+
+### Desktop версия (legacy)
+
+Desktop версия на Electron находится в папке `originals/`.
+
+**Для запуска:**
+
+```bash
+cd originals/Promptozaurus-v-0-7-en-ru
+npm install
+npm run dev
 ```
 
 ---
@@ -63,21 +99,41 @@ npm run package  # Создание установочного пакета (Win
 
 ```
 Promptozaurus-saas/
-├── main/                      # Модули Electron (главный процесс)
-├── src/
-│   ├── components/            # React компоненты
-│   │   ├── layout/            # Структура интерфейса
-│   │   ├── context/           # Контекстные блоки
-│   │   ├── prompt/            # Промпт-блоки
-│   │   └── ui/                # UI компоненты
-│   ├── services/              # Бизнес-логика
-│   │   └── ai/                # AI-провайдеры
-│   ├── locales/               # Переводы (EN/RU)
-│   ├── models/                # Модели данных
-│   └── styles/                # Стили (Tailwind CSS)
-├── assets/                    # Иконки и ресурсы
-├── templates/                 # Шаблоны промптов
-└── docs/                      # Документация
+├── apps/
+│   ├── web/                   # Frontend (React + Vite)
+│   │   ├── src/
+│   │   │   ├── components/    # React компоненты
+│   │   │   ├── hooks/         # Custom React hooks
+│   │   │   ├── pages/         # Страницы (Landing, Dashboard)
+│   │   │   ├── store/         # Zustand stores
+│   │   │   ├── lib/           # Утилиты (API, i18n, queryClient)
+│   │   │   └── locales/       # Переводы (EN/RU)
+│   │   └── vercel.json        # Конфигурация Vercel
+│   │
+│   └── api/                   # Backend (Fastify + TypeScript)
+│       ├── src/
+│       │   ├── routes/        # API endpoints
+│       │   ├── services/      # Бизнес-логика
+│       │   ├── providers/     # AI провайдеры
+│       │   ├── middleware/    # Middleware (auth, errors)
+│       │   └── lib/           # Утилиты (prisma, redis)
+│       ├── prisma/            # Схема БД и миграции
+│       └── railway.json       # Конфигурация Railway
+│
+├── packages/
+│   └── shared/                # Общие типы и схемы (Zod)
+│
+├── docs/                      # Документация
+│   ├── PROJECT_ANALYSIS.md    # Анализ проекта
+│   ├── SAAS_ROADMAP.md        # Roadmap разработки
+│   ├── DEPLOYMENT.md          # Гайд по deployment
+│   └── MONITORING.md          # Гайд по мониторингу
+│
+├── originals/                 # Оригинальная Electron версия
+│   └── Promptozaurus-v-0-7-en-ru/
+│
+└── .github/
+    └── workflows/             # GitHub Actions CI/CD
 ```
 
 ---
@@ -148,26 +204,74 @@ Promptozaurus-saas/
 
 ## 🗺️ Roadmap к SaaS
 
-Проект планируется трансформировать в полноценный веб-сервис:
+Проект находится в активной разработке полноценного веб-сервиса:
 
-### ✅ Что уже готово (Desktop версия)
-- Вся функциональность контекстных блоков и промптов
-- Интеграция с 5 AI-провайдерами
-- Интернационализация (EN/RU)
-- Модульная архитектура
+### ✅ Завершенные этапы
 
-### 🚧 В разработке (SaaS версия)
-- Backend API (Fastify + TypeScript + PostgreSQL)
-- Google OAuth 2.0 аутентификация
-- Облачное хранение проектов
-- Автосинхронизация между устройствами
-- Лимит 10 проектов (бесплатный план)
+**ЭТАП 0: Инфраструктура** ✅
+- Monorepository (apps/web, apps/api, packages/shared)
+- Frontend: Vite + React + TypeScript + Tailwind CSS
+- Backend: Fastify + TypeScript + Prisma + PostgreSQL
+- Redis для кэширования
 
-### 📅 Планируется
+**ЭТАП 1: Аутентификация** ✅
+- Google OAuth 2.0
+- JWT tokens + refresh mechanism
+- User profiles и session management
+
+**ЭТАП 2: API для проектов** ✅
+- Full CRUD для проектов
+- Лимит 10 проектов (free plan)
+- Import/Export JSON
+- Auto-save с debounce
+- Offline mode с localStorage
+
+**ЭТАП 3: Контекст и промпты** ✅
+- 3-level structure (Block → Item → SubItem)
+- JSONB хранение в PostgreSQL
+- Character counters
+- Prompt compilation с XML tags
+- Copy to clipboard
+
+**ЭТАП 4: Библиотека шаблонов** ✅
+- CRUD для templates
+- Search и filter
+- Preview и quick use
+
+**ЭТАП 5: AI Integration** ✅
+- Secure API keys (AES-256-GCM encryption)
+- 5 провайдеров: OpenAI, Anthropic, Gemini, Grok, OpenRouter
+- Models cache (Redis + PostgreSQL)
+- AI proxy для запросов
+- Unit tests (45 tests passing)
+
+**ЭТАП 6: UI/UX оптимизация** ✅
+- Responsive design (mobile/tablet/desktop)
+- Performance optimization (code splitting, мemoization)
+- Error boundaries + skeleton loaders
+- Welcome modal для новых пользователей
+
+### 🚧 В процессе
+
+**ЭТАП 7: Deployment и CI/CD** 🚧
+- Vercel (frontend) + Railway (backend)
+- Supabase (PostgreSQL) + Upstash (Redis)
+- GitHub Actions CI/CD
+- Monitoring и logging
+
+### 📅 Следующие этапы
+
+**ЭТАП 8: Финальное тестирование** ⏳
+- Integration тесты (>80% coverage backend)
+- E2E тесты (full user flows)
+- Load testing (Artillery/k6)
+- Security audit (OWASP Top 10)
+
+**Post-launch (v1.1-2.0):**
 - Платные планы (unlimited проекты)
-- Sharing проектов между пользователями
-- Коллаборация в реальном времени
+- Sharing и коллаборация
 - Marketplace шаблонов
+- AI-ассистент для создания промптов
 
 **Подробнее:** см. [SAAS_ROADMAP.md](docs/SAAS_ROADMAP.md)
 
@@ -175,27 +279,69 @@ Promptozaurus-saas/
 
 ## 📚 Документация
 
+### Для разработчиков:
 - **[PROJECT_ANALYSIS.md](docs/PROJECT_ANALYSIS.md)** — Полный анализ проекта
-- **[SAAS_ROADMAP.md](docs/SAAS_ROADMAP.md)** — Roadmap трансформации в SaaS
+- **[SAAS_ROADMAP.md](docs/SAAS_ROADMAP.md)** — Roadmap трансформации в SaaS (7 этапов)
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** — Полный гайд по deployment (Vercel + Railway + Supabase)
+- **[MONITORING.md](docs/MONITORING.md)** — Гайд по мониторингу и логированию
+
+### Для пользователей:
+- **[help-en.md](originals/help-en.md)** — User guide (English)
+- **[help-ru.md](originals/help-ru.md)** — Руководство пользователя (Русский)
+
+### Архивные документы (legacy):
 - **[PROMPTOZAURUS_SAAS_SPECIFICATION.md](originals/PROMPTOZAURUS_SAAS_SPECIFICATION.md)** — Детальная спецификация SaaS (1628 строк)
 - **[TECHNICAL_SPECIFICATION.md](originals/TECHNICAL_SPECIFICATION.md)** — Технические требования
-- **[help-en.md](originals/help-en.md)** / **[help-ru.md](originals/help-ru.md)** — Руководства пользователя
 
 ---
 
 ## 🛠️ Технологический стек
 
-### Desktop (текущая версия)
-- **Frontend:** React 18.3, Tailwind CSS 3.4, i18next
-- **Desktop:** Electron 25.9
-- **Build:** Webpack 5, Babel, PostCSS
-- **Security:** keytar (OS-level хранение ключей)
+### SaaS версия (текущая разработка)
 
-### SaaS (планируется)
-- **Frontend:** React 18 + Vite, Zustand, React Query, Tailwind CSS
-- **Backend:** Fastify + TypeScript, Prisma, PostgreSQL, Redis
-- **Auth:** Google OAuth 2.0, JWT
-- **Deployment:** Vercel (frontend), Railway (backend), Supabase (PostgreSQL)
+**Frontend:**
+- React 18 + Vite 5
+- TypeScript 5
+- Tailwind CSS 3.4
+- React Query (TanStack Query) - server state
+- Zustand - client state
+- i18next - интернационализация
+
+**Backend:**
+- Node.js 18+ + Fastify 4
+- TypeScript 5
+- Prisma ORM 5
+- PostgreSQL 14+
+- Redis 7+
+- Winston - логирование
+
+**Authentication:**
+- Google OAuth 2.0
+- JWT + Refresh tokens
+- Passport.js
+
+**Security:**
+- AES-256-GCM encryption для API keys
+- Helmet.js для security headers
+- CORS configuration
+- Rate limiting
+
+**Deployment:**
+- Vercel (frontend)
+- Railway (backend)
+- Supabase (PostgreSQL)
+- Upstash (Redis)
+
+**CI/CD:**
+- GitHub Actions
+- Automated tests
+- Automated deployment
+
+### Desktop версия (legacy)
+- React 18.3, Tailwind CSS 3.4, i18next
+- Electron 25.9
+- Webpack 5, Babel, PostCSS
+- keytar (OS-level key storage)
 
 ---
 
@@ -222,12 +368,36 @@ Promptozaurus-saas/
 
 ## 📊 Статистика проекта
 
-- **React компоненты:** ~25 файлов
-- **Сервисы:** 14 файлов
-- **AI-провайдеры:** 6 классов
-- **Переводы:** 22 файла (11 EN + 11 RU)
-- **Строк кода:** ~5000+ (без спецификаций)
-- **Спецификация SaaS:** 1628 строк
+### SaaS версия:
+- **Backend:**
+  - API endpoints: 40+
+  - Services: 8 файлов
+  - AI providers: 5 классов
+  - Unit tests: 70+ (100% passing)
+  - Строк кода: ~3500
+
+- **Frontend:**
+  - React компоненты: 30+ файлов
+  - Custom hooks: 12 файлов
+  - Pages: 3 (Landing, Dashboard, Error)
+  - Stores: 3 (Auth, Offline, Projects)
+  - Строк кода: ~4000
+
+- **Shared:**
+  - Zod schemas: 15+
+  - TypeScript types: 50+
+
+- **Документация:**
+  - DEPLOYMENT.md: 400+ строк
+  - MONITORING.md: 500+ строк
+  - SAAS_ROADMAP.md: 716 строк
+  - Всего: 2000+ строк документации
+
+**Общий объем:** ~10,000+ строк кода + 2000+ строк документации
+
+### Desktop версия (legacy):
+- Строк кода: ~5000+
+- Спецификация: 1628 строк
 
 ---
 

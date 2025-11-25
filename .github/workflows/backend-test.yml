@@ -1,0 +1,60 @@
+name: Backend Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/api/**'
+      - 'packages/shared/**'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+      - 'packages/shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install root dependencies
+        run: npm install
+        
+      - name: Build shared package
+        run: |
+          cd packages/shared
+          npm run build
+          
+      - name: Install backend dependencies
+        run: |
+          cd apps/api
+          npm install
+          
+      - name: Run linting
+        run: |
+          cd apps/api
+          npm run lint
+          
+      - name: Run unit tests
+        run: |
+          cd apps/api
+          npm test
+        env:
+          NODE_ENV: test
+          
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: ./apps/api/coverage/coverage-final.json
+          flags: backend
+

@@ -1,0 +1,58 @@
+name: Frontend Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - 'packages/shared/**'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install root dependencies
+        run: npm install
+        
+      - name: Build shared package
+        run: |
+          cd packages/shared
+          npm run build
+          
+      - name: Install frontend dependencies
+        run: |
+          cd apps/web
+          npm install
+          
+      - name: Run linting
+        run: |
+          cd apps/web
+          npm run lint
+          
+      - name: Type checking
+        run: |
+          cd apps/web
+          npx tsc --noEmit
+          
+      - name: Build frontend
+        run: |
+          cd apps/web
+          npm run build
+        env:
+          VITE_API_URL: http://localhost:3000
+
