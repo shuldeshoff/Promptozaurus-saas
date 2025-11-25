@@ -1,0 +1,41 @@
+{
+  "project": {
+    "label": "Project:",
+    "new": "Create",
+    "open": "Open",
+    "save": "Save",
+    "saveAs": "Save As...",
+    "projectsFolder": "Projects Folder",
+    "currentPath": "Project: {{path}}",
+    "newProject": "New Project",
+    "untitled": "Untitled"
+  },
+  "context": {
+    "import": "Import Context",
+    "folder": "Contexts Folder"
+  },
+  "ai": {
+    "settings": "AI Settings",
+    "sendToAI": "Send to AI"
+  },
+  "app": {
+    "exit": "Exit",
+    "language": "Language"
+  },
+  "help": "Help",
+  "tooltips": {
+    "createNewProject": "Create new project",
+    "openExistingProject": "Open existing project",
+    "saveCurrentProject": "Save current project",
+    "saveProjectWithNewName": "Save project with new name",
+    "selectProjectsFolder": "Select folder for saving projects",
+    "editProjectName": "Click to edit project name",
+    "importContextBlock": "Import context block",
+    "selectContextFolder": "Select folder for context blocks",
+    "aiSettings": "Artificial Intelligence settings",
+    "sendToAI": "Send prompt to AI",
+    "exitApp": "Exit application",
+    "switchLanguage": "Switch language",
+    "help": "Show quick help (F1)"
+  }
+}

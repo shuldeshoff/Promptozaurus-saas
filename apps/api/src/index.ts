@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { config } from 'dotenv';
+import { redisService } from './services/redis.service.js';
 
 config();
 
@@ -22,7 +23,11 @@ await server.register(cors, {
 
 // Routes
 server.get('/health', async () => {
-  return { status: 'ok', timestamp: new Date().toISOString() };
+  return {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    redis: redisService.isReady() ? 'connected' : 'disconnected',
+  };
 });
 
 server.get('/', async () => {
@@ -39,6 +44,9 @@ server.get('/', async () => {
 // Start server
 const start = async () => {
   try {
+    // Connect to Redis
+    await redisService.connect();
+
     const port = Number(process.env.PORT) || 3000;
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`✅ Server listening on http://localhost:${port}`);
@@ -47,6 +55,14 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, closing server...');
+  await redisService.disconnect();
+  await server.close();
+  process.exit(0);
+});
 
 start();
 

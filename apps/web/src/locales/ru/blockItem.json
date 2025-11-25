@@ -1,0 +1,39 @@
+{
+  "context": {
+    "subItems": "подэл.",
+    "onlyStructure": "Только структура",
+    "onlyStructureTooltip": "Блок содержит только подэлементы",
+    "mixed": "Смешанный",
+    "mixedTooltip": "Блок содержит и основной контент, и подэлементы",
+    "characters": "символов",
+    "elements": "элем.",
+    "export": "Экспортировать блок",
+    "delete": "Удалить блок",
+    "deleteItem": "Удалить элемент",
+    "deleteSubItem": "Удалить подэлемент",
+    "addItem": "+ Добавить элемент",
+    "addSubItem": "Добавить подэлемент",
+    "expand": "Развернуть подэлементы",
+    "collapse": "Свернуть подэлементы"
+  },
+  "prompt": {
+    "characters": "символов",
+    "connected": "Подключен",
+    "disconnected": "Отключен",
+    "delete": "Удалить блок",
+    "deleteTooltip": "Удалить промпт",
+    "selected": "выбрано",
+    "searchPlaceholder": "Поиск элементов...",
+    "selectAll": "Выбрать все",
+    "selectAllTooltip": "Выбрать все элементы",
+    "deselectAll": "Снять все",
+    "deselectAllTooltip": "Отменить выбор всех элементов",
+    "collapseItems": "Свернуть элементы",
+    "expandItems": "Развернуть элементы",
+    "collapseSubItems": "Свернуть подэлементы",
+    "expandSubItems": "Развернуть подэлементы",
+    "nothingFound": "Ничего не найдено",
+    "noItems": "Нет элементов",
+    "total": "Итого"
+  }
+}

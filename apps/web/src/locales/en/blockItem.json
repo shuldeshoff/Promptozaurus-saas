@@ -1,0 +1,39 @@
+{
+  "context": {
+    "subItems": "subitems",
+    "onlyStructure": "Structure only",
+    "onlyStructureTooltip": "Block contains only subitems",
+    "mixed": "Mixed",
+    "mixedTooltip": "Block contains both main content and subitems",
+    "characters": "characters",
+    "elements": "items",
+    "export": "Export block",
+    "delete": "Delete block",
+    "deleteItem": "Delete item",
+    "deleteSubItem": "Delete subitem",
+    "addItem": "+ Add item",
+    "addSubItem": "Add subitem",
+    "expand": "Expand subitems",
+    "collapse": "Collapse subitems"
+  },
+  "prompt": {
+    "characters": "characters",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "delete": "Delete block",
+    "deleteTooltip": "Delete prompt",
+    "selected": "selected",
+    "searchPlaceholder": "Search items...",
+    "selectAll": "Select all",
+    "selectAllTooltip": "Select all items",
+    "deselectAll": "Deselect all",
+    "deselectAllTooltip": "Deselect all items",
+    "collapseItems": "Collapse items",
+    "expandItems": "Expand items",
+    "collapseSubItems": "Collapse subitems",
+    "expandSubItems": "Expand subitems",
+    "nothingFound": "Nothing found",
+    "noItems": "No items",
+    "total": "Total"
+  }
+}

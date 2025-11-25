@@ -1,0 +1,61 @@
+{
+  "buttons": {
+    "save": "Save",
+    "saveAs": "Save As...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "add": "Add",
+    "create": "Create",
+    "open": "Open",
+    "close": "Close",
+    "import": "Import",
+    "export": "Export",
+    "copy": "Copy",
+    "edit": "Edit",
+    "remove": "Remove",
+    "clear": "Clear",
+    "apply": "Apply",
+    "reset": "Reset",
+    "exit": "Exit"
+  },
+  "labels": {
+    "project": "Project",
+    "name": "Name",
+    "description": "Description",
+    "settings": "Settings",
+    "language": "Language",
+    "folder": "Folder",
+    "file": "File",
+    "status": "Status",
+    "type": "Type",
+    "date": "Date",
+    "size": "Size",
+    "path": "Path",
+    "version": "Version",
+    "author": "Author"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "confirmDelete": "Are you sure you want to delete?",
+    "unsavedChanges": "You have unsaved changes",
+    "noData": "No data",
+    "empty": "Empty",
+    "notFound": "Not found",
+    "required": "Required field",
+    "optional": "Optional"
+  },
+  "units": {
+    "chars": "characters",
+    "words": "words",
+    "lines": "lines",
+    "items": "items",
+    "blocks": "blocks"
+  }
+}

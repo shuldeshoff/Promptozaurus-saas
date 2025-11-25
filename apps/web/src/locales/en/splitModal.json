@@ -1,0 +1,69 @@
+{
+  "title": "Split Text",
+  "previewButton": "Preview",
+  "apply": "Apply",
+  "cancel": "Cancel",
+  "settings": {
+    "methodLabel": "Split method",
+    "methods": {
+      "equal": "Equal parts",
+      "delimiter": "By delimiter",
+      "paragraphs": "By paragraphs",
+      "pattern": "By pattern"
+    },
+    "equalParts": {
+      "partsCount": "Number of parts",
+      "endingOn": "End on",
+      "endingSentence": "End of sentence",
+      "endingParagraph": "End of paragraph",
+      "endingExact": "Exact character count",
+      "endingDelimiter": "By delimiter",
+      "delimiterLabel": "Delimiter",
+      "delimiterPlaceholder": "Example: Chapter"
+    },
+    "delimiter": {
+      "delimiterLabel": "Delimiter",
+      "delimiterPlaceholder": "Example: ---",
+      "caseSensitive": "Case sensitive",
+      "includeDelimiter": "Include delimiter in result"
+    },
+    "paragraphs": {
+      "paragraphsPerGroup": "Paragraphs per group",
+      "minSize": "Minimum paragraph size (characters)"
+    },
+    "pattern": {
+      "presetLabel": "Preset templates",
+      "selectTemplate": "Select template...",
+      "chaptersAndSections": "Chapters and sections",
+      "numberedItems": "Numbered items",
+      "datesTimestamps": "Dates/Timestamps",
+      "patternLabel": "Pattern (regular expression)",
+      "patternPlaceholder": "Example: (Chapter|Part)\\s*(\\d+)",
+      "includeMatch": "Include match in result"
+    },
+    "options": {
+      "createSubItems": "As subitems",
+      "createSubItemsHint": "Create subitems instead of new items",
+      "keepOriginal": "Keep original text",
+      "keepOriginalHint": "Keep original text in item"
+    }
+  },
+  "previewSection": {
+    "resultsTitle": "Text split results",
+    "settingsTitle": "Text split settings",
+    "selected": "Selected",
+    "of": "of",
+    "backToSettings": "Back to settings"
+  },
+  "errors": {
+    "splitFailed": "Failed to split text with current settings.",
+    "noSelection": "You must select at least one text part.",
+    "regexError": "Regular expression error"
+  },
+  "previewList": {
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "characters": "characters",
+    "noItems": "No items to display"
+  }
+}
