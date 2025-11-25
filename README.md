@@ -169,17 +169,18 @@ Promptozaurus-saas/
 - Коллаборация в реальном времени
 - Marketplace шаблонов
 
-**Подробнее:** см. [SAAS_ROADMAP.md](SAAS_ROADMAP.md)
+**Подробнее:** см. [SAAS_ROADMAP.md](docs/SAAS_ROADMAP.md)
 
 ---
 
 ## 📚 Документация
 
-- **[PROJECT_ANALYSIS.md](PROJECT_ANALYSIS.md)** — Полный анализ проекта
-- **[SAAS_ROADMAP.md](SAAS_ROADMAP.md)** — Roadmap трансформации в SaaS
-- **[PROMPTOZAURUS_SAAS_SPECIFICATION.md](PROMPTOZAURUS_SAAS_SPECIFICATION.md)** — Детальная спецификация SaaS (1628 строк)
-- **[TECHNICAL_SPECIFICATION.md](TECHNICAL_SPECIFICATION.md)** — Технические требования
-- **[help-en.md](help-en.md)** / **[help-ru.md](help-ru.md)** — Руководства пользователя
+- **[PROJECT_ANALYSIS.md](docs/PROJECT_ANALYSIS.md)** — Полный анализ проекта
+- **[SAAS_ROADMAP.md](docs/SAAS_ROADMAP.md)** — Roadmap трансформации в SaaS
+- **[PROJECT_SETUP_COMPLETE.md](docs/PROJECT_SETUP_COMPLETE.md)** — Итоги настройки и следующие шаги
+- **[PROMPTOZAURUS_SAAS_SPECIFICATION.md](originals/PROMPTOZAURUS_SAAS_SPECIFICATION.md)** — Детальная спецификация SaaS (1628 строк)
+- **[TECHNICAL_SPECIFICATION.md](originals/TECHNICAL_SPECIFICATION.md)** — Технические требования
+- **[help-en.md](originals/help-en.md)** / **[help-ru.md](originals/help-ru.md)** — Руководства пользователя
 
 ---
 
