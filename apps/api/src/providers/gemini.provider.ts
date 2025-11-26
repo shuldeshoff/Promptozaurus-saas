@@ -143,6 +143,22 @@ export class GeminiProvider extends BaseAIProvider {
   private getDefaultModels(): AIModel[] {
     return [
       {
+        id: 'gemini-2.5-flash',
+        name: 'Gemini 2.5 Flash',
+        provider: this.getProviderName(),
+        contextWindow: 1000000,
+        maxOutputTokens: 8192,
+        supportsVision: true,
+      },
+      {
+        id: 'gemini-2.5-flash-lite',
+        name: 'Gemini 2.5 Flash-Lite',
+        provider: this.getProviderName(),
+        contextWindow: 1000000,
+        maxOutputTokens: 8192,
+        supportsVision: true,
+      },
+      {
         id: 'gemini-1.5-pro-latest',
         name: 'Gemini 1.5 Pro',
         provider: this.getProviderName(),

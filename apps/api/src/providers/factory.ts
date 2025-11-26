@@ -3,6 +3,8 @@ import { BaseAIProvider } from './base.provider.js';
 import { OpenAIProvider } from './openai.provider.js';
 import { AnthropicProvider } from './anthropic.provider.js';
 import { GeminiProvider } from './gemini.provider.js';
+import { GrokProvider } from './grok.provider.js';
+import { OpenRouterProvider } from './openrouter.provider.js';
 
 /**
  * Factory for creating AI provider instances
@@ -20,12 +22,10 @@ export class AIProviderFactory {
         return new GeminiProvider(apiKey);
       
       case 'grok':
-        // Grok uses OpenAI-compatible API
-        return new OpenAIProvider(apiKey, 'https://api.x.ai/v1');
+        return new GrokProvider(apiKey);
       
       case 'openrouter':
-        // OpenRouter uses OpenAI-compatible API
-        return new OpenAIProvider(apiKey, 'https://openrouter.ai/api/v1');
+        return new OpenRouterProvider(apiKey);
       
       default:
         throw new Error(`Unsupported provider: ${provider}`);
