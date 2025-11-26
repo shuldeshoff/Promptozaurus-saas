@@ -126,7 +126,7 @@ export default function TemplateLibraryModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
           <h2 className="text-2xl font-bold text-white">
-            📚 {t('labels.templateLibrary', 'Template Library')}
+            {t('labels.templateLibrary', 'Template Library')}
           </h2>
           <button
             onClick={onClose}

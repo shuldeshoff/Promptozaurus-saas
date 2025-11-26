@@ -12,7 +12,6 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
-          <h1 className="text-6xl mb-4">⚡</h1>
           <h2 className="text-4xl font-bold text-white mb-2">PromptyFlow</h2>
           <p className="text-gray-400 text-lg">AI Prompt Constructor</p>
         </div>
@@ -54,16 +53,13 @@ export default function LandingPage() {
 
         <div className="mt-8 grid grid-cols-3 gap-4 text-sm text-gray-400">
           <div>
-            <div className="text-2xl mb-2">📝</div>
-            <div>{t('landing.feature1', 'Organize Context')}</div>
+            <div className="text-lg font-semibold mb-2 text-gray-300">{t('landing.feature1', 'Organize Context')}</div>
           </div>
           <div>
-            <div className="text-2xl mb-2">🤖</div>
-            <div>{t('landing.feature2', '5 AI Providers')}</div>
+            <div className="text-lg font-semibold mb-2 text-gray-300">{t('landing.feature2', '5 AI Providers')}</div>
           </div>
           <div>
-            <div className="text-2xl mb-2">🌍</div>
-            <div>{t('landing.feature3', 'EN / RU')}</div>
+            <div className="text-lg font-semibold mb-2 text-gray-300">{t('landing.feature3', 'EN / RU')}</div>
           </div>
         </div>
       </div>
