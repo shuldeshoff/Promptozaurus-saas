@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { apiKeyService } from '../services/apiKey.service.js';
 import { modelsCacheService } from '../services/modelsCache.service.js';
-import { AIProviderFactory } from '../providers/factory.ts';
+import { AIProviderFactory } from '../providers/factory.js';
 import { AiProviderSchema } from '@promptozaurus/shared';
 
 // Request schemas
@@ -31,8 +31,9 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
           success: true,
           data: models,
         });
-      } catch (error) {
-        fastify.log.error('Failed to get models:', error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error('Failed to get models:', errorMessage);
         reply.status(500).send({
           success: false,
           error: 'Failed to get models',
@@ -70,8 +71,9 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
           success: true,
           data: models,
         });
-      } catch (error) {
-        fastify.log.error(`Failed to refresh ${provider} models:`, error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error(`Failed to refresh ${provider} models:`, errorMessage);
         reply.status(500).send({
           success: false,
           error: 'Failed to refresh models',
@@ -156,8 +158,9 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
           success: true,
           data: response,
         });
-      } catch (error) {
-        fastify.log.error('Failed to send AI message:', error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error('Failed to send AI message:', errorMessage);
         reply.status(500).send({
           success: false,
           error: 'Failed to send message to AI',

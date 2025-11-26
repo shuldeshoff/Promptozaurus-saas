@@ -3,7 +3,13 @@ import { JwtPayload } from '../services/jwt.service.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
-    user?: JwtPayload;
+    user?: JwtPayload | undefined;
+  }
+}
+
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    user: JwtPayload;
   }
 }
 

@@ -1,0 +1,348 @@
+/* components/context-selection.css - Styles for visual context selection */
+
+/* Section container */
+.cs-section {
+  background: #1f2937;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.cs-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #374151;
+}
+
+.cs-section-title {
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.cs-section-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.cs-section-content {
+  padding: 12px;
+}
+
+/* Vertical container of rows */
+.cs-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Row: main element on left, sub-elements on right */
+.cs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+/* Grouping element with sub-elements */
+.cs-row--grouped {
+  padding: 8px;
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  border-radius: 8px;
+  background: rgba(55, 65, 81, 0.2);
+}
+
+.cs-row--grouped:hover {
+  border-color: rgba(107, 114, 128, 0.6);
+  background: rgba(55, 65, 81, 0.35);
+}
+
+/* Container of main element (left) */
+.cs-row__item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Action buttons for sub-elements */
+.cs-row__subitem-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cs-subitem-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+
+.cs-subitem-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Select all sub-elements button - green */
+.cs-subitem-btn--select {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.cs-subitem-btn--select:hover {
+  background: rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
+/* Deselect button - red */
+.cs-subitem-btn--deselect {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.cs-subitem-btn--deselect:hover {
+  background: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+/* Container of sub-elements (horizontal right, left to right) */
+.cs-row__subitems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+/* Tile - rectangular block */
+.cs-tile {
+  position: relative;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 8px 12px;
+  padding-left: 32px; /* Space for number */
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+  border: 2px solid transparent;
+  background: #374151;
+  user-select: none;
+}
+
+.cs-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+/* Element (main block) - larger, on right */
+.cs-tile--item {
+  min-width: 160px;
+  max-width: 220px;
+  padding: 10px 14px;
+  padding-left: 36px;
+}
+
+/* Sub-element (smaller block) - more compact, on left */
+.cs-tile--subitem {
+  min-width: 80px;
+  max-width: 130px;
+  padding: 5px 8px;
+  padding-left: 26px;
+  font-size: 11px;
+}
+
+/* States */
+.cs-tile--available {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.cs-tile--unavailable {
+  background: #1f2937;
+  border-color: #374151;
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cs-tile--unavailable:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.cs-tile--selected {
+  background: #047857;
+  border-color: #10b981;
+}
+
+.cs-tile--selected:hover {
+  background: #065f46;
+}
+
+/* Selection order number - circle on left */
+.cs-tile__order {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+}
+
+.cs-tile--subitem .cs-tile__order {
+  width: 16px;
+  height: 16px;
+  font-size: 9px;
+  left: 4px;
+}
+
+/* Block content */
+.cs-tile__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.cs-tile__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e5e7eb;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cs-tile--subitem .cs-tile__title {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.cs-tile__chars {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.cs-tile--selected .cs-tile__chars {
+  color: #a7f3d0;
+}
+
+.cs-tile--subitem .cs-tile__chars {
+  font-size: 9px;
+}
+
+/* Preview panel */
+.cs-preview {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.cs-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #374151;
+}
+
+.cs-preview__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+.cs-preview__stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.cs-preview__empty {
+  text-align: center;
+  color: #4b5563;
+  padding: 24px;
+}
+
+/* Copy button */
+.cs-copy-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 4px;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cs-copy-btn:hover {
+  background: #4b5563;
+}
+
+.cs-copy-btn--success {
+  background: #059669;
+  border-color: #10b981;
+}
+
+/* Quick action buttons */
+.cs-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cs-action-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 4px;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cs-action-btn:hover {
+  background: #4b5563;
+}
+
+.cs-action-btn--primary {
+  background: #1d4ed8;
+  border-color: #2563eb;
+}
+
+.cs-action-btn--primary:hover {
+  background: #2563eb;
+}
+
+/* Drag-select mode */
+.cs-dragging .cs-tile {
+  cursor: crosshair;
+}
+
+.cs-dragging .cs-tile:hover {
+  transform: translateY(-3px);
+}
+

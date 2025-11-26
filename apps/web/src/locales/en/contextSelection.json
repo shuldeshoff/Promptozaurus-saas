@@ -1,0 +1,22 @@
+{
+  "selectAll": "Select all",
+  "selectAllGlobal": "Select all",
+  "selectAllShort": "Select all",
+  "deselectAll": "Deselect all",
+  "clearSelection": "Clear selection",
+  "clearSelectionShort": "Clear",
+  "selected": "selected",
+  "characters": "chars",
+  "preview": "Preview",
+  "copyContext": "Copy",
+  "copied": "Copied!",
+  "noSelection": "No items selected",
+  "noItems": "No items",
+  "noContextBlocks": "No context blocks",
+  "item": "Item",
+  "subItem": "Sub-item",
+  "subItems": "Sub-items",
+  "selectAllSubItems": "Select all sub-items",
+  "deselectAllSubItems": "Deselect all sub-items"
+}
+

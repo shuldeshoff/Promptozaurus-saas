@@ -1,19 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/api';
+import { Project as SharedProject, ProjectData as SharedProjectData } from '@promptozaurus/shared';
 
-export interface Project {
-  id: string;
-  userId: string;
-  name: string;
-  data: ProjectData;
+export interface Project extends Omit<SharedProject, 'createdAt' | 'updatedAt'> {
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ProjectData {
-  contextBlocks: unknown[];
-  promptBlocks: unknown[];
-}
+export interface ProjectData extends SharedProjectData {}
 
 // Query keys
 export const projectKeys = {

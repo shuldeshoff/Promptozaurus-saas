@@ -19,6 +19,8 @@ import aiEN from '../locales/en/ai.json';
 import aiRU from '../locales/ru/ai.json';
 import notificationsEN from '../locales/en/notifications.json';
 import notificationsRU from '../locales/ru/notifications.json';
+import contextSelectionEN from '../locales/en/contextSelection.json';
+import contextSelectionRU from '../locales/ru/contextSelection.json';
 
 const resources = {
   en: {
@@ -30,6 +32,7 @@ const resources = {
     modals: modalsEN,
     ai: aiEN,
     notifications: notificationsEN,
+    contextSelection: contextSelectionEN,
   },
   ru: {
     common: commonRU,
@@ -40,6 +43,7 @@ const resources = {
     modals: modalsRU,
     ai: aiRU,
     notifications: notificationsRU,
+    contextSelection: contextSelectionRU,
   },
 };
 

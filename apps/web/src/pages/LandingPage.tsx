@@ -12,8 +12,8 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
-          <h1 className="text-6xl mb-4">🦖</h1>
-          <h2 className="text-4xl font-bold text-white mb-2">Promptozaurus</h2>
+          <h1 className="text-6xl mb-4">⚡</h1>
+          <h2 className="text-4xl font-bold text-white mb-2">PromptyFlow</h2>
           <p className="text-gray-400 text-lg">AI Prompt Constructor</p>
         </div>
 

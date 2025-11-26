@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import './dark-theme.css';
+import './components/context-selection.css';
 import './lib/i18n';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

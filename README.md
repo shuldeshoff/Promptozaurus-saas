@@ -1,21 +1,22 @@
-# 🦖 Promptozaurus SaaS
+# ⚡ PromptyFlow SaaS
 
 > Мощный конструктор промптов для AI-моделей с трехуровневой структурой контекста
 
-[![Version](https://img.shields.io/badge/version-0.7-blue.svg)](https://github.com/yourusername/promptozaurus-saas)
+[![Version](https://img.shields.io/badge/version-0.8-blue.svg)](https://github.com/yourusername/promptyflow-saas)
 [![License](https://img.shields.io/badge/license-ISC-green.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-18.3-61dafb.svg)](https://reactjs.org/)
-[![Electron](https://img.shields.io/badge/Electron-25.9-47848f.svg)](https://www.electronjs.org/)
+[![Website](https://img.shields.io/badge/website-promptyflow.com-brightgreen.svg)](https://promptyflow.com)
 
 ---
 
 ## 📖 О проекте
 
-**Promptozaurus** — это приложение для создания, организации и управления сложными промптами для работы с AI-моделями. Проект находится в процессе трансформации из desktop Electron-приложения в полноценный многопользовательский SaaS-сервис.
+**PromptyFlow** — это приложение для создания, организации и управления сложными промптами для работы с AI-моделями. Проект находится в процессе трансформации из desktop Electron-приложения в полноценный многопользовательский SaaS-сервис.
 
 ### Ключевые возможности
 
 ✅ **Трехуровневая структура контекста** (Блок → Элемент → Подэлемент)  
+✅ **Визуальный выбор контекстов** с drag-select интерфейсом  
 ✅ **Интеграция с 5 AI-провайдерами** (OpenAI, Anthropic, Gemini, Grok, OpenRouter)  
 ✅ **Библиотека шаблонов промптов** для повторного использования  
 ✅ **Компиляция промптов** с плейсхолдерами и XML-тегами  
@@ -39,8 +40,8 @@
 
 ```bash
 # Клонировать репозиторий
-git clone https://github.com/yourusername/promptozaurus-saas.git
-cd promptozaurus-saas
+git clone https://github.com/yourusername/promptyflow-saas.git
+cd promptyflow-saas
 
 # Установить зависимости
 npm install

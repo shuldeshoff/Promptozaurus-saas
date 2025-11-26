@@ -46,7 +46,7 @@ export default function DashboardPage() {
               </svg>
             </button>
 
-            <h1 className="text-lg md:text-2xl font-bold text-white">🦖 Promptozaurus</h1>
+            <h1 className="text-lg md:text-2xl font-bold text-white">⚡ PromptyFlow</h1>
             {selectedProject && (
               <div className="hidden sm:block">
                 <SaveStatus
@@ -176,7 +176,7 @@ export default function DashboardPage() {
           ) : (
             <div className="flex items-center justify-center h-full px-4">
               <div className="text-center text-gray-500 max-w-md">
-                <div className="text-4xl md:text-6xl mb-4">🦖</div>
+                <div className="text-4xl md:text-6xl mb-4">⚡</div>
                 <p className="text-lg md:text-xl mb-2">
                   {t('dashboard.selectProject', 'Select or create a project')}
                 </p>

@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Project, Template } from '@promptozaurus/shared';
+import { Project as SharedProject, Template, PromptBlock, SelectedContext } from '@promptozaurus/shared';
 import { useCompilePrompt } from '../hooks/useContextPrompt';
+import { useUpdateProject } from '../hooks/useProjects';
 import TemplateLibraryModal from './TemplateLibraryModal';
+import { ContextSelectionPanel, ContextSelectionPanelRef } from './context-selection';
+
+interface Project extends Omit<SharedProject, 'createdAt' | 'updatedAt'> {
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface ProjectEditorProps {
   project: Project;
@@ -12,14 +19,16 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
   const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState<'context' | 'prompts'>('context');
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [expandedPromptId, setExpandedPromptId] = useState<number | null>(null);
   
   const compileMutation = useCompilePrompt();
+  const updateProjectMutation = useUpdateProject();
+  const selectionPanelRef = useRef<ContextSelectionPanelRef>(null);
 
   const contextBlocks = project.data.contextBlocks || [];
   const promptBlocks = project.data.promptBlocks || [];
 
   const handleTemplateSelect = (template: Template) => {
-    // Use template content in current prompt
     console.log('Selected template:', template);
     // TODO: Implement template insertion into current prompt
   };
@@ -32,12 +41,58 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
         wrapWithTags: false,
       });
       
-      // Copy to clipboard
       await navigator.clipboard.writeText(result.compiled);
       alert(t('messages.copiedToClipboard', 'Copied to clipboard!'));
     } catch {
       alert(t('messages.failedToCompile', 'Failed to compile prompt'));
     }
+  };
+
+  const handleSelectionChange = async (promptId: number, selectedContexts: SelectedContext[], selectionOrder: string[]) => {
+    const updatedPromptBlocks = promptBlocks.map(p =>
+      p.id === promptId
+        ? { ...p, selectedContexts, selectionOrder }
+        : p
+    );
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks,
+          promptBlocks: updatedPromptBlocks,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to update selection:', error);
+    }
+  };
+
+  const togglePromptExpansion = (promptId: number) => {
+    setExpandedPromptId(expandedPromptId === promptId ? null : promptId);
+  };
+
+  const calculateTotalChars = (prompt: PromptBlock): number => {
+    let total = 0;
+    
+    prompt.selectedContexts.forEach(sel => {
+      const block = contextBlocks.find(b => b.id === sel.blockId);
+      if (!block) return;
+
+      sel.itemIds.forEach(itemId => {
+        const item = block.items.find(i => i.id === itemId);
+        if (item) total += item.chars;
+      });
+
+      sel.subItemIds.forEach(subItemKey => {
+        const [itemId, subItemId] = subItemKey.split('.').map(Number);
+        const item = block.items.find(i => i.id === itemId);
+        const subItem = item?.subItems?.find(s => s.id === subItemId);
+        if (subItem) total += subItem.chars;
+      });
+    });
+
+    return total;
   };
 
   return (
@@ -157,35 +212,63 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
               </div>
             ) : (
               <div className="space-y-4">
-                {promptBlocks.map((prompt) => (
-                  <div
-                    key={prompt.id}
-                    className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-gray-700 transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-white">{prompt.title}</h3>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleCompilePrompt(prompt.id)}
-                          disabled={compileMutation.isPending}
-                          className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50"
-                        >
-                          {compileMutation.isPending ? t('buttons.compiling', 'Compiling...') : t('buttons.compile', 'Compile')}
-                        </button>
-                        <button className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors">
-                          {t('buttons.edit', 'Edit')}
-                        </button>
-                        <button className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
-                          {t('buttons.delete', 'Delete')}
-                        </button>
+                {promptBlocks.map((prompt) => {
+                  const isExpanded = expandedPromptId === prompt.id;
+                  const totalChars = calculateTotalChars(prompt);
+                  
+                  return (
+                    <div
+                      key={prompt.id}
+                      className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-gray-700 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold text-white">{prompt.title}</h3>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => togglePromptExpansion(prompt.id)}
+                            className="px-3 py-1 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
+                          >
+                            {isExpanded ? '🔼 Hide' : '🔽 Select Contexts'}
+                          </button>
+                          <button
+                            onClick={() => handleCompilePrompt(prompt.id)}
+                            disabled={compileMutation.isPending}
+                            className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50"
+                          >
+                            {compileMutation.isPending ? t('buttons.compiling', 'Compiling...') : t('buttons.compile', 'Compile')}
+                          </button>
+                          <button className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors">
+                            {t('buttons.edit', 'Edit')}
+                          </button>
+                          <button className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
+                            {t('buttons.delete', 'Delete')}
+                          </button>
+                        </div>
                       </div>
+                      <div className="text-sm text-gray-400 mb-3">
+                        {prompt.selectedContexts.length} {t('labels.contextsSelected', 'contexts selected')} • 
+                        {totalChars} {t('labels.chars', 'chars')} • 
+                        Template: {prompt.template.length} {t('labels.chars', 'chars')}
+                      </div>
+
+                      {/* Context Selection Panel */}
+                      {isExpanded && contextBlocks.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-800">
+                          <ContextSelectionPanel
+                            ref={selectionPanelRef}
+                            contextBlocks={contextBlocks}
+                            selectedContexts={prompt.selectedContexts || []}
+                            selectionOrder={prompt.selectionOrder || []}
+                            onSelectionChange={(selectedContexts, selectionOrder) => 
+                              handleSelectionChange(prompt.id, selectedContexts, selectionOrder)
+                            }
+                            totalChars={totalChars}
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div className="text-sm text-gray-400">
-                      {prompt.selectedContexts.length} {t('labels.contextsSelected', 'contexts selected')} • 
-                      {prompt.template.length} {t('labels.chars', 'chars')}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -194,4 +277,3 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
     </div>
   );
 }
-
