@@ -28,7 +28,7 @@ interface SplitSettings {
 }
 
 const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' }: SplitContentModalProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('splitModal');
 
   const [splitMethod, setSplitMethod] = useState('equal');
   const [settings, setSettings] = useState<SplitSettings>({

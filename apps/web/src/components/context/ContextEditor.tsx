@@ -12,7 +12,7 @@ import { generateDefaultContextItemName, generateDefaultContextSubItemName } fro
 import type { ContextItem, ContextSubItem } from '@promptozaurus/shared';
 
 const ContextEditor = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('editor');
   const { openConfirmation } = useConfirmation();
   const {
     currentProject,

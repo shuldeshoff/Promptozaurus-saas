@@ -33,7 +33,7 @@ const ContextSectionGrid = memo<ContextSectionGridProps>(({
   onSelectAllSubItems,
   onDeselectAllSubItems,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('contextSelection');
 
   const blockId = contextBlock.id;
   const items = Array.isArray(contextBlock.items) ? contextBlock.items : [];

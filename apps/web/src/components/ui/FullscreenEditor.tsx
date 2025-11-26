@@ -10,7 +10,7 @@ interface FullscreenEditorProps {
 }
 
 const FullscreenEditor = ({ isOpen, onClose, onSave, title, content = '' }: FullscreenEditorProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('modals');
   const [text, setText] = useState(content);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

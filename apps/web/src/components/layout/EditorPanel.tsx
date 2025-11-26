@@ -4,7 +4,7 @@ import ContextEditor from '../context/ContextEditor';
 import PromptEditor from '../prompt/PromptEditor';
 
 const EditorPanel = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('editor');
   const { activeTab, currentProject } = useEditor();
 
   if (!currentProject) {

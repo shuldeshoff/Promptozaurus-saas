@@ -102,7 +102,7 @@ const ContextSelectionPanel = forwardRef<ContextSelectionPanelRef, ContextSelect
   onSelectionChange,
   totalChars = 0,
 }, ref) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('contextSelection');
   const [selectionOrder, setSelectionOrder] = useState<string[]>(() =>
     Array.isArray(initialSelectionOrder) && initialSelectionOrder.length > 0
       ? initialSelectionOrder

@@ -38,7 +38,7 @@ const Modal = ({
   inputDefaultValue = '',
   options = null,
 }: ModalProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('modals');
 
   // Use provided texts or defaults from translation
   const primaryBtnText = primaryButtonText || t('modals.modal.defaultPrimaryButton');

@@ -8,7 +8,7 @@ interface SplitPreviewListProps {
 }
 
 const SplitPreviewList = ({ parts = [], selected = [], onTogglePart, onToggleAll }: SplitPreviewListProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('splitModal');
 
   // Функция для получения предпросмотра текста (первые N символов)
   const getPreview = (text: string, maxLength = 100) => {

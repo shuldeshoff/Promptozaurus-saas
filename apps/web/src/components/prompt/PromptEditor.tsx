@@ -10,7 +10,7 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut';
 import { useUpdateProject } from '../../hooks/useProjects';
 
 const PromptEditor = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('editor');
   const {
     activePromptBlockId,
     currentProject,
