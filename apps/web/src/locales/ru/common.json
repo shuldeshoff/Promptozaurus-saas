@@ -8,6 +8,7 @@
     "add": "Добавить",
     "create": "Создать",
     "creating": "Создание...",
+    "quickCreate": "Быстрое создание",
     "open": "Открыть",
     "close": "Закрыть",
     "import": "Импорт",
@@ -49,6 +50,9 @@
     "version": "Версия",
     "author": "Автор",
     "contextBlocks": "Блоки контекста",
+    "contextBlock": "Блок контекста",
+    "promptBlock": "Блок промпта",
+    "blockName": "Название блока",
     "prompts": "Промпты",
     "items": "элементов",
     "chars": "символов",
@@ -122,7 +126,12 @@
     "failedToSend": "Не удалось отправить сообщение",
     "thinking": "Думаю...",
     "noResponse": "Пока нет ответа",
-    "sendPromptHint": "Выберите модель и отправьте промпт"
+    "sendPromptHint": "Выберите модель и отправьте промпт",
+    "createContextBlock": "Создать блок контекста",
+    "createPromptBlock": "Создать блок промпта",
+    "leaveEmptyForDefault": "Оставьте пустым для названия по умолчанию",
+    "pressEscToClose": "Нажмите Esc для закрытия",
+    "pressEnterToCreate": "Нажмите Enter для создания"
   },
   "units": {
     "chars": "символов",

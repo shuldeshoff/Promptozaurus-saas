@@ -4,6 +4,7 @@ import { Project as SharedProject, Template, PromptBlock, SelectedContext, Conte
 import { useCompilePrompt } from '../hooks/useContextPrompt';
 import { useUpdateProject } from '../hooks/useProjects';
 import TemplateLibraryModal from './TemplateLibraryModal';
+import CreateBlockModal from './CreateBlockModal';
 import { ContextSelectionPanel, ContextSelectionPanelRef } from './context-selection';
 
 interface Project extends Omit<SharedProject, 'createdAt' | 'updatedAt'> {
@@ -19,6 +20,8 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
   const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState<'context' | 'prompts'>('context');
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isCreateContextModalOpen, setIsCreateContextModalOpen] = useState(false);
+  const [isCreatePromptModalOpen, setIsCreatePromptModalOpen] = useState(false);
   const [expandedPromptId, setExpandedPromptId] = useState<number | null>(null);
   
   const compileMutation = useCompilePrompt();
@@ -73,9 +76,10 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
   };
 
   const handleAddContextBlock = async () => {
-    const title = prompt(t('messages.enterBlockName', 'Enter block name:'));
-    if (!title || !title.trim()) return;
+    setIsCreateContextModalOpen(true);
+  };
 
+  const handleConfirmCreateContextBlock = async (title: string) => {
     const newBlock: ContextBlock = {
       id: Date.now(),
       title: title.trim(),
@@ -137,9 +141,10 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
   };
 
   const handleAddPrompt = async () => {
-    const title = prompt(t('messages.enterPromptName', 'Enter prompt name:'));
-    if (!title || !title.trim()) return;
+    setIsCreatePromptModalOpen(true);
+  };
 
+  const handleConfirmCreatePrompt = async (title: string) => {
     const newPrompt: PromptBlock = {
       id: Date.now(),
       title: title.trim(),
@@ -263,6 +268,24 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onSelectTemplate={handleTemplateSelect}
+      />
+
+      {/* Create Context Block Modal */}
+      <CreateBlockModal
+        isOpen={isCreateContextModalOpen}
+        onClose={() => setIsCreateContextModalOpen(false)}
+        onConfirm={handleConfirmCreateContextBlock}
+        type="context"
+        defaultNumber={contextBlocks.length + 1}
+      />
+
+      {/* Create Prompt Block Modal */}
+      <CreateBlockModal
+        isOpen={isCreatePromptModalOpen}
+        onClose={() => setIsCreatePromptModalOpen(false)}
+        onConfirm={handleConfirmCreatePrompt}
+        type="prompt"
+        defaultNumber={promptBlocks.length + 1}
       />
 
       {/* Content */}

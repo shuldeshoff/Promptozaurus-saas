@@ -8,6 +8,7 @@
     "add": "Add",
     "create": "Create",
     "creating": "Creating...",
+    "quickCreate": "Quick Create",
     "open": "Open",
     "close": "Close",
     "import": "Import",
@@ -49,6 +50,9 @@
     "version": "Version",
     "author": "Author",
     "contextBlocks": "Context Blocks",
+    "contextBlock": "Context Block",
+    "promptBlock": "Prompt Block",
+    "blockName": "Block name",
     "prompts": "Prompts",
     "items": "items",
     "chars": "chars",
@@ -122,7 +126,12 @@
     "failedToSend": "Failed to send message",
     "thinking": "Thinking...",
     "noResponse": "No response yet",
-    "sendPromptHint": "Select a model and send a prompt"
+    "sendPromptHint": "Select a model and send a prompt",
+    "createContextBlock": "Create Context Block",
+    "createPromptBlock": "Create Prompt Block",
+    "leaveEmptyForDefault": "Leave empty for default name",
+    "pressEscToClose": "Press Esc to close",
+    "pressEnterToCreate": "Press Enter to create"
   },
   "units": {
     "chars": "characters",
