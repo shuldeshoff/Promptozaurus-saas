@@ -26,6 +26,20 @@ export default {
           '100%': { backgroundColor: 'transparent' },
         },
       },
+      // Добавляем переходы для более плавных взаимодействий (из originals)
+      transitionProperty: {
+        'height': 'height',
+        'spacing': 'margin, padding',
+      }
+    },
+  },
+  // Варианты для классов (из originals)
+  variants: {
+    extend: {
+      opacity: ['group-hover'],
+      display: ['group-hover'],
+      backgroundColor: ['active', 'focus'],
+      borderColor: ['focus'],
     },
   },
   plugins: [],
