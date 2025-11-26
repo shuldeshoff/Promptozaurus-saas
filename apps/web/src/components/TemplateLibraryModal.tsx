@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Template } from '@promptozaurus/shared';
 import {
   useTemplates,
+  useTemplate,
   useCreateTemplate,
   useUpdateTemplate,
   useDeleteTemplate,
 } from '../hooks/useTemplates';
+import { useConfirmation } from '../context/ConfirmationContext';
 
-// Упрощённая версия для работы с .txt файлами
 interface TemplateLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectTemplate?: (filename: string) => void;
+  onSelectTemplate?: (template: Template) => void;
 }
 
 export default function TemplateLibraryModal({
@@ -20,22 +22,40 @@ export default function TemplateLibraryModal({
   onSelectTemplate,
 }: TemplateLibraryModalProps) {
   const { t } = useTranslation('common');
+  const { openConfirmation } = useConfirmation();
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContent, setEditContent] = useState('');
 
   const { data: allTemplates, isLoading } = useTemplates();
+  const { data: selectedTemplateData } = useTemplate(selectedTemplateId || '');
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const deleteMutation = useDeleteTemplate();
 
-  // Простой клиентский поиск по filename
+  // Фильтрация по имени (клиентская)
   const templates = searchQuery
-    ? allTemplates?.filter((f) => f.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? allTemplates?.filter((t) => t.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : allTemplates;
+
+  // Загрузка содержимого выбранного шаблона
+  useEffect(() => {
+    if (selectedTemplateData && !isEditing && !isCreating) {
+      setEditContent(selectedTemplateData.content);
+    }
+  }, [selectedTemplateData, isEditing, isCreating]);
+
+  // Загрузка содержимого для редактирования
+  useEffect(() => {
+    if (isEditing && selectedTemplateData) {
+      setEditName(selectedTemplateData.name);
+      setEditContent(selectedTemplateData.content);
+    }
+  }, [isEditing, selectedTemplateData]);
 
   const handleCreate = async () => {
     if (!editName.trim() || !editContent.trim()) {
@@ -44,10 +64,9 @@ export default function TemplateLibraryModal({
     }
 
     try {
-      const filename = editName.endsWith('.txt') ? editName : `${editName}.txt`;
       await createMutation.mutateAsync({
-        filename,
-        content: editContent,
+        name: editName.trim(),
+        content: editContent.trim(),
       });
       setIsCreating(false);
       setEditName('');
@@ -58,49 +77,51 @@ export default function TemplateLibraryModal({
   };
 
   const handleUpdate = async () => {
-    if (!selectedTemplate || !editName.trim() || !editContent.trim()) return;
+    if (!selectedTemplateId || !editName.trim() || !editContent.trim()) return;
 
     try {
-      const filename = editName.endsWith('.txt') ? editName : `${editName}.txt`;
       await updateMutation.mutateAsync({
-        filename,
-        content: editContent,
+        templateId: selectedTemplateId,
+        name: editName.trim(),
+        content: editContent.trim(),
       });
       setIsEditing(false);
-      setSelectedTemplate(null);
+      setSelectedTemplateId(null);
     } catch {
       alert(t('messages.failedToUpdate', 'Failed to update template'));
     }
   };
 
-  const handleDelete = async (filename: string) => {
-    if (!confirm(t('messages.confirmDeleteTemplate', 'Delete this template?'))) return;
-
-    try {
-      await deleteMutation.mutateAsync(filename);
-      if (selectedTemplate === filename) {
-        setSelectedTemplate(null);
+  const handleDelete = async (templateId: string) => {
+    openConfirmation(
+      t('messages.confirmDeleteTemplate', 'Delete this template?'),
+      '',
+      async () => {
+        try {
+          await deleteMutation.mutateAsync(templateId);
+          if (selectedTemplateId === templateId) {
+            setSelectedTemplateId(null);
+          }
+        } catch {
+          alert(t('messages.failedToDelete', 'Failed to delete template'));
+        }
       }
-    } catch {
-      alert(t('messages.failedToDelete', 'Failed to delete template'));
-    }
+    );
   };
 
-  const handleSelect = (filename: string) => {
+  const handleSelect = (template: Template) => {
     if (onSelectTemplate) {
-      onSelectTemplate(filename);
+      onSelectTemplate(template);
       onClose();
     } else {
-      setSelectedTemplate(filename);
-      setEditName(filename.replace(/\.txt$/, ''));
-      setEditContent(''); // Загрузится из useTemplate при необходимости
+      setSelectedTemplateId(template.id);
+      setEditName(template.name);
     }
   };
 
-  const startEdit = (filename: string) => {
-    setSelectedTemplate(filename);
-    setEditName(filename.replace(/\.txt$/, ''));
-    setEditContent(''); // Загрузится из useTemplate
+  const startEdit = (template: Template) => {
+    setSelectedTemplateId(template.id);
+    setEditName(template.name);
     setIsEditing(true);
   };
 
@@ -113,7 +134,7 @@ export default function TemplateLibraryModal({
   const cancelEdit = () => {
     setIsEditing(false);
     setIsCreating(false);
-    setSelectedTemplate(null);
+    setSelectedTemplateId(null);
     setEditName('');
     setEditContent('');
   };
@@ -172,17 +193,17 @@ export default function TemplateLibraryModal({
                     : t('messages.noTemplates', 'No templates yet')}
                 </div>
               ) : (
-                templates.map((filename) => (
+                templates.map((template) => (
                   <div
-                    key={filename}
+                    key={template.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedTemplate === filename
+                      selectedTemplateId === template.id
                         ? 'bg-blue-600'
                         : 'bg-gray-800 hover:bg-gray-700'
                     }`}
-                    onClick={() => handleSelect(filename)}
+                    onClick={() => handleSelect(template)}
                   >
-                    <div className="font-medium text-white truncate">{filename}</div>
+                    <div className="font-medium text-white truncate">{template.name}</div>
                   </div>
                 ))
               )}
@@ -231,20 +252,20 @@ export default function TemplateLibraryModal({
                   </button>
                 </div>
               </div>
-            ) : selectedTemplate ? (
+            ) : selectedTemplateId && selectedTemplateData ? (
               /* Template Preview */
               <div className="flex-1 flex flex-col p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-white">{selectedTemplate}</h3>
+                  <h3 className="text-xl font-semibold text-white">{selectedTemplateData.name}</h3>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => startEdit(selectedTemplate)}
+                      onClick={() => startEdit(selectedTemplateData)}
                       className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                     >
                       {t('buttons.edit')}
                     </button>
                     <button
-                      onClick={() => handleDelete(selectedTemplate)}
+                      onClick={() => handleDelete(selectedTemplateData.id)}
                       disabled={deleteMutation.isPending}
                       className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50"
                     >
@@ -253,7 +274,9 @@ export default function TemplateLibraryModal({
                   </div>
                 </div>
                 <div className="flex-1 bg-gray-800 border border-gray-700 rounded-lg p-4 overflow-y-auto">
-                  <pre className="text-gray-300 whitespace-pre-wrap">{editContent || 'Loading...'}</pre>
+                  <pre className="text-gray-300 whitespace-pre-wrap">
+                    {editContent || 'Loading...'}
+                  </pre>
                 </div>
               </div>
             ) : (

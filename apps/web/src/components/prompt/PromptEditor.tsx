@@ -3,14 +3,17 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useEditor } from '../../context/EditorContext';
 import { useTranslation } from 'react-i18next';
-import { useTemplates, useTemplate } from '../../hooks/useTemplates';
+import { useTemplates, useTemplate, useCreateTemplate, useUpdateTemplate } from '../../hooks/useTemplates';
 import { useCompilePrompt } from '../../hooks/useProjects';
+import { useConfirmation } from '../../context/ConfirmationContext';
 import FullscreenEditor from '../ui/FullscreenEditor';
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut';
 import { useUpdateProject } from '../../hooks/useProjects';
+import { Template } from '@promptozaurus/shared';
 
 const PromptEditor = () => {
   const { t } = useTranslation('editor');
+  const { openConfirmation } = useConfirmation();
   const {
     activePromptBlockId,
     currentProject,
@@ -25,16 +28,19 @@ const PromptEditor = () => {
   const [copyTemplateSuccess, setCopyTemplateSuccess] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [previewFile, setPreviewFile] = useState<string | null>(null);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Template management
-  const { data: templateFiles = [], isLoading: isLoadingTemplates } = useTemplates();
-  const { data: templateContent, refetch: fetchTemplateContent } = useTemplate(previewFile || '');
+  // Template management через API
+  const { data: templates = [], isLoading: isLoadingTemplates } = useTemplates();
+  const { data: previewTemplateData } = useTemplate(previewTemplateId || '');
+  const createTemplateMutation = useCreateTemplate();
+  const updateTemplateMutation = useUpdateTemplate();
 
-  // Current template filename (можно хранить в block.templateFilename, но в оригинале это расширение)
-  const currentFile = (block as any)?.templateFilename || '';
+  // Current template ID и name (храним в block.templateFilename для совместимости)
+  const currentTemplateId = (block as any)?.templateFilename || '';
+  const currentTemplate = templates.find((t) => t.id === currentTemplateId);
 
   // Ref для выпадающего меню
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,13 +48,13 @@ const PromptEditor = () => {
   // Горячая клавиша Ctrl+E => полноэкранный редактор
   const [activeTextarea, setActiveTextarea] = useState<'template' | 'result' | null>(null);
 
-  // Фильтрованный список файлов на основе поискового запроса (строки 52-58)
-  const filteredTemplateFiles = useMemo(() => {
-    if (!searchQuery.trim()) return templateFiles;
-    return templateFiles.filter((file) =>
-      file.toLowerCase().includes(searchQuery.toLowerCase())
+  // Фильтрованный список шаблонов на основе поискового запроса (строки 52-58)
+  const filteredTemplates = useMemo(() => {
+    if (!searchQuery.trim()) return templates;
+    return templates.filter((template) =>
+      template.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [templateFiles, searchQuery]);
+  }, [templates, searchQuery]);
 
   // Компиляция промпта с контекстом (строки 60-69)
   const { data: compiledPromptData } = useCompilePrompt(
@@ -64,7 +70,7 @@ const PromptEditor = () => {
       // Закрываем меню, если клик был вне его
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
-        setPreviewFile(null);
+        setPreviewTemplateId(null);
         setPreviewContent(null);
         setSearchQuery('');
       }
@@ -78,58 +84,55 @@ const PromptEditor = () => {
 
   // Синхронизация previewContent при hover (строки 135-147)
   useEffect(() => {
-    if (previewFile && templateContent) {
-      setPreviewContent(templateContent);
+    if (previewTemplateId && previewTemplateData) {
+      setPreviewContent(previewTemplateData.content);
     }
-  }, [previewFile, templateContent]);
+  }, [previewTemplateId, previewTemplateData]);
 
-  // Вызывается при выборе файла из выпадающего меню (строки 108-133)
-  const handleSelectTemplate = async (filename: string) => {
-    if (!filename || !currentProject || !block) return;
+  // Вызывается при выборе шаблона из выпадающего меню (строки 108-133)
+  const handleSelectTemplate = async (template: Template) => {
+    if (!template || !currentProject || !block) return;
 
     try {
-      // Загружаем содержимое шаблона
-      const { data: content } = await fetchTemplateContent();
-      if (content) {
-        // Сохраняем текст и запоминаем выбранный файл
-        const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
-          b.id === block.id
-            ? { ...b, template: content, templateFilename: filename }
-            : b
-        );
+      // Сохраняем содержимое шаблона и запоминаем его ID
+      const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
+        b.id === block.id
+          ? { ...b, template: template.content, templateFilename: template.id }
+          : b
+      );
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: {
-            ...currentProject.data,
-            promptBlocks: updatedBlocks,
-          },
-        });
-      }
+      await updateProjectMutation.mutateAsync({
+        id: currentProject.id,
+        data: {
+          ...currentProject.data,
+          promptBlocks: updatedBlocks,
+        },
+      });
+
       // Закрываем меню после выбора шаблона
       setIsMenuOpen(false);
-      setPreviewFile(null);
+      setPreviewTemplateId(null);
       setPreviewContent(null);
       setSearchQuery('');
     } catch (error) {
       console.error('Error handleSelectTemplate:', error);
       setIsMenuOpen(false);
-      setPreviewFile(null);
+      setPreviewTemplateId(null);
       setPreviewContent(null);
       setSearchQuery('');
     }
   };
 
   // Загрузка превью шаблона (строки 135-147)
-  const handleShowPreview = (filename: string) => {
-    if (previewFile === filename) return; // Уже загружен
-    setPreviewFile(filename);
+  const handleShowPreview = (templateId: string) => {
+    if (previewTemplateId === templateId) return; // Уже загружен
+    setPreviewTemplateId(templateId);
   };
 
   // Открыть или закрыть меню (строки 149-161)
   const toggleMenu = () => {
     if (isMenuOpen) {
-      setPreviewFile(null);
+      setPreviewTemplateId(null);
       setPreviewContent(null);
       setSearchQuery('');
     }
@@ -168,67 +171,80 @@ const PromptEditor = () => {
     });
   };
 
-  // Сохранить текущий шаблон .txt (строки 173-181)
+  // Сохранить текущий шаблон через API (строки 173-181)
   const handleSaveTemplateFile = () => {
     if (!block?.template) return;
-    if (!currentFile) {
-      // Если нет названия файла, предлагаем "Сохранить как"
+    if (!currentTemplateId || !currentTemplate) {
+      // Если нет ID шаблона, предлагаем "Сохранить как" (создать новый)
       return handleSaveTemplateFileAs();
     }
-    doSaveTemplate(currentFile);
+    // Обновляем существующий шаблон
+    doUpdateTemplate(currentTemplateId, currentTemplate.name);
   };
 
-  // «Сохранить как» => спрашиваем новое имя (строки 183-202)
+  // «Сохранить как» => создаём новый шаблон (строки 183-202)
   const handleSaveTemplateFileAs = () => {
     if (!block?.template) return;
-    // В SaaS версии используем простой prompt (позже заменим на ConfirmationModal)
-    const txtName = window.prompt(
+    openConfirmation(
+      t('prompt.saveTemplate.title'),
       t('prompt.saveTemplate.message'),
-      currentFile.replace(/\.txt$/, '') || block.title
+      async (templateName?: string) => {
+        let name = templateName || '';
+        if (!name.trim()) {
+          name = block.title || 'my_template';
+        }
+        doCreateTemplate(name.trim());
+      },
+      t('prompt.buttons.save'),
+      'bg-blue-600 hover:bg-blue-700',
+      true,
+      currentTemplate?.name || block.title
     );
-    if (txtName !== null) {
-      let name = txtName || '';
-      if (!name.trim()) {
-        name = block.title || 'my_template';
-      }
-      // Превратим в файл (добавляем .txt если нет)
-      const filename = name.endsWith('.txt') ? name : `${name}.txt`;
-      doSaveTemplate(filename);
+  };
+
+  // Фактическое создание нового шаблона через API (строки 204-223)
+  const doCreateTemplate = async (name: string) => {
+    if (!currentProject || !block) return;
+    try {
+      const newTemplate = await createTemplateMutation.mutateAsync({
+        name,
+        content: block.template || '',
+      });
+
+      // Запоминаем ID созданного шаблона
+      const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
+        b.id === block.id ? { ...b, templateFilename: newTemplate.id } : b
+      );
+
+      await updateProjectMutation.mutateAsync({
+        id: currentProject.id,
+        data: {
+          ...currentProject.data,
+          promptBlocks: updatedBlocks,
+        },
+      });
+
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch (err) {
+      console.error('Error creating template:', err);
     }
   };
 
-  // Фактическая запись файла (строки 204-223)
-  const doSaveTemplate = async (filename: string) => {
-    if (!currentProject || !block) return;
+  // Обновление существующего шаблона через API
+  const doUpdateTemplate = async (templateId: string, name: string) => {
+    if (!block) return;
     try {
-      // В SaaS версии: POST /api/templates
-      const response = await fetch('/api/templates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename,
-          content: block.template || '',
-        }),
+      await updateTemplateMutation.mutateAsync({
+        templateId,
+        name,
+        content: block.template || '',
       });
 
-      if (response.ok) {
-        // Запоминаем выбранный файл
-        const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
-          b.id === block.id ? { ...b, templateFilename: filename } : b
-        );
-
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: {
-            ...currentProject.data,
-            promptBlocks: updatedBlocks,
-          },
-        });
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 2000);
-      }
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
     } catch (err) {
-      console.error('Error saving template:', err);
+      console.error('Error updating template:', err);
     }
   };
 
@@ -388,8 +404,8 @@ const PromptEditor = () => {
             >
               {isLoadingTemplates
                 ? t('prompt.template.loading')
-                : currentFile
-                ? `${t('prompt.template.file')}: ${currentFile}`
+                : currentTemplate
+                ? `${t('prompt.template.file')}: ${currentTemplate.name}`
                 : t('prompt.template.select')}
             </button>
             {isMenuOpen && (
@@ -410,9 +426,9 @@ const PromptEditor = () => {
                     />
                   </div>
 
-                  {/* Список файлов (строки 379-404) */}
+                  {/* Список шаблонов (строки 379-404) */}
                   <div className="flex-1 overflow-y-auto">
-                    {filteredTemplateFiles.length === 0 && !isLoadingTemplates && (
+                    {filteredTemplates.length === 0 && !isLoadingTemplates && (
                       <div className="p-2 text-sm text-gray-400 text-center">
                         {searchQuery
                           ? t('prompt.template.notFound')
@@ -427,16 +443,16 @@ const PromptEditor = () => {
                         </p>
                       </div>
                     )}
-                    {filteredTemplateFiles.map((f) => (
+                    {filteredTemplates.map((template) => (
                       <div
-                        key={f}
+                        key={template.id}
                         className={`relative py-2 px-3 hover:bg-gray-700 cursor-pointer ${
-                          f === currentFile ? 'bg-gray-700 font-medium' : ''
-                        } ${f === previewFile ? 'border-l-4 border-blue-500 pl-2' : 'pl-3'}`}
-                        onClick={() => handleSelectTemplate(f)}
-                        onMouseEnter={() => handleShowPreview(f)}
+                          template.id === currentTemplateId ? 'bg-gray-700 font-medium' : ''
+                        } ${template.id === previewTemplateId ? 'border-l-4 border-blue-500 pl-2' : 'pl-3'}`}
+                        onClick={() => handleSelectTemplate(template)}
+                        onMouseEnter={() => handleShowPreview(template.id)}
                       >
-                        <span className="text-sm text-white">{f}</span>
+                        <span className="text-sm text-white">{template.name}</span>
                       </div>
                     ))}
                   </div>
@@ -444,18 +460,23 @@ const PromptEditor = () => {
 
                 {/* Правая панель - превью (строки 407-438) */}
                 <div className="w-2/3 flex flex-col">
-                  {previewFile && previewContent ? (
+                  {previewTemplateId && previewContent ? (
                     <>
                       <div className="flex justify-between items-center p-3 border-b border-gray-700">
                         <div>
-                          <h3 className="text-md font-medium text-blue-400">{previewFile}</h3>
+                          <h3 className="text-md font-medium text-blue-400">
+                            {templates.find((t) => t.id === previewTemplateId)?.name}
+                          </h3>
                           <p className="text-xs text-gray-400">
                             {previewContent.length} {t('prompt.chars')}
                           </p>
                         </div>
                         <button
                           className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500"
-                          onClick={() => handleSelectTemplate(previewFile)}
+                          onClick={() => {
+                            const template = templates.find((t) => t.id === previewTemplateId);
+                            if (template) handleSelectTemplate(template);
+                          }}
                         >
                           {t('prompt.template.selectButton')}
                         </button>
