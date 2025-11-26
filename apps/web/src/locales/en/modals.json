@@ -1,4 +1,40 @@
 {
+  "confirmation": {
+    "title": "Confirmation",
+    "confirmButton": "Confirm",
+    "cancelButton": "Cancel",
+    "deleteTitle": "Delete",
+    "deleteMessage": "Are you sure you want to delete?",
+    "unsavedChangesTitle": "Unsaved Changes",
+    "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to continue?"
+  },
+  "ai": {
+    "title": "AI Settings",
+    "provider": "Provider",
+    "model": "Model",
+    "apiKey": "API Key",
+    "temperature": "Temperature",
+    "maxTokens": "Max Tokens",
+    "saveButton": "Save Settings",
+    "cancelButton": "Cancel",
+    "testConnection": "Test Connection",
+    "selectProvider": "Select Provider",
+    "selectModel": "Select Model",
+    "enterApiKey": "Enter API Key"
+  },
+  "response": {
+    "title": "AI Response",
+    "copyButton": "Copy",
+    "closeButton": "Close",
+    "regenerateButton": "Regenerate",
+    "loading": "Waiting for response...",
+    "error": "Error receiving response"
+  },
+  "fullscreen": {
+    "exitButton": "Exit fullscreen",
+    "saveButton": "Save",
+    "cancelButton": "Cancel"
+  },
   "fullscreenEditor": {
     "defaultTitle": "Editing",
     "closeTooltip": "Close without saving",
