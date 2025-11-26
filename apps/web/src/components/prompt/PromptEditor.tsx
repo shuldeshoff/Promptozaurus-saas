@@ -52,7 +52,8 @@ const PromptEditor = () => {
 
   // Компиляция промпта с контекстом (строки 60-69)
   const { data: compiledPromptData } = useCompilePrompt(
-    block?.id || 0,
+    currentProject?.id,
+    block?.id,
     wrapWithTags
   );
   const compiledPrompt = compiledPromptData?.compiledPrompt || '';

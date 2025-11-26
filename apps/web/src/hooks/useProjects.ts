@@ -172,20 +172,33 @@ export function useExportProject() {
 }
 
 // Compile prompt with context (для PromptEditor)
-export function useCompilePrompt(promptBlockId: number, wrapWithTags: boolean) {
+// Использует backend-роут: POST /api/projects/:id/prompts/:promptId/compile
+export function useCompilePrompt(
+  projectId: string | undefined,
+  promptBlockId: number | undefined,
+  wrapWithTags: boolean
+) {
   return useQuery({
-    queryKey: ['compile-prompt', promptBlockId, wrapWithTags],
+    queryKey: ['compile-prompt', projectId, promptBlockId, wrapWithTags],
     queryFn: async () => {
       const response = await apiClient.post<{
         success: boolean;
-        data: { compiledPrompt: string; totalChars: number };
-      }>('/api/projects/compile-prompt', {
-        promptBlockId,
+        data: {
+          compiled: string;
+          contextChars: number;
+          templateChars: number;
+          totalChars: number;
+        };
+      }>(`/api/projects/${projectId}/prompts/${promptBlockId}/compile`, {
         wrapWithTags,
       });
-      return response.data.data;
+
+      return {
+        compiledPrompt: response.data.data.compiled,
+        totalChars: response.data.data.totalChars,
+      };
     },
-    enabled: !!promptBlockId,
+    enabled: !!projectId && !!promptBlockId,
   });
 }
 

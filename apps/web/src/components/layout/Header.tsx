@@ -44,7 +44,8 @@ const Header = () => {
           onClick={toggleLanguage}
           className="px-2 py-1 bg-gray-700 text-white text-xs rounded hover:bg-gray-600 transition-colors"
         >
-          {i18n.language === 'en' ? 'RU' : 'EN'}
+          {/* Показываем текущий язык, а не целевой */}
+          {i18n.language === 'en' ? 'EN' : 'RU'}
         </button>
 
         {/* User info */}
