@@ -5,7 +5,7 @@
     "onlyStructureTooltip": "Block contains only subitems",
     "mixed": "Mixed",
     "mixedTooltip": "Block contains both main content and subitems",
-    "characters": "characters",
+    "characters": "chars",
     "elements": "items",
     "export": "Export block",
     "delete": "Delete block",
@@ -14,7 +14,8 @@
     "addItem": "+ Add item",
     "addSubItem": "Add subitem",
     "expand": "Expand subitems",
-    "collapse": "Collapse subitems"
+    "collapse": "Collapse subitems",
+    "noItems": "No items"
   },
   "prompt": {
     "characters": "characters",

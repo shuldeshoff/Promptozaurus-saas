@@ -11,6 +11,8 @@ import navigationEN from '../locales/en/navigation.json';
 import navigationRU from '../locales/ru/navigation.json';
 import blocksEN from '../locales/en/blocks.json';
 import blocksRU from '../locales/ru/blocks.json';
+import blockItemEN from '../locales/en/blockItem.json';
+import blockItemRU from '../locales/ru/blockItem.json';
 import editorEN from '../locales/en/editor.json';
 import editorRU from '../locales/ru/editor.json';
 import modalsEN from '../locales/en/modals.json';
@@ -28,6 +30,7 @@ const resources = {
     header: headerEN,
     navigation: navigationEN,
     blocks: blocksEN,
+    blockItem: blockItemEN,
     editor: editorEN,
     modals: modalsEN,
     ai: aiEN,
@@ -39,6 +42,7 @@ const resources = {
     header: headerRU,
     navigation: navigationRU,
     blocks: blocksRU,
+    blockItem: blockItemRU,
     editor: editorRU,
     modals: modalsRU,
     ai: aiRU,
