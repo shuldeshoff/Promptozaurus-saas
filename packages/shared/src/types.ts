@@ -21,6 +21,17 @@ export interface Project {
   updatedAt: Date;
 }
 
+export interface ProjectShare {
+  id: string;
+  projectId: string;
+  ownerId: string;
+  sharedWithEmail: string;
+  permission: 'view' | 'edit';
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ProjectData {
   contextBlocks: ContextBlock[];
   promptBlocks: PromptBlock[];
