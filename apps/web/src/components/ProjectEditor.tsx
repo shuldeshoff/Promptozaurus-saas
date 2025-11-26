@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Project as SharedProject, Template, PromptBlock, SelectedContext } from '@promptozaurus/shared';
+import { Project as SharedProject, Template, PromptBlock, SelectedContext, ContextBlock } from '@promptozaurus/shared';
 import { useCompilePrompt } from '../hooks/useContextPrompt';
 import { useUpdateProject } from '../hooks/useProjects';
 import TemplateLibraryModal from './TemplateLibraryModal';
@@ -70,6 +70,136 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
 
   const togglePromptExpansion = (promptId: number) => {
     setExpandedPromptId(expandedPromptId === promptId ? null : promptId);
+  };
+
+  const handleAddContextBlock = async () => {
+    const title = prompt(t('messages.enterBlockName', 'Enter block name:'));
+    if (!title || !title.trim()) return;
+
+    const newBlock: ContextBlock = {
+      id: Date.now(),
+      title: title.trim(),
+      items: [],
+    };
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks: [...contextBlocks, newBlock],
+          promptBlocks,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to add context block:', error);
+      alert(t('messages.failedToAddBlock', 'Failed to add block'));
+    }
+  };
+
+  const handleEditContextBlock = async (blockId: number) => {
+    const block = contextBlocks.find(b => b.id === blockId);
+    if (!block) return;
+
+    const newTitle = prompt(t('messages.enterBlockName', 'Enter block name:'), block.title);
+    if (!newTitle || !newTitle.trim() || newTitle === block.title) return;
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks: contextBlocks.map(b => 
+            b.id === blockId ? { ...b, title: newTitle.trim() } : b
+          ),
+          promptBlocks,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to edit context block:', error);
+      alert(t('messages.failedToEditBlock', 'Failed to edit block'));
+    }
+  };
+
+  const handleDeleteContextBlock = async (blockId: number) => {
+    if (!confirm(t('messages.confirmDeleteBlock', 'Are you sure you want to delete this block?'))) return;
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks: contextBlocks.filter(b => b.id !== blockId),
+          promptBlocks,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to delete context block:', error);
+      alert(t('messages.failedToDeleteBlock', 'Failed to delete block'));
+    }
+  };
+
+  const handleAddPrompt = async () => {
+    const title = prompt(t('messages.enterPromptName', 'Enter prompt name:'));
+    if (!title || !title.trim()) return;
+
+    const newPrompt: PromptBlock = {
+      id: Date.now(),
+      title: title.trim(),
+      template: '',
+      selectedContexts: [],
+      selectionOrder: [],
+    };
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks,
+          promptBlocks: [...promptBlocks, newPrompt],
+        },
+      });
+    } catch (error) {
+      console.error('Failed to add prompt:', error);
+      alert(t('messages.failedToAddPrompt', 'Failed to add prompt'));
+    }
+  };
+
+  const handleEditPrompt = async (promptId: number) => {
+    const prompt = promptBlocks.find(p => p.id === promptId);
+    if (!prompt) return;
+
+    const newTitle = window.prompt(t('messages.enterPromptName', 'Enter prompt name:'), prompt.title);
+    if (!newTitle || !newTitle.trim() || newTitle === prompt.title) return;
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks,
+          promptBlocks: promptBlocks.map(p => 
+            p.id === promptId ? { ...p, title: newTitle.trim() } : p
+          ),
+        },
+      });
+    } catch (error) {
+      console.error('Failed to edit prompt:', error);
+      alert(t('messages.failedToEditPrompt', 'Failed to edit prompt'));
+    }
+  };
+
+  const handleDeletePrompt = async (promptId: number) => {
+    if (!confirm(t('messages.confirmDeletePrompt', 'Are you sure you want to delete this prompt?'))) return;
+
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          contextBlocks,
+          promptBlocks: promptBlocks.filter(p => p.id !== promptId),
+        },
+      });
+    } catch (error) {
+      console.error('Failed to delete prompt:', error);
+      alert(t('messages.failedToDeletePrompt', 'Failed to delete prompt'));
+    }
   };
 
   const calculateTotalChars = (prompt: PromptBlock): number => {
@@ -144,6 +274,7 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
                 {t('labels.contextBlocks', 'Context Blocks')}
               </h2>
               <button
+                onClick={handleAddContextBlock}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 + {t('buttons.addBlock', 'Add Block')}
@@ -170,10 +301,16 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-lg font-semibold text-white">{block.title}</h3>
                       <div className="flex gap-2">
-                        <button className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors">
+                        <button 
+                          onClick={() => handleEditContextBlock(block.id)}
+                          className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors"
+                        >
                           {t('buttons.edit', 'Edit')}
                         </button>
-                        <button className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
+                        <button 
+                          onClick={() => handleDeleteContextBlock(block.id)}
+                          className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                        >
                           {t('buttons.delete', 'Delete')}
                         </button>
                       </div>
@@ -194,6 +331,7 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
                 {t('labels.prompts', 'Prompts')}
               </h2>
               <button
+                onClick={handleAddPrompt}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 + {t('buttons.addPrompt', 'Add Prompt')}
@@ -237,10 +375,16 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
                           >
                             {compileMutation.isPending ? t('buttons.compiling', 'Compiling...') : t('buttons.compile', 'Compile')}
                           </button>
-                          <button className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors">
+                          <button 
+                            onClick={() => handleEditPrompt(prompt.id)}
+                            className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors"
+                          >
                             {t('buttons.edit', 'Edit')}
                           </button>
-                          <button className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors">
+                          <button 
+                            onClick={() => handleDeletePrompt(prompt.id)}
+                            className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                          >
                             {t('buttons.delete', 'Delete')}
                           </button>
                         </div>
