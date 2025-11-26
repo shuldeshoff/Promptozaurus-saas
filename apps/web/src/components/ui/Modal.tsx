@@ -41,9 +41,9 @@ const Modal = ({
   const { t } = useTranslation('modals');
 
   // Use provided texts or defaults from translation
-  const primaryBtnText = primaryButtonText || t('modals.modal.defaultPrimaryButton');
-  const secondaryBtnText = secondaryButtonText || t('modals.modal.defaultSecondaryButton');
-  const placeholder = inputPlaceholder || t('modals.modal.defaultInputPlaceholder');
+  const primaryBtnText = primaryButtonText || t('modal.defaultPrimaryButton');
+  const secondaryBtnText = secondaryButtonText || t('modal.defaultSecondaryButton');
+  const placeholder = inputPlaceholder || t('modal.defaultInputPlaceholder');
 
   const [inputValue, setInputValue] = useState(inputDefaultValue);
   const [selectedOption, setSelectedOption] = useState('');

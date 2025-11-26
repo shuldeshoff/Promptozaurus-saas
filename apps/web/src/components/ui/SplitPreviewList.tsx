@@ -22,14 +22,14 @@ const SplitPreviewList = ({ parts = [], selected = [], onTogglePart, onToggleAll
       <div className="sticky top-0 bg-gray-800 border-b border-gray-700 p-2 flex justify-between items-center">
         <div className="flex items-center">
           <input type="checkbox" className="mr-2" checked={selected.every(Boolean)} onChange={(e) => onToggleAll(e.target.checked)} />
-          <span className="text-sm font-medium">{t('splitModal.previewList.selectAll')}</span>
+          <span className="text-sm font-medium">{t('previewList.selectAll')}</span>
         </div>
         <div>
           <button className="text-xs px-2 py-1 bg-blue-800 text-blue-200 rounded hover:bg-blue-700 mr-2" onClick={() => onToggleAll(true)}>
-            {t('splitModal.previewList.selectAll')}
+            {t('previewList.selectAll')}
           </button>
           <button className="text-xs px-2 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600" onClick={() => onToggleAll(false)}>
-            {t('splitModal.previewList.deselectAll')}
+            {t('previewList.deselectAll')}
           </button>
         </div>
       </div>
@@ -45,7 +45,7 @@ const SplitPreviewList = ({ parts = [], selected = [], onTogglePart, onToggleAll
               <div className="flex-grow">
                 <div className="text-sm font-mono whitespace-pre-wrap overflow-hidden text-gray-300">{getPreview(part)}</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {part.length} {t('splitModal.previewList.characters')}
+                  {part.length} {t('previewList.characters')}
                 </div>
               </div>
             </div>
@@ -54,7 +54,7 @@ const SplitPreviewList = ({ parts = [], selected = [], onTogglePart, onToggleAll
       </div>
 
       {parts.length === 0 && (
-        <div className="p-4 text-center text-gray-500">{t('splitModal.previewList.noItems')}</div>
+        <div className="p-4 text-center text-gray-500">{t('previewList.noItems')}</div>
       )}
     </div>
   );

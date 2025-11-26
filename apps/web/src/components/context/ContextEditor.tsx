@@ -149,8 +149,8 @@ const ContextEditor = () => {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="text-lg font-medium text-gray-300 mb-2">{t('editor.context.noSelection.title')}</p>
-          <p className="text-sm text-gray-400">{t('editor.context.noSelection.description')}</p>
+          <p className="text-lg font-medium text-gray-300 mb-2">{t('context.noSelection.title')}</p>
+          <p className="text-sm text-gray-400">{t('context.noSelection.description')}</p>
         </div>
       </div>
     );
@@ -282,8 +282,8 @@ const ContextEditor = () => {
     console.log(`Удаление элемента ${itemId} из блока ${block.id}`);
 
     openConfirmation(
-      t('editor.context.actions.deleteTitle'),
-      t('editor.context.actions.deleteConfirm'),
+      t('context.actions.deleteTitle'),
+      t('context.actions.deleteConfirm'),
       async () => {
         const updatedBlocks = currentProject.data.contextBlocks.map((b) => {
           if (b.id === block.id) {
@@ -309,8 +309,8 @@ const ContextEditor = () => {
     console.log(`Удаление подэлемента ${subItemId} из элемента ${itemId}`);
 
     openConfirmation(
-      t('editor.context.actions.deleteTitle'),
-      t('editor.context.actions.deleteConfirm'),
+      t('context.actions.deleteTitle'),
+      t('context.actions.deleteConfirm'),
       async () => {
         const updatedBlocks = currentProject.data.contextBlocks.map((b) => {
           if (b.id === block.id) {
@@ -592,7 +592,7 @@ const ContextEditor = () => {
     setFullscreenEditor({
       isOpen: true,
       content,
-      title: `${t('editor.context.editing')} ${title}`,
+      title: `${t('context.editing')} ${title}`,
       itemId,
       subItemId,
     });
@@ -676,7 +676,7 @@ const ContextEditor = () => {
         // Создаем новые подэлементы для каждой части
         const newSubItems = contentParts.map((content, i) => ({
           id: Date.now() + i,
-          title: `${subItem.title} (${t('editor.context.split.part')} ${i + 1})`,
+          title: `${subItem.title} (${t('context.split.part')} ${i + 1})`,
           content,
           chars: content.length,
         }));
@@ -710,7 +710,7 @@ const ContextEditor = () => {
         // Создаем новые подэлементы для остальных частей
         const newSubItems = contentParts.slice(1).map((content, i) => ({
           id: Date.now() + i + 1,
-          title: `${subItem.title} (${t('editor.context.split.part')} ${i + 2})`,
+          title: `${subItem.title} (${t('context.split.part')} ${i + 2})`,
           content,
           chars: content.length,
         }));
@@ -749,7 +749,7 @@ const ContextEditor = () => {
           // Добавляем остальные части как подэлементы
           const newSubItems = contentParts.slice(1).map((content, i) => ({
             id: Date.now() + i + 1,
-            title: `${originalItem.title} (${t('editor.context.split.part')} ${i + 2})`,
+            title: `${originalItem.title} (${t('context.split.part')} ${i + 2})`,
             content,
             chars: content.length,
           }));
@@ -780,7 +780,7 @@ const ContextEditor = () => {
           // Сохраняем исходный текст и создаем все части как подэлементы
           const newSubItems = contentParts.map((content, i) => ({
             id: Date.now() + i,
-            title: `${originalItem.title} (${t('editor.context.split.part')} ${i + 1})`,
+            title: `${originalItem.title} (${t('context.split.part')} ${i + 1})`,
             content,
             chars: content.length,
           }));
@@ -823,7 +823,7 @@ const ContextEditor = () => {
           // Создаем новые элементы для остальных частей
           const newItems: ContextItem[] = contentParts.slice(1).map((content, i) => ({
             id: Date.now() + i + 1,
-            title: `${originalItem.title} (${t('editor.context.split.part')} ${i + 2})`,
+            title: `${originalItem.title} (${t('context.split.part')} ${i + 2})`,
             content,
             chars: content.length,
             subItems: [],
@@ -844,7 +844,7 @@ const ContextEditor = () => {
           // Сохраняем исходный текст и создаем все части как новые элементы
           const newItems: ContextItem[] = contentParts.map((content, i) => ({
             id: Date.now() + i,
-            title: `${originalItem.title} (${t('editor.context.split.part')} ${i + 1})`,
+            title: `${originalItem.title} (${t('context.split.part')} ${i + 1})`,
             content,
             chars: content.length,
             subItems: [],
@@ -887,7 +887,7 @@ const ContextEditor = () => {
     <div ref={editorContainerRef}>
       {/* Заголовок блока (строки 565-579) */}
       <div className="mb-4">
-        <label className="block text-sm text-gray-400 mb-1">{t('editor.context.title')}</label>
+        <label className="block text-sm text-gray-400 mb-1">{t('context.title')}</label>
         <input
           type="text"
           value={block.title}
@@ -924,7 +924,7 @@ const ContextEditor = () => {
                       : 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600 hover:text-white'
                   }`}
                   onClick={() => toggleExpandItem(item.id)}
-                  title={expandedItems[item.id] ? t('editor.context.actions.collapseSubItems') : t('editor.context.actions.expandSubItems')}
+                  title={expandedItems[item.id] ? t('context.actions.collapseSubItems') : t('context.actions.expandSubItems')}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -936,26 +936,26 @@ const ContextEditor = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                   <span className="font-mono">{item.subItems.length}</span>
-                  <span className="text-xs opacity-80">{t('editor.context.subItem.label')}</span>
+                  <span className="text-xs opacity-80">{t('context.subItem.label')}</span>
                 </button>
               )}
               <input
                 className="bg-transparent text-white focus:outline-none w-full font-medium"
                 value={item.title}
                 onChange={(e) => handleItemTitleChange(item.id, e.target.value)}
-                placeholder={t('editor.context.item.placeholder')}
+                placeholder={t('context.item.placeholder')}
               />
             </div>
             <div className="flex items-center">
               {/* Улучшенный счетчик символов с детализацией (строки 640-653) */}
               <div className="text-xs text-gray-400 mr-2 flex items-center gap-1">
                 <span className="font-mono font-medium">{item.chars}</span>
-                <span>{t('editor.context.item.chars')}</span>
+                <span>{t('context.item.chars')}</span>
                 {Array.isArray(item.subItems) && item.subItems.length > 0 && (
                   <>
                     <span className="text-gray-500">•</span>
                     <span className="font-mono text-blue-400">+{item.subItems.reduce((sum, sub) => sum + (sub.chars || 0), 0)}</span>
-                    <span className="text-blue-400">{t('editor.context.item.inSubItems')}</span>
+                    <span className="text-blue-400">{t('context.item.inSubItems')}</span>
                   </>
                 )}
               </div>
@@ -963,14 +963,14 @@ const ContextEditor = () => {
               {/* Кнопки для перемещения элемента (строки 655-679) */}
               <div className="flex mr-2">
                 {index !== 0 && (
-                  <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveItemUp(item.id)} title={t('editor.context.actions.moveUp')}>
+                  <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveItemUp(item.id)} title={t('context.actions.moveUp')}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                     </svg>
                   </button>
                 )}
                 {index !== normalizedItems.length - 1 && (
-                  <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveItemDown(item.id)} title={t('editor.context.actions.moveDown')}>
+                  <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveItemDown(item.id)} title={t('context.actions.moveDown')}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -979,7 +979,7 @@ const ContextEditor = () => {
               </div>
 
               {/* Кнопка разделения контента (строки 681-690) */}
-              <button className="text-indigo-400 hover:text-indigo-300 p-1 mr-2" onClick={() => handleOpenSplitModal(item.id)} title={t('editor.context.actions.split')}>
+              <button className="text-indigo-400 hover:text-indigo-300 p-1 mr-2" onClick={() => handleOpenSplitModal(item.id)} title={t('context.actions.split')}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
@@ -991,21 +991,21 @@ const ContextEditor = () => {
               </button>
 
               {/* Кнопка полноэкранного редактирования (строки 692-701) */}
-              <button className="text-blue-400 hover:text-blue-300 p-1 mr-2" onClick={() => handleOpenFullscreenEditor(item.id, item.content, item.title)} title={t('editor.context.actions.edit')}>
+              <button className="text-blue-400 hover:text-blue-300 p-1 mr-2" onClick={() => handleOpenFullscreenEditor(item.id, item.content, item.title)} title={t('context.actions.edit')}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
 
               {/* Кнопка добавления подэлемента (строки 703-712) */}
-              <button className="text-green-400 hover:text-green-300 p-1 mr-2" onClick={() => handleStartAddingSubItem(item.id)} title={t('editor.context.actions.addSubItem')}>
+              <button className="text-green-400 hover:text-green-300 p-1 mr-2" onClick={() => handleStartAddingSubItem(item.id)} title={t('context.actions.addSubItem')}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </button>
 
               {/* Кнопка удаления (строки 714-723) */}
-              <button className="text-red-400 hover:text-red-300 p-1" onClick={() => handleDeleteItem(item.id)} title={t('editor.context.actions.deleteItem')}>
+              <button className="text-red-400 hover:text-red-300 p-1" onClick={() => handleDeleteItem(item.id)} title={t('context.actions.deleteItem')}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
@@ -1022,7 +1022,7 @@ const ContextEditor = () => {
           <textarea
             id={`item-textarea-${item.id}`}
             className="w-full h-48 px-3 py-2 bg-gray-800 border-none rounded-b-lg text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder={t('editor.context.item.textPlaceholder')}
+            placeholder={t('context.item.textPlaceholder')}
             value={item.content}
             onChange={(e) => handleItemContentChange(item.id, e.target.value)}
             onFocus={() => handleTextareaFocus(item.id)}
@@ -1037,13 +1037,13 @@ const ContextEditor = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
                   <span className="text-xs font-medium text-blue-400 uppercase tracking-wide">
-                    {t('editor.context.subItem.title')} ({item.subItems.length})
+                    {t('context.subItem.title')} ({item.subItems.length})
                   </span>
                   <div className="h-px bg-blue-400 opacity-30 flex-1 ml-2"></div>
                 </div>
 
-                <button className="text-xs px-2 py-1 bg-blue-900 text-blue-300 rounded hover:bg-blue-800 transition-colors" onClick={() => handleStartAddingSubItem(item.id)} title={t('editor.context.actions.addSubItem')}>
-                  {t('editor.context.subItem.addButton')}
+                <button className="text-xs px-2 py-1 bg-blue-900 text-blue-300 rounded hover:bg-blue-800 transition-colors" onClick={() => handleStartAddingSubItem(item.id)} title={t('context.actions.addSubItem')}>
+                  {t('context.subItem.addButton')}
                 </button>
               </div>
 
@@ -1066,25 +1066,25 @@ const ContextEditor = () => {
                         className="bg-transparent text-white focus:outline-none w-full text-sm font-medium"
                         value={subItem.title}
                         onChange={(e) => handleSubItemTitleChange(item.id, subItem.id, e.target.value)}
-                        placeholder={t('editor.context.subItem.placeholder')}
+                        placeholder={t('context.subItem.placeholder')}
                       />
                     </div>
                     <div className="flex items-center">
                       <span className="text-xs text-gray-500 mr-2 font-mono">
-                        {subItem.chars} {t('editor.context.item.chars')}
+                        {subItem.chars} {t('context.item.chars')}
                       </span>
 
                       {/* Кнопки для перемещения подэлемента (строки 787-811) */}
                       <div className="flex mr-2">
                         {subIndex !== 0 && (
-                          <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveSubItemUp(item.id, subItem.id)} title={t('editor.context.actions.moveUp')}>
+                          <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveSubItemUp(item.id, subItem.id)} title={t('context.actions.moveUp')}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                             </svg>
                           </button>
                         )}
                         {subIndex !== item.subItems.length - 1 && (
-                          <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveSubItemDown(item.id, subItem.id)} title={t('editor.context.actions.moveDown')}>
+                          <button className="text-gray-400 hover:text-gray-300 p-1" onClick={() => handleMoveSubItemDown(item.id, subItem.id)} title={t('context.actions.moveDown')}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -1093,7 +1093,7 @@ const ContextEditor = () => {
                       </div>
 
                       {/* Кнопка разделения контента для подэлемента (строки 813-822) */}
-                      <button className="text-indigo-400 hover:text-indigo-300 p-1 mr-2" onClick={() => handleOpenSubItemSplitModal(item.id, subItem.id)} title={t('editor.context.actions.split')}>
+                      <button className="text-indigo-400 hover:text-indigo-300 p-1 mr-2" onClick={() => handleOpenSubItemSplitModal(item.id, subItem.id)} title={t('context.actions.split')}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path
                             strokeLinecap="round"
@@ -1105,14 +1105,14 @@ const ContextEditor = () => {
                       </button>
 
                       {/* Кнопка полноэкранного редактирования подэлемента (строки 824-833) */}
-                      <button className="text-blue-400 hover:text-blue-300 p-1 mr-2" onClick={() => handleOpenFullscreenEditor(item.id, subItem.content || '', subItem.title, subItem.id)} title={t('editor.context.actions.edit')}>
+                      <button className="text-blue-400 hover:text-blue-300 p-1 mr-2" onClick={() => handleOpenFullscreenEditor(item.id, subItem.content || '', subItem.title, subItem.id)} title={t('context.actions.edit')}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                       </button>
 
                       {/* Кнопка удаления подэлемента (строки 835-844) */}
-                      <button className="text-red-400 hover:text-red-300 p-1" onClick={() => handleDeleteSubItem(item.id, subItem.id)} title={t('editor.context.actions.deleteSubItem')}>
+                      <button className="text-red-400 hover:text-red-300 p-1" onClick={() => handleDeleteSubItem(item.id, subItem.id)} title={t('context.actions.deleteSubItem')}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -1124,7 +1124,7 @@ const ContextEditor = () => {
                   <textarea
                     id={`subitem-textarea-${item.id}-${subItem.id}`}
                     className="w-full h-24 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    placeholder={t('editor.context.subItem.textPlaceholder')}
+                    placeholder={t('context.subItem.textPlaceholder')}
                     value={subItem.content || ''}
                     onChange={(e) => handleSubItemContentChange(item.id, subItem.id, e.target.value)}
                     onFocus={() => handleSubItemTextareaFocus(item.id, subItem.id)}
@@ -1147,14 +1147,14 @@ const ContextEditor = () => {
       {isAddingItem ? (
         <div className="mb-4">
           <div className="flex space-x-2 mb-2">
-            <input ref={newItemInputRef} type="text" className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white" placeholder={t('editor.context.item.newPlaceholder')} value={newItemTitle} onChange={(e) => setNewItemTitle(e.target.value)} onKeyDown={handleKeyDown} />
+            <input ref={newItemInputRef} type="text" className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white" placeholder={t('context.item.newPlaceholder')} value={newItemTitle} onChange={(e) => setNewItemTitle(e.target.value)} onKeyDown={handleKeyDown} />
           </div>
           <div className="flex space-x-2">
             <button className="px-3 py-1 bg-blue-700 text-white rounded hover:bg-blue-600" onClick={handleAddItem}>
-              {t('editor.context.buttons.create')}
+              {t('context.buttons.create')}
             </button>
             <button className="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600" onClick={handleCancelAddingItem}>
-              {t('editor.context.buttons.cancel')}
+              {t('context.buttons.cancel')}
             </button>
           </div>
         </div>
@@ -1164,7 +1164,7 @@ const ContextEditor = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            {t('editor.context.item.addButton')}
+            {t('context.item.addButton')}
           </button>
         </div>
       )}
@@ -1173,14 +1173,14 @@ const ContextEditor = () => {
       {isAddingSubItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-lg">
-            <h3 className="text-lg font-medium text-white mb-4">{t('editor.context.subItem.modalTitle')}</h3>
+            <h3 className="text-lg font-medium text-white mb-4">{t('context.subItem.modalTitle')}</h3>
             <div className="mb-4">
-              <label className="block text-sm text-gray-400 mb-2">{t('editor.context.subItem.modalLabel')}</label>
+              <label className="block text-sm text-gray-400 mb-2">{t('context.subItem.modalLabel')}</label>
               <input
                 ref={newSubItemInputRef}
                 type="text"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                placeholder={t('editor.context.subItem.placeholder')}
+                placeholder={t('context.subItem.placeholder')}
                 value={newSubItemTitle}
                 onChange={(e) => setNewSubItemTitle(e.target.value)}
                 onKeyDown={handleSubItemKeyDown}
@@ -1188,10 +1188,10 @@ const ContextEditor = () => {
             </div>
             <div className="flex justify-end space-x-3">
               <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" onClick={handleCancelAddingSubItem}>
-                {t('editor.context.buttons.cancel')}
+                {t('context.buttons.cancel')}
               </button>
               <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600" onClick={handleAddSubItem}>
-                {t('editor.context.buttons.create')}
+                {t('context.buttons.create')}
               </button>
             </div>
           </div>

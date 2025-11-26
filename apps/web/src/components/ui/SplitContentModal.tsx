@@ -90,7 +90,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
     const parts = splitContent();
 
     if (parts.length <= 1) {
-      alert(t('splitModal.errors.splitFailed'));
+      alert(t('errors.splitFailed'));
       return;
     }
 
@@ -104,7 +104,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
       const selectedContent = splitParts.filter((_, index) => selectedParts[index]);
 
       if (selectedContent.length === 0) {
-        alert(t('splitModal.errors.noSelection'));
+        alert(t('errors.noSelection'));
         return;
       }
 
@@ -113,7 +113,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
       const parts = splitContent();
 
       if (parts.length <= 1) {
-        alert(t('splitModal.errors.splitFailed'));
+        alert(t('errors.splitFailed'));
         return;
       }
 
@@ -143,19 +143,19 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
     return (
       <div className="mt-4 space-y-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.methodLabel')}</label>
+          <label className="block text-sm text-gray-400 mb-1">{t('settings.methodLabel')}</label>
           <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white" value={splitMethod} onChange={handleMethodChange}>
-            <option value="equal">{t('splitModal.settings.methods.equal')}</option>
-            <option value="delimiter">{t('splitModal.settings.methods.delimiter')}</option>
-            <option value="paragraphs">{t('splitModal.settings.methods.paragraphs')}</option>
-            <option value="pattern">{t('splitModal.settings.methods.pattern')}</option>
+            <option value="equal">{t('settings.methods.equal')}</option>
+            <option value="delimiter">{t('settings.methods.delimiter')}</option>
+            <option value="paragraphs">{t('settings.methods.paragraphs')}</option>
+            <option value="pattern">{t('settings.methods.pattern')}</option>
           </select>
         </div>
 
         {splitMethod === 'equal' && (
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.equalParts.partsCount')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.equalParts.partsCount')}</label>
               <input
                 type="number"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
@@ -166,37 +166,37 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.equalParts.endingOn')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.equalParts.endingOn')}</label>
               <div className="space-y-1">
                 <label className="inline-flex items-center">
                   <input type="radio" className="mr-2" checked={settings.endingType === 'sentence'} onChange={() => handleSettingChange('endingType', 'sentence')} />
-                  <span>{t('splitModal.settings.equalParts.endingSentence')}</span>
+                  <span>{t('settings.equalParts.endingSentence')}</span>
                 </label>
                 <br />
                 <label className="inline-flex items-center">
                   <input type="radio" className="mr-2" checked={settings.endingType === 'paragraph'} onChange={() => handleSettingChange('endingType', 'paragraph')} />
-                  <span>{t('splitModal.settings.equalParts.endingParagraph')}</span>
+                  <span>{t('settings.equalParts.endingParagraph')}</span>
                 </label>
                 <br />
                 <label className="inline-flex items-center">
                   <input type="radio" className="mr-2" checked={settings.endingType === 'exact'} onChange={() => handleSettingChange('endingType', 'exact')} />
-                  <span>{t('splitModal.settings.equalParts.endingExact')}</span>
+                  <span>{t('settings.equalParts.endingExact')}</span>
                 </label>
                 <br />
                 <label className="inline-flex items-center">
                   <input type="radio" className="mr-2" checked={settings.endingType === 'delimiter'} onChange={() => handleSettingChange('endingType', 'delimiter')} />
-                  <span>{t('splitModal.settings.equalParts.endingDelimiter')}</span>
+                  <span>{t('settings.equalParts.endingDelimiter')}</span>
                 </label>
                 {settings.endingType === 'delimiter' && (
                   <div className="mt-2 pl-5">
-                    <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.equalParts.delimiterLabel')}</label>
+                    <label className="block text-sm text-gray-400 mb-1">{t('settings.equalParts.delimiterLabel')}</label>
                     <input
                       id="custom-delimiter"
                       type="text"
                       className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
                       value={settings.customDelimiter}
                       onChange={(e) => handleSettingChange('customDelimiter', e.target.value)}
-                      placeholder={t('splitModal.settings.equalParts.delimiterPlaceholder')}
+                      placeholder={t('settings.equalParts.delimiterPlaceholder')}
                     />
                   </div>
                 )}
@@ -208,25 +208,25 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
         {splitMethod === 'delimiter' && (
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.delimiter.delimiterLabel')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.delimiter.delimiterLabel')}</label>
               <input
                 type="text"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
                 value={settings.delimiter}
                 onChange={(e) => handleSettingChange('delimiter', e.target.value)}
-                placeholder={t('splitModal.settings.delimiter.delimiterPlaceholder')}
+                placeholder={t('settings.delimiter.delimiterPlaceholder')}
               />
             </div>
             <div>
               <label className="inline-flex items-center">
                 <input type="checkbox" className="mr-2" checked={settings.caseSensitive} onChange={(e) => handleSettingChange('caseSensitive', e.target.checked)} />
-                <span>{t('splitModal.settings.delimiter.caseSensitive')}</span>
+                <span>{t('settings.delimiter.caseSensitive')}</span>
               </label>
             </div>
             <div>
               <label className="inline-flex items-center">
                 <input type="checkbox" className="mr-2" checked={settings.includeDelimiter} onChange={(e) => handleSettingChange('includeDelimiter', e.target.checked)} />
-                <span>{t('splitModal.settings.delimiter.includeDelimiter')}</span>
+                <span>{t('settings.delimiter.includeDelimiter')}</span>
               </label>
             </div>
           </div>
@@ -235,7 +235,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
         {splitMethod === 'paragraphs' && (
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.paragraphs.paragraphsPerGroup')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.paragraphs.paragraphsPerGroup')}</label>
               <input
                 type="number"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
@@ -246,7 +246,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.paragraphs.minSize')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.paragraphs.minSize')}</label>
               <input
                 type="number"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
@@ -261,28 +261,28 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
         {splitMethod === 'pattern' && (
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.pattern.presetLabel')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.pattern.presetLabel')}</label>
               <select className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white" onChange={(e) => handleSettingChange('pattern', e.target.value)}>
-                <option value="">{t('splitModal.settings.pattern.selectTemplate')}</option>
-                <option value="(Chapter|Part|Section)\s*(\d+|[IVXLCDM]+)">{t('splitModal.settings.pattern.chaptersAndSections')}</option>
-                <option value="^\s*\d+\.\s*">{t('splitModal.settings.pattern.numberedItems')}</option>
-                <option value="\d{1,2}[\./-]\d{1,2}([\./-]\d{2,4})?">{t('splitModal.settings.pattern.datesTimestamps')}</option>
+                <option value="">{t('settings.pattern.selectTemplate')}</option>
+                <option value="(Chapter|Part|Section)\s*(\d+|[IVXLCDM]+)">{t('settings.pattern.chaptersAndSections')}</option>
+                <option value="^\s*\d+\.\s*">{t('settings.pattern.numberedItems')}</option>
+                <option value="\d{1,2}[\./-]\d{1,2}([\./-]\d{2,4})?">{t('settings.pattern.datesTimestamps')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">{t('splitModal.settings.pattern.patternLabel')}</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('settings.pattern.patternLabel')}</label>
               <input
                 type="text"
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
                 value={settings.pattern}
                 onChange={(e) => handleSettingChange('pattern', e.target.value)}
-                placeholder={t('splitModal.settings.pattern.patternPlaceholder')}
+                placeholder={t('settings.pattern.patternPlaceholder')}
               />
             </div>
             <div>
               <label className="inline-flex items-center">
                 <input type="checkbox" className="mr-2" checked={settings.includeMatch} onChange={(e) => handleSettingChange('includeMatch', e.target.checked)} />
-                <span>{t('splitModal.settings.pattern.includeMatch')}</span>
+                <span>{t('settings.pattern.includeMatch')}</span>
               </label>
             </div>
           </div>
@@ -293,24 +293,24 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
             <div>
               <label className="inline-flex items-center">
                 <input type="checkbox" className="mr-2" checked={settings.createSubItems} onChange={(e) => handleSettingChange('createSubItems', e.target.checked)} />
-                <span>{t('splitModal.settings.options.createSubItems')}</span>
+                <span>{t('settings.options.createSubItems')}</span>
               </label>
-              <p className="text-xs text-gray-400 ml-6">{t('splitModal.settings.options.createSubItemsHint')}</p>
+              <p className="text-xs text-gray-400 ml-6">{t('settings.options.createSubItemsHint')}</p>
             </div>
 
             <div>
               <label className="inline-flex items-center">
                 <input type="checkbox" className="mr-2" checked={settings.keepOriginal} onChange={(e) => handleSettingChange('keepOriginal', e.target.checked)} />
-                <span>{t('splitModal.settings.options.keepOriginal')}</span>
+                <span>{t('settings.options.keepOriginal')}</span>
               </label>
-              <p className="text-xs text-gray-400 ml-6">{t('splitModal.settings.options.keepOriginalHint')}</p>
+              <p className="text-xs text-gray-400 ml-6">{t('settings.options.keepOriginalHint')}</p>
             </div>
           </div>
         </div>
 
         <div className="flex justify-end pt-4">
           <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600" onClick={handlePreview}>
-            {t('splitModal.previewButton')}
+            {t('previewButton')}
           </button>
         </div>
       </div>
@@ -319,20 +319,20 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
 
   const modalContent = (
     <div>
-      <p className="text-gray-300 mb-2">{previewMode ? `${t('splitModal.previewSection.resultsTitle')} "${title}"` : `${t('splitModal.previewSection.settingsTitle')} "${title}"`}</p>
+      <p className="text-gray-300 mb-2">{previewMode ? `${t('previewSection.resultsTitle')} "${title}"` : `${t('previewSection.settingsTitle')} "${title}"`}</p>
 
       {previewMode ? (
         <div className="mt-2">
           <SplitPreviewList parts={splitParts} selected={selectedParts} onTogglePart={handleTogglePart} onToggleAll={handleToggleAll} />
           <div className="mt-2 text-right text-sm text-gray-400">
-            {t('splitModal.previewSection.selected')}: {getSelectedCount()} {t('splitModal.previewSection.of')} {splitParts.length}
+            {t('previewSection.selected')}: {getSelectedCount()} {t('previewSection.of')} {splitParts.length}
           </div>
           <div className="flex justify-between mt-4">
             <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" onClick={() => setPreviewMode(false)}>
-              {t('splitModal.previewSection.backToSettings')}
+              {t('previewSection.backToSettings')}
             </button>
             <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600" onClick={handleApply} disabled={getSelectedCount() === 0}>
-              {t('splitModal.apply')}
+              {t('apply')}
             </button>
           </div>
         </div>
@@ -346,10 +346,10 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t('splitModal.title')}
-      primaryButtonText={previewMode ? t('splitModal.apply') : t('splitModal.previewButton')}
+      title={t('title')}
+      primaryButtonText={previewMode ? t('apply') : t('previewButton')}
       onPrimaryButtonClick={previewMode ? handleApply : handlePreview}
-      secondaryButtonText={t('splitModal.cancel')}
+      secondaryButtonText={t('cancel')}
     >
       {modalContent}
     </Modal>

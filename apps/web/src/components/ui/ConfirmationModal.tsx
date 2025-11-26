@@ -50,9 +50,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const { t } = useTranslation();
 
   // Используем переводы по умолчанию, если не переданы значения
-  const modalTitle = title || t('modals.confirmation.title');
-  const confirmText = confirmButtonText || t('modals.confirmation.confirmButton');
-  const cancelText = cancelButtonText || t('modals.confirmation.cancelButton');
+  const modalTitle = title || t('confirmation.title');
+  const confirmText = confirmButtonText || t('confirmation.confirmButton');
+  const cancelText = cancelButtonText || t('confirmation.cancelButton');
   console.log('Rendering confirmation modal:', { isOpen, title, message, withInput, options });
 
   const handleConfirm = (inputValue?: string) => {

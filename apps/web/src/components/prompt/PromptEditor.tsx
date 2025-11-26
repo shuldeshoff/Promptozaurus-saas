@@ -182,7 +182,7 @@ const PromptEditor = () => {
     if (!block?.template) return;
     // В SaaS версии используем простой prompt (позже заменим на ConfirmationModal)
     const txtName = window.prompt(
-      t('editor.prompt.saveTemplate.message'),
+      t('prompt.saveTemplate.message'),
       currentFile.replace(/\.txt$/, '') || block.title
     );
     if (txtName !== null) {
@@ -267,7 +267,7 @@ const PromptEditor = () => {
     setFullscreenEditor({
       isOpen: true,
       content: block?.template || '',
-      title: `${t('editor.prompt.editing.template')}: ${block?.title || ''}`,
+      title: `${t('prompt.editing.template')}: ${block?.title || ''}`,
       isTemplate: true,
     });
   };
@@ -276,7 +276,7 @@ const PromptEditor = () => {
     setFullscreenEditor({
       isOpen: true,
       content: compiledPrompt,
-      title: `${t('editor.prompt.editing.result')}: ${block?.title || ''}`,
+      title: `${t('prompt.editing.result')}: ${block?.title || ''}`,
       isTemplate: false,
     });
   };
@@ -305,7 +305,7 @@ const PromptEditor = () => {
   // Обработчик отправки в ИИ (строки 298-315)
   const handleSendToAI = () => {
     if (!compiledPrompt || !compiledPrompt.trim()) {
-      alert(t('editor.prompt.ai.noContent')); // Позже заменим на уведомление
+      alert(t('prompt.ai.noContent')); // Позже заменим на уведомление
       return;
     }
 
@@ -348,10 +348,10 @@ const PromptEditor = () => {
             />
           </svg>
           <p className="text-lg font-medium text-gray-300 mb-2">
-            {t('editor.prompt.noSelection.title')}
+            {t('prompt.noSelection.title')}
           </p>
           <p className="text-sm text-gray-400">
-            {t('editor.prompt.noSelection.description')}
+            {t('prompt.noSelection.description')}
           </p>
         </div>
       </div>
@@ -369,7 +369,7 @@ const PromptEditor = () => {
       <div className="sticky top-0 z-10 bg-gray-900 pt-1 pb-2">
         {/* Заголовок блока (строки 345-353) */}
         <div className="mb-3 flex justify-between items-center">
-          <label className="block text-sm text-gray-400">{t('editor.prompt.title')}</label>
+          <label className="block text-sm text-gray-400">{t('prompt.title')}</label>
         </div>
         <input
           type="text"
@@ -386,10 +386,10 @@ const PromptEditor = () => {
               className="px-2 py-1 bg-purple-700 text-xs text-white rounded hover:bg-purple-600"
             >
               {isLoadingTemplates
-                ? t('editor.prompt.template.loading')
+                ? t('prompt.template.loading')
                 : currentFile
-                ? `${t('editor.prompt.template.file')}: ${currentFile}`
-                : t('editor.prompt.template.select')}
+                ? `${t('prompt.template.file')}: ${currentFile}`
+                : t('prompt.template.select')}
             </button>
             {isMenuOpen && (
               <div
@@ -402,7 +402,7 @@ const PromptEditor = () => {
                   <div className="p-2 border-b border-gray-700">
                     <input
                       type="text"
-                      placeholder={t('editor.prompt.template.searchPlaceholder')}
+                      placeholder={t('prompt.template.searchPlaceholder')}
                       className="w-full px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -414,15 +414,15 @@ const PromptEditor = () => {
                     {filteredTemplateFiles.length === 0 && !isLoadingTemplates && (
                       <div className="p-2 text-sm text-gray-400 text-center">
                         {searchQuery
-                          ? t('editor.prompt.template.notFound')
-                          : t('editor.prompt.template.noFiles')}
+                          ? t('prompt.template.notFound')
+                          : t('prompt.template.noFiles')}
                       </div>
                     )}
                     {isLoadingTemplates && (
                       <div className="p-4 text-center">
                         <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-blue-500 border-r-2 border-blue-500 border-b-2 border-transparent"></div>
                         <p className="mt-2 text-sm text-gray-400">
-                          {t('editor.prompt.template.loadingFiles')}
+                          {t('prompt.template.loadingFiles')}
                         </p>
                       </div>
                     )}
@@ -449,14 +449,14 @@ const PromptEditor = () => {
                         <div>
                           <h3 className="text-md font-medium text-blue-400">{previewFile}</h3>
                           <p className="text-xs text-gray-400">
-                            {previewContent.length} {t('editor.prompt.chars')}
+                            {previewContent.length} {t('prompt.chars')}
                           </p>
                         </div>
                         <button
                           className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500"
                           onClick={() => handleSelectTemplate(previewFile)}
                         >
-                          {t('editor.prompt.template.selectButton')}
+                          {t('prompt.template.selectButton')}
                         </button>
                       </div>
                       <div className="flex-1 overflow-y-auto p-3 bg-gray-900">
@@ -482,10 +482,10 @@ const PromptEditor = () => {
                         />
                       </svg>
                       <p className="text-gray-400 mb-2">
-                        {t('editor.prompt.template.previewHint')}
+                        {t('prompt.template.previewHint')}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {t('editor.prompt.template.hoverHint')}
+                        {t('prompt.template.hoverHint')}
                       </p>
                     </div>
                   )}
@@ -497,13 +497,13 @@ const PromptEditor = () => {
           {/* Кнопки справа (строки 443-486) */}
           <div className="flex items-center space-x-3">
             <span className="text-xs text-gray-400">
-              {(block.template || '').length} {t('editor.prompt.chars')}
+              {(block.template || '').length} {t('prompt.chars')}
             </span>
             <button
               className="p-1 text-blue-400 hover:text-blue-300"
               onClick={openTemplateFullscreen}
               onFocus={() => setActiveTextarea('template')}
-              title={t('editor.prompt.actions.editFullscreen')}
+              title={t('prompt.actions.editFullscreen')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -529,14 +529,14 @@ const PromptEditor = () => {
               onClick={handleSaveTemplateFile}
               disabled={!block.template}
             >
-              {saveSuccess ? t('editor.prompt.buttons.saved') : t('editor.prompt.buttons.save')}
+              {saveSuccess ? t('prompt.buttons.saved') : t('prompt.buttons.save')}
             </button>
             <button
               className="px-2 py-1 bg-purple-700 hover:bg-purple-600 text-xs text-white rounded"
               onClick={handleSaveTemplateFileAs}
               disabled={!block.template}
             >
-              {t('editor.prompt.buttons.saveAs')}
+              {t('prompt.buttons.saveAs')}
             </button>
           </div>
         </div>
@@ -544,7 +544,7 @@ const PromptEditor = () => {
         {/* Текстовое поле для ввода шаблона - высота 40vh (строки 489-496) */}
         <textarea
           className="w-full h-[40vh] mb-3 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white resize-y"
-          placeholder={t('editor.prompt.template.placeholder')}
+          placeholder={t('prompt.template.placeholder')}
           value={block.template || ''}
           onChange={handleTemplateChange}
           onFocus={() => setActiveTextarea('template')}
@@ -560,19 +560,19 @@ const PromptEditor = () => {
                 checked={wrapWithTags}
                 onChange={(e) => setWrapWithTags(e.target.checked)}
               />
-              {t('editor.prompt.wrapWithTags')}
+              {t('prompt.wrapWithTags')}
             </label>
             <div className="px-3 py-1 bg-gray-800 rounded border border-gray-700 text-xs text-gray-300">
               <span className="mr-2">
-                {t('editor.prompt.stats.template')}: {totalTemplateChars}
+                {t('prompt.stats.template')}: {totalTemplateChars}
               </span>
               |
               <span className="mx-2">
-                {t('editor.prompt.stats.context')}: {totalContextChars}
+                {t('prompt.stats.context')}: {totalContextChars}
               </span>
               |
               <span className="ml-2">
-                {t('editor.prompt.stats.total')}: {totalPromptChars}
+                {t('prompt.stats.total')}: {totalPromptChars}
               </span>
             </div>
           </div>
@@ -582,7 +582,7 @@ const PromptEditor = () => {
               copyTemplateSuccess ? 'bg-green-600' : 'bg-purple-600 hover:bg-purple-500'
             } text-white rounded`}
             disabled={!block.template}
-            title={t('editor.prompt.actions.copyTemplateTooltip')}
+            title={t('prompt.actions.copyTemplateTooltip')}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -599,8 +599,8 @@ const PromptEditor = () => {
               />
             </svg>
             {copyTemplateSuccess
-              ? t('editor.prompt.buttons.copied')
-              : t('editor.prompt.buttons.copyTemplate')}
+              ? t('prompt.buttons.copied')
+              : t('prompt.buttons.copyTemplate')}
           </button>
         </div>
       </div>
@@ -610,7 +610,7 @@ const PromptEditor = () => {
         {/* Скомпилированный промпт (строки 533-586) */}
         <div className="mb-2 flex justify-between items-center">
           <div className="flex items-center">
-            <label className="text-sm text-gray-400">{t('editor.prompt.readyPrompt')}</label>
+            <label className="text-sm text-gray-400">{t('prompt.readyPrompt')}</label>
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -618,7 +618,7 @@ const PromptEditor = () => {
               className="p-1 text-blue-400 hover:text-blue-300"
               onFocus={() => setActiveTextarea('result')}
               disabled={!compiledPrompt}
-              title={t('editor.prompt.actions.viewFullscreen')}
+              title={t('prompt.actions.viewFullscreen')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -641,7 +641,7 @@ const PromptEditor = () => {
                 copySuccess ? 'bg-green-600' : 'bg-blue-700 hover:bg-blue-600'
               } text-white rounded`}
               disabled={!compiledPrompt}
-              title={t('editor.prompt.actions.copyFullTooltip')}
+              title={t('prompt.actions.copyFullTooltip')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -658,8 +658,8 @@ const PromptEditor = () => {
                 />
               </svg>
               {copySuccess
-                ? t('editor.prompt.buttons.copiedFull')
-                : t('editor.prompt.buttons.copyFull')}
+                ? t('prompt.buttons.copiedFull')
+                : t('prompt.buttons.copyFull')}
             </button>
 
             {/* Кнопка отправки в ИИ (строки 573-584) */}
@@ -667,7 +667,7 @@ const PromptEditor = () => {
               onClick={handleSendToAI}
               className="flex items-center px-3 py-1 text-xs bg-purple-700 hover:bg-purple-600 text-white rounded transition-colors"
               disabled={!compiledPrompt || !compiledPrompt.trim()}
-              title={t('editor.prompt.actions.sendAITooltip')}
+              title={t('prompt.actions.sendAITooltip')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -683,7 +683,7 @@ const PromptEditor = () => {
                   d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                 />
               </svg>
-              {t('editor.prompt.buttons.sendAI')}
+              {t('prompt.buttons.sendAI')}
             </button>
           </div>
         </div>
@@ -698,7 +698,7 @@ const PromptEditor = () => {
             </pre>
           ) : (
             <p className="text-gray-500 text-sm text-center">
-              {t('editor.prompt.noReadyText')}
+              {t('prompt.noReadyText')}
             </p>
           )}
         </div>

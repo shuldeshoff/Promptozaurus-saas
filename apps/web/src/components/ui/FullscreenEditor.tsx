@@ -15,7 +15,7 @@ const FullscreenEditor = ({ isOpen, onClose, onSave, title, content = '' }: Full
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Use provided title or default from translation
-  const displayTitle = title || t('modals.fullscreenEditor.defaultTitle');
+  const displayTitle = title || t('fullscreenEditor.defaultTitle');
 
   useEffect(() => {
     setText(content);
@@ -50,13 +50,13 @@ const FullscreenEditor = ({ isOpen, onClose, onSave, title, content = '' }: Full
         const copyBtn = document.getElementById('copy-button');
         if (copyBtn) {
           const originalText = copyBtn.textContent;
-          copyBtn.textContent = t('modals.fullscreenEditor.copied');
+          copyBtn.textContent = t('fullscreenEditor.copied');
           setTimeout(() => {
             copyBtn.textContent = originalText;
           }, 1500);
         }
       })
-      .catch((err) => console.error(t('modals.fullscreenEditor.copyError') + ':', err));
+      .catch((err) => console.error(t('fullscreenEditor.copyError') + ':', err));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -74,7 +74,7 @@ const FullscreenEditor = ({ isOpen, onClose, onSave, title, content = '' }: Full
     <div className="fixed inset-0 bg-gray-900 bg-opacity-95 z-50 flex flex-col" onKeyDown={handleKeyDown}>
       <div className="bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
         <h2 className="text-lg font-medium text-white">{displayTitle}</h2>
-        <button className="text-gray-400 hover:text-white" onClick={onClose} title={t('modals.fullscreenEditor.closeTooltip')}>
+        <button className="text-gray-400 hover:text-white" onClick={onClose} title={t('fullscreenEditor.closeTooltip')}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -94,17 +94,17 @@ const FullscreenEditor = ({ isOpen, onClose, onSave, title, content = '' }: Full
 
       <div className="bg-gray-800 p-4 border-t border-gray-700 flex justify-between items-center">
         <div className="text-sm text-gray-400">
-          {text.length} {t('modals.fullscreenEditor.characters')}
+          {text.length} {t('fullscreenEditor.characters')}
         </div>
         <div className="flex space-x-4">
           <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors" onClick={onClose}>
-            {t('modals.fullscreenEditor.cancel')}
+            {t('fullscreenEditor.cancel')}
           </button>
           <button id="copy-button" className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-600 transition-colors" onClick={handleCopy}>
-            {t('modals.fullscreenEditor.copy')}
+            {t('fullscreenEditor.copy')}
           </button>
           <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600 transition-colors" onClick={handleSave}>
-            {t('modals.fullscreenEditor.ok')}
+            {t('fullscreenEditor.ok')}
           </button>
         </div>
       </div>

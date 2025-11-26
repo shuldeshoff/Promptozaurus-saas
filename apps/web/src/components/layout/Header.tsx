@@ -20,10 +20,10 @@ const Header = () => {
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium text-gray-300">
-            {t('header.project.label', 'Project')}:
+            {t('project.label', 'Project')}:
           </span>
           <span className="text-sm text-white">
-            {currentProject?.name || t('header.project.newProject', 'New Project')}
+            {currentProject?.name || t('project.newProject', 'New Project')}
           </span>
         </div>
 
@@ -55,7 +55,7 @@ const Header = () => {
               onClick={logout}
               className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
             >
-              {t('header.app.exit', 'Exit')}
+              {t('app.exit', 'Exit')}
             </button>
           </div>
         )}
