@@ -31,7 +31,8 @@
       "edit": "Edit in fullscreen mode (Ctrl+E)",
       "addSubItem": "Add subitem",
       "deleteItem": "Delete item",
-      "deleteSubItem": "Delete subitem"
+      "deleteSubItem": "Delete subitem",
+      "deleteConfirm": "Are you sure you want to delete?"
     },
     "buttons": {
       "create": "Create",
@@ -41,65 +42,5 @@
       "part": "part"
     },
     "editing": "Editing:"
-  },
-  "prompt": {
-    "title": "Prompt Title",
-    "noSelection": {
-      "title": "No prompt selected",
-      "description": "Select an existing block or create a new one in the left panel"
-    },
-    "template": {
-      "loading": "Loading...",
-      "file": "File",
-      "select": "Select Template",
-      "searchPlaceholder": "Search templates...",
-      "notFound": "Nothing found",
-      "noFiles": "No .txt files",
-      "loadingFiles": "Loading templates...",
-      "selectButton": "Select Template",
-      "previewHint": "Select a template from the list on the left to preview",
-      "hoverHint": "Hover over a file name for preview",
-      "placeholder": "Enter template text..."
-    },
-    "saveTemplate": {
-      "title": "Save Template",
-      "message": "Enter file name (without .txt) or leave:"
-    },
-    "chars": "characters",
-    "wrapWithTags": "Wrap with tags",
-    "readyPrompt": "Ready Prompt",
-    "noReadyText": "No ready text",
-    "stats": {
-      "template": "Template",
-      "context": "Context",
-      "total": "Total"
-    },
-    "editing": {
-      "template": "Editing template",
-      "result": "Prompt result"
-    },
-    "ai": {
-      "noContent": "No content to send to AI",
-      "untitled": "Untitled prompt"
-    },
-    "actions": {
-      "editFullscreen": "Edit template in fullscreen (Ctrl+E)",
-      "viewFullscreen": "Fullscreen view (Ctrl+E)",
-      "copyTemplateTooltip": "Copy template only without context",
-      "copyFullTooltip": "Copy full prompt (template + context)",
-      "sendAITooltip": "Send prompt to AI for analysis and response"
-    },
-    "buttons": {
-      "save": "Save",
-      "saved": "Saved",
-      "saveAs": "Save As...",
-      "selectFolder": "Select Template Folder",
-      "selectFolderTooltip": "Specify directory for txt templates",
-      "copyTemplate": "Copy Template",
-      "copied": "Copied",
-      "copyFull": "Copy Full Prompt",
-      "copiedFull": "Full prompt copied",
-      "sendAI": "Send to AI"
-    }
   }
 }

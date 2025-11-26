@@ -17,6 +17,8 @@ import editorEN from '../locales/en/editor.json';
 import editorRU from '../locales/ru/editor.json';
 import modalsEN from '../locales/en/modals.json';
 import modalsRU from '../locales/ru/modals.json';
+import splitModalEN from '../locales/en/splitModal.json';
+import splitModalRU from '../locales/ru/splitModal.json';
 import aiEN from '../locales/en/ai.json';
 import aiRU from '../locales/ru/ai.json';
 import notificationsEN from '../locales/en/notifications.json';
@@ -33,6 +35,7 @@ const resources = {
     blockItem: blockItemEN,
     editor: editorEN,
     modals: modalsEN,
+    splitModal: splitModalEN,
     ai: aiEN,
     notifications: notificationsEN,
     contextSelection: contextSelectionEN,
@@ -45,6 +48,7 @@ const resources = {
     blockItem: blockItemRU,
     editor: editorRU,
     modals: modalsRU,
+    splitModal: splitModalRU,
     ai: aiRU,
     notifications: notificationsRU,
     contextSelection: contextSelectionRU,

@@ -1,40 +1,4 @@
 {
-  "confirmation": {
-    "title": "Подтверждение",
-    "confirmButton": "Подтвердить",
-    "cancelButton": "Отмена",
-    "deleteTitle": "Удаление",
-    "deleteMessage": "Вы уверены, что хотите удалить?",
-    "unsavedChangesTitle": "Несохраненные изменения",
-    "unsavedChangesMessage": "У вас есть несохраненные изменения. Вы уверены, что хотите продолжить?"
-  },
-  "ai": {
-    "title": "Настройки AI",
-    "provider": "Провайдер",
-    "model": "Модель",
-    "apiKey": "API ключ",
-    "temperature": "Температура",
-    "maxTokens": "Макс. токенов",
-    "saveButton": "Сохранить настройки",
-    "cancelButton": "Отмена",
-    "testConnection": "Проверить соединение",
-    "selectProvider": "Выберите провайдера",
-    "selectModel": "Выберите модель",
-    "enterApiKey": "Введите API ключ"
-  },
-  "response": {
-    "title": "Ответ AI",
-    "copyButton": "Копировать",
-    "closeButton": "Закрыть",
-    "regenerateButton": "Сгенерировать заново",
-    "loading": "Ожидание ответа...",
-    "error": "Ошибка при получении ответа"
-  },
-  "fullscreen": {
-    "exitButton": "Выйти из полноэкранного режима",
-    "saveButton": "Сохранить",
-    "cancelButton": "Отмена"
-  },
   "fullscreenEditor": {
     "defaultTitle": "Редактирование",
     "closeTooltip": "Закрыть без сохранения",
