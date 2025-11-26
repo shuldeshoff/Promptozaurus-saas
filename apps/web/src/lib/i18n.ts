@@ -62,8 +62,12 @@ i18n
     resources,
     fallbackLng: 'en',
     defaultNS: 'common',
+    lng: 'ru', // Явно устанавливаем русский по умолчанию
     interpolation: {
       escapeValue: false,
+    },
+    react: {
+      useSuspense: false, // Отключаем Suspense для немедленной инициализации
     },
   });
 
