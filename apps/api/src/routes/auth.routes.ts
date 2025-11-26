@@ -31,7 +31,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       const { code, error } = request.query;
 
       if (error || !code) {
-        return reply.redirect(`${process.env.CORS_ORIGIN}?error=auth_failed`);
+        return reply.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}?error=auth_failed`);
       }
 
       try {
@@ -96,11 +96,11 @@ export async function authRoutes(fastify: FastifyInstance) {
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
           })
-          .redirect(process.env.CORS_ORIGIN || 'http://localhost:5173');
+          .redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('OAuth callback error:', errorMessage);
-        return reply.redirect(`${process.env.CORS_ORIGIN}?error=auth_failed`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'OAuth callback error');
+        return reply.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}?error=auth_failed`);
       }
     }
   );
