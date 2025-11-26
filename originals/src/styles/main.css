@@ -8,6 +8,9 @@
 /* Импорт стилей темной темы */
 @import './dark-theme.css';
 
+/* Импорт стилей для выбора контекста */
+@import './context-selection.css';
+
 /* Основные стили */
 body {
   margin: 0;

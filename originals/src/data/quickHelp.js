@@ -5,9 +5,10 @@ export const quickHelpData = {
     title: "Быстрая справка",
     sections: [
       {
-        title: "🦖 О Promptozaurus",
+        title: "О PromptyFlow",
         items: [
           "• Профессиональный конструктор промптов для AI",
+          "• Сайт: http://promptyflow.com/",
           "• Основная идея: гибкое управление структурой контекста",
           "• Выбирайте какие части контекста включать в промпт",
           "• Создавайте многоуровневые шаблоны для разных задач"
@@ -74,9 +75,10 @@ export const quickHelpData = {
     title: "Quick Help",
     sections: [
       {
-        title: "🦖 About Promptozaurus",
+        title: "About PromptyFlow",
         items: [
           "• Professional prompt constructor for AI models",
+          "• Website: http://promptyflow.com/",
           "• Core idea: flexible context structure management",
           "• Choose which context parts to include in prompts",
           "• Create multi-level templates for different tasks"

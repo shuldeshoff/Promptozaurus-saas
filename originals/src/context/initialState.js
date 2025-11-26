@@ -3,6 +3,8 @@ console.log('Инициализация начального состояния 
 
 const initialState = {
   activeContextBlock: 0,
+  activeContextItemId: null,      // ID активного элемента контекста
+  activeContextSubItemId: null,   // ID активного подэлемента контекста
   activePromptBlock: 0,
   activeTab: 'context',
   contextBlocks: [],

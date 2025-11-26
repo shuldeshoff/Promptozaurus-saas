@@ -1,7 +1,7 @@
 {
-  "name": "promptozaurus",
+  "name": "promptyflow",
   "version": "1.0.0",
-  "description": "Promptozaurus - AI Prompt Constructor",
+  "description": "PromptyFlow - AI Prompt Constructor | http://promptyflow.com/",
   "main": "main.js",
   "author": "Твоё Имя",
   "license": "ISC",
@@ -45,8 +45,8 @@
     "webpack-cli": "^5.1.4"
   },
   "build": {
-    "appId": "com.promptozaurus.app",
-    "productName": "Promptozaurus",
+    "appId": "com.promptyflow.app",
+    "productName": "PromptyFlow",
     "directories": {
       "output": "build"
     },
@@ -108,7 +108,7 @@
       "icon": "assets/icon.png"
     },
     "portable": {
-      "artifactName": "Promptozaurus-portable.exe"
+      "artifactName": "PromptyFlow-portable.exe"
     },
     "nsis": {
       "oneClick": false,

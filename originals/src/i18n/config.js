@@ -15,6 +15,7 @@ import ruAi from '../locales/ru/ai.json';
 import ruBlockItem from '../locales/ru/blockItem.json';
 import ruSplitModal from '../locales/ru/splitModal.json';
 import ruAiConfig from '../locales/ru/aiConfig.json';
+import ruContextSelection from '../locales/ru/contextSelection.json';
 
 import enCommon from '../locales/en/common.json';
 import enHeader from '../locales/en/header.json';
@@ -27,6 +28,7 @@ import enAi from '../locales/en/ai.json';
 import enBlockItem from '../locales/en/blockItem.json';
 import enSplitModal from '../locales/en/splitModal.json';
 import enAiConfig from '../locales/en/aiConfig.json';
+import enContextSelection from '../locales/en/contextSelection.json';
 
 // Объединение всех переводов
 const resources = {
@@ -42,7 +44,8 @@ const resources = {
       ai: ruAi,
       blockItem: ruBlockItem,
       splitModal: ruSplitModal,
-      aiConfig: ruAiConfig
+      aiConfig: ruAiConfig,
+      contextSelection: ruContextSelection
     }
   },
   en: {
@@ -57,7 +60,8 @@ const resources = {
       ai: enAi,
       blockItem: enBlockItem,
       splitModal: enSplitModal,
-      aiConfig: enAiConfig
+      aiConfig: enAiConfig,
+      contextSelection: enContextSelection
     }
   }
 };

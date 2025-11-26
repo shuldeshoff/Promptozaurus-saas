@@ -28,7 +28,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    title: 'Promptozaurus',
+    title: 'PromptyFlow',
     icon: path.join(__dirname, '..', 'assets', 'icon.ico'),
     webPreferences: {
       // Отключаем прямую интеграцию с Node.js в целях безопасности

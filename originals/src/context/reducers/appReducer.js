@@ -11,12 +11,25 @@ const appReducer = (state, action) => {
       return { ...state, activeTab: action.payload };
       
     case ActionTypes.SET_ACTIVE_CONTEXT_BLOCK:
-      return { 
-        ...state, 
-        activeContextBlock: action.payload, 
-        activeTab: 'context' 
+      return {
+        ...state,
+        activeContextBlock: action.payload,
+        activeTab: 'context',
+        // Сбрасываем активный элемент/подэлемент при смене блока
+        activeContextItemId: null,
+        activeContextSubItemId: null
       };
-      
+
+    case ActionTypes.SET_ACTIVE_CONTEXT_ITEM:
+      return {
+        ...state,
+        // Устанавливаем блок, элемент и подэлемент за один раз
+        activeContextBlock: action.payload.blockId,
+        activeContextItemId: action.payload.itemId,
+        activeContextSubItemId: action.payload.subItemId,
+        activeTab: 'context'
+      };
+
     case ActionTypes.SET_ACTIVE_PROMPT_BLOCK:
       return { 
         ...state, 
@@ -373,9 +386,9 @@ const appReducer = (state, action) => {
         id: newId,
         title: action.payload?.title || 'Новый промпт',
         template: '',
-        // Название txt-файла можно хранить отдельно, если нужно
         templateFilename: null,
-        selectedContexts: []
+        selectedContexts: [],
+        selectionOrder: []
       };
       return {
         ...state,
@@ -401,20 +414,21 @@ const appReducer = (state, action) => {
     }
 
     case ActionTypes.UPDATE_SELECTED_CONTEXTS: {
-      const { promptId, selectedContexts } = action.payload;
+      const { promptId, selectedContexts, selectionOrder } = action.payload;
       return {
         ...state,
         promptBlocks: state.promptBlocks.map(block =>
           block.id === promptId
-            ? { 
-                ...block, 
-                selectedContexts: Array.isArray(selectedContexts) 
+            ? {
+                ...block,
+                selectedContexts: Array.isArray(selectedContexts)
                   ? selectedContexts.map(sel => ({
                       ...sel,
                       itemIds: Array.isArray(sel.itemIds) ? sel.itemIds : [],
                       subItemIds: Array.isArray(sel.subItemIds) ? sel.subItemIds : []
                     }))
-                  : []
+                  : [],
+                selectionOrder: Array.isArray(selectionOrder) ? selectionOrder : []
               }
             : block
         )
@@ -606,18 +620,19 @@ const appReducer = (state, action) => {
           })) 
         : [];
       
-      // Миграция данных в промптах: добавляем поле subItemIds, если его нет
-      const migratedPromptBlocks = Array.isArray(projectData.promptBlocks) 
+      // Миграция данных в промптах: добавляем поля subItemIds и selectionOrder, если их нет
+      const migratedPromptBlocks = Array.isArray(projectData.promptBlocks)
         ? projectData.promptBlocks.map(block => ({
             ...block,
-            selectedContexts: Array.isArray(block.selectedContexts) 
+            selectedContexts: Array.isArray(block.selectedContexts)
               ? block.selectedContexts.map(sel => ({
                   ...sel,
                   itemIds: Array.isArray(sel.itemIds) ? sel.itemIds : [],
-                  subItemIds: Array.isArray(sel.subItemIds) ? sel.subItemIds : [] // Добавляем пустой массив ID подэлементов, если его нет
-                })) 
-              : []
-          })) 
+                  subItemIds: Array.isArray(sel.subItemIds) ? sel.subItemIds : []
+                }))
+              : [],
+            selectionOrder: Array.isArray(block.selectionOrder) ? block.selectionOrder : []
+          }))
         : [];
       
       console.log('Миграция данных проекта завершена');
@@ -680,20 +695,21 @@ const appReducer = (state, action) => {
           })) 
         : [];
       
-      // Миграция данных в промптах: добавляем поле subItemIds, если его нет
-      const migratedPromptBlocks = Array.isArray(t.promptBlocks) 
+      // Миграция данных в промптах: добавляем поля subItemIds и selectionOrder, если их нет
+      const migratedPromptBlocks = Array.isArray(t.promptBlocks)
         ? t.promptBlocks.map(block => ({
             ...block,
-            selectedContexts: Array.isArray(block.selectedContexts) 
+            selectedContexts: Array.isArray(block.selectedContexts)
               ? block.selectedContexts.map(sel => ({
                   ...sel,
                   itemIds: Array.isArray(sel.itemIds) ? sel.itemIds : [],
-                  subItemIds: Array.isArray(sel.subItemIds) ? sel.subItemIds : [] // Добавляем пустой массив ID подэлементов, если его нет
-                })) 
-              : []
-          })) 
+                  subItemIds: Array.isArray(sel.subItemIds) ? sel.subItemIds : []
+                }))
+              : [],
+            selectionOrder: Array.isArray(block.selectionOrder) ? block.selectionOrder : []
+          }))
         : [];
-      
+
       return {
         ...state,
         projectName: t.projectName || 'New Project',

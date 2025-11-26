@@ -10,8 +10,12 @@ import SplitContentModal from '../ui/SplitContentModal';
 
 const ContextEditor = () => {
   const { t } = useTranslation();
-  const { getActiveContextBlock, actions, generateContextItemName, generateContextSubItemName } = useApp();
+  const { state, getActiveContextBlock, actions, generateContextItemName, generateContextSubItemName } = useApp();
   const block = getActiveContextBlock();
+
+  // Получаем глобальное состояние активного элемента/подэлемента
+  const globalActiveItemId = state.activeContextItemId;
+  const globalActiveSubItemId = state.activeContextSubItemId;
   
   // Состояние для добавления нового элемента
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -40,10 +44,10 @@ const ContextEditor = () => {
     title: ''
   });
   
-  // Состояние для отслеживания текущего активного элемента/подэлемента
-  const [activeItemId, setActiveItemId] = useState(null);
-  const [activeSubItemId, setActiveSubItemId] = useState(null);
-  
+  // Используем глобальное состояние напрямую для подсветки (без локального состояния)
+  const activeItemId = globalActiveItemId;
+  const activeSubItemId = globalActiveSubItemId;
+
   // Состояние развернутости блоков
   const [expandedItems, setExpandedItems] = useState({});
   const [autoExpandInitialized, setAutoExpandInitialized] = useState(false);
@@ -87,7 +91,34 @@ const ContextEditor = () => {
       }
     }
   }, [block?.id, block?.items?.length, autoExpandInitialized]);
-  
+
+  // Реакция на изменение глобального активного элемента/подэлемента
+  useEffect(() => {
+    if (globalActiveItemId !== null) {
+      // Если выбран подэлемент, автоматически разворачиваем родительский элемент
+      if (globalActiveSubItemId !== null) {
+        setExpandedItems(prev => ({
+          ...prev,
+          [globalActiveItemId]: true
+        }));
+        console.log(`Автораскрытие элемента ${globalActiveItemId} для отображения подэлемента ${globalActiveSubItemId}`);
+      }
+
+      // Прокручиваем к активному элементу/подэлементу
+      setTimeout(() => {
+        const targetId = globalActiveSubItemId
+          ? `subitem-textarea-${globalActiveItemId}-${globalActiveSubItemId}`
+          : `item-textarea-${globalActiveItemId}`;
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targetElement.focus();
+          console.log(`Фокус установлен на ${globalActiveSubItemId ? 'подэлемент' : 'элемент'}`);
+        }
+      }, 100);
+    }
+  }, [globalActiveItemId, globalActiveSubItemId]);
+
   // Обработчик для открытия полноэкранного редактора с активным элементом или подэлементом
   const handleOpenActiveItemEditor = () => {
     if (activeSubItemId && activeItemId && block) {
@@ -501,21 +532,21 @@ const ContextEditor = () => {
   // Обработчик фокуса для отслеживания активного элемента
   const handleTextareaFocus = (itemId) => {
     console.log(`Установлен фокус на textarea элемента ${itemId}`);
-    setActiveItemId(itemId);
-    setActiveSubItemId(null);
-    
+    // Обновляем глобальное состояние (локальное синхронизируется через useEffect)
+    actions.setActiveContextItem(block.id, itemId, null);
+
     // При фокусе на элементе прокручиваем к соответствующему блоку в центральной панели
     setTimeout(() => {
       actions.scrollToBlock('context', block.id);
     }, 50);
   };
-  
+
   // Обработчик фокуса для отслеживания активного подэлемента
   const handleSubItemTextareaFocus = (itemId, subItemId) => {
     console.log(`Установлен фокус на textarea подэлемента ${subItemId}`);
-    setActiveItemId(itemId);
-    setActiveSubItemId(subItemId);
-    
+    // Обновляем глобальное состояние (локальное синхронизируется через useEffect)
+    actions.setActiveContextItem(block.id, itemId, subItemId);
+
     // При фокусе на подэлементе прокручиваем к соответствующему блоку в центральной панели
     setTimeout(() => {
       actions.scrollToBlock('context', block.id);
@@ -548,8 +579,21 @@ const ContextEditor = () => {
       </div>
       
       {normalizedItems.map((item, index) => (
-        <div className="mb-6 bg-gray-800 border border-gray-700 rounded-lg" key={item.id}>
-          <div className="flex justify-between items-center p-3 border-b border-gray-700">
+        <div
+          className={`mb-6 bg-gray-800 border rounded-lg transition-all duration-200 ${
+            activeItemId === item.id && !activeSubItemId
+              ? 'border-blue-500 ring-2 ring-blue-500/40 shadow-lg shadow-blue-500/20'
+              : activeItemId === item.id
+                ? 'border-blue-400/50 ring-1 ring-blue-400/20'
+                : 'border-gray-700'
+          }`}
+          key={item.id}
+        >
+          <div className={`flex justify-between items-center p-3 border-b transition-colors duration-200 ${
+            activeItemId === item.id && !activeSubItemId
+              ? 'border-blue-500/50 bg-blue-900/20'
+              : 'border-gray-700'
+          }`}>
             <div className="flex items-center flex-1 mr-4">
               {/* Улучшенный индикатор подэлементов с количеством */}
               {Array.isArray(item.subItems) && item.subItems.length > 0 && (
@@ -680,8 +724,9 @@ const ContextEditor = () => {
           </div>
           
           {/* Поле для ввода содержимого элемента */}
-          <textarea 
-            className="w-full h-48 px-3 py-2 bg-gray-800 border-none rounded-b-lg text-white focus:outline-none focus:ring-1 focus:ring-blue-500" 
+          <textarea
+            id={`item-textarea-${item.id}`}
+            className="w-full h-48 px-3 py-2 bg-gray-800 border-none rounded-b-lg text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder={t('editor.context.item.textPlaceholder')}
             value={item.content}
             onChange={(e) => handleItemContentChange(item.id, e.target.value)}
@@ -713,7 +758,14 @@ const ContextEditor = () => {
               </div>
               
               {item.subItems.map((subItem, subIndex) => (
-                <div key={subItem.id} className="p-3 mx-3 my-2 border border-gray-600 rounded-md bg-gray-750 relative">
+                <div
+                  key={subItem.id}
+                  className={`p-3 mx-3 my-2 border rounded-md relative transition-all duration-200 ${
+                    activeSubItemId === subItem.id && activeItemId === item.id
+                      ? 'border-cyan-400 bg-cyan-900/30 ring-2 ring-cyan-400/40 shadow-lg shadow-cyan-500/20'
+                      : 'border-gray-600 bg-gray-750'
+                  }`}
+                >
                   {/* Декоративная линия связи */}
                   <div className="absolute left-[-12px] top-1/2 w-3 h-px bg-blue-400 opacity-40"></div>
                   <div className="flex justify-between items-center mb-2">
@@ -794,8 +846,9 @@ const ContextEditor = () => {
                   </div>
                   
                   {/* Поле для ввода содержимого подэлемента */}
-                  <textarea 
-                    className="w-full h-24 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                  <textarea
+                    id={`subitem-textarea-${item.id}-${subItem.id}`}
+                    className="w-full h-24 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder={t('editor.context.subItem.textPlaceholder')}
                     value={subItem.content || ''}
                     onChange={(e) => handleSubItemContentChange(item.id, subItem.id, e.target.value)}

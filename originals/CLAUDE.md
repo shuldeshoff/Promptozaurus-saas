@@ -1,4 +1,4 @@
-# Promptozaurus - Claude Code Instructions
+# PromptyFlow - Claude Code Instructions
 
 ## 🎯 Core Principles
 
@@ -18,8 +18,8 @@
 ## 🔧 Project Configuration
 
 ### Location & Structure
-- **Windows Path**: `C:\MyJSProject\Promptozaurus-v-0-5-en-ru"`
-- **WSL Path**: `/mnt/c/MyJSProject/Promptozaurus-v-0-5-en-ru`
+- **Windows Path**: `C:\MyJSProject\PromptyFlow-v-0-8-en-ru"`
+- **WSL Path**: `/mnt/c/MyJSProject/PromptyFlow-v-0-8-en-ru`
 - **Architecture**: Electron + React (multi-language support)
 - **Languages**: JavaScript ES6+, HTML5, CSS3
 - **I18n**: Built-in internationalization (en/ru)
@@ -44,7 +44,7 @@ Development:
 ## 📁 Project Structure
 
 ```
-Promptozaurus-v-0-5-en-ru/
+PromptyFlow-v-0-8-en-ru/
 ├── src/
 │   ├── main/              # Electron main process
 │   ├── renderer/           # React application
@@ -112,8 +112,8 @@ return <button>Save</button>;
 bash scripts/backup-win.sh
 
 # Backup locations
-Windows: C:\MyJSProject\Backups\Promptozaurus\
-WSL: ~/development/backups/Promptozaurus/
+Windows: C:\MyJSProject\Backups\PromptyFlow\
+WSL: ~/development/backups/PromptyFlow/
 ```
 
 ### Pre-task Checklist
@@ -267,7 +267,7 @@ npm run i18n:validate
 
 ## 📚 Project-Specific Knowledge
 
-### Promptozaurus Features
+### PromptyFlow Features
 - Multi-stage prompt construction
 - Template library with categories
 - Variable placeholder system
@@ -336,7 +336,7 @@ webPreferences: {
 
 ```bash
 # 1. Clone and setup
-cd /mnt/c/MyJSProject/Promptozaurus
+cd /mnt/c/MyJSProject/PromptyFlow
 
 # 2. Install dependencies
 npm install

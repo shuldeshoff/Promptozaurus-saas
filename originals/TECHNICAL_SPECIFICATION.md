@@ -1,4 +1,5 @@
-# Техническое задание: Promptozaurus SaaS
+# Техническое задание: PromptyFlow SaaS
+**Сайт: http://promptyflow.com/**
 
 ## 1. Описание проекта
 

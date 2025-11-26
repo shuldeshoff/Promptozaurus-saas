@@ -4,6 +4,7 @@ console.log('Инициализация типов действий');
 const ActionTypes = {
   SET_ACTIVE_TAB: 'SET_ACTIVE_TAB',
   SET_ACTIVE_CONTEXT_BLOCK: 'SET_ACTIVE_CONTEXT_BLOCK',
+  SET_ACTIVE_CONTEXT_ITEM: 'SET_ACTIVE_CONTEXT_ITEM',  // Активный элемент/подэлемент контекста
   SET_ACTIVE_PROMPT_BLOCK: 'SET_ACTIVE_PROMPT_BLOCK',
   
   UPDATE_CONTEXT_BLOCK: 'UPDATE_CONTEXT_BLOCK',

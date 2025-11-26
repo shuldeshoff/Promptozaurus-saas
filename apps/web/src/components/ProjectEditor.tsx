@@ -86,19 +86,14 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
       items: [],
     };
 
-    const updatedData = {
-      contextBlocks: [...contextBlocks, newBlock],
-      promptBlocks,
-    };
-
     try {
       await updateProjectMutation.mutateAsync({
         id: project.id,
-        data: updatedData,
+        data: {
+          contextBlocks: [...contextBlocks, newBlock],
+          promptBlocks,
+        },
       });
-      
-      // Force re-render by updating the project reference
-      window.location.reload();
     } catch (error) {
       console.error('Failed to add context block:', error);
       alert(t('messages.failedToAddBlock', 'Failed to add block'));

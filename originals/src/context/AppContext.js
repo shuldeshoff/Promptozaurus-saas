@@ -39,6 +39,14 @@ export function AppProvider({ children }) {
     setActiveContextBlock: (id) => {
       dispatch({ type: ActionTypes.SET_ACTIVE_CONTEXT_BLOCK, payload: id });
     },
+    // Устанавливает активный элемент/подэлемент контекста
+    setActiveContextItem: (blockId, itemId, subItemId = null) => {
+      // Один dispatch для установки блока, элемента и подэлемента
+      dispatch({
+        type: ActionTypes.SET_ACTIVE_CONTEXT_ITEM,
+        payload: { blockId, itemId, subItemId }
+      });
+    },
     setActivePromptBlock: (id) => {
       dispatch({ type: ActionTypes.SET_ACTIVE_TAB, payload: 'prompt' });
       dispatch({ type: ActionTypes.SET_ACTIVE_PROMPT_BLOCK, payload: id });
@@ -152,45 +160,85 @@ export function AppProvider({ children }) {
     deleteContextBlock: (blockId) => {
       const block = state.contextBlocks.find(b => b.id === blockId);
       if (!block) return;
-      openConfirmation(
-        'Delete context block',
-        `Are you sure you want to delete block "${block.title}"?`,
-        () => dispatch({ type: ActionTypes.DELETE_CONTEXT_BLOCK, payload: blockId }),
-        'Delete'
-      );
+
+      // Проверяем, пуст ли блок (нет items или все items пустые)
+      const isBlockEmpty = !block.items || block.items.length === 0 || block.items.every(item => {
+        const itemContentEmpty = !item.content || item.content.trim() === '';
+        const subItemsEmpty = !item.subItems || item.subItems.length === 0 ||
+          item.subItems.every(sub => !sub.content || sub.content.trim() === '');
+        return itemContentEmpty && subItemsEmpty;
+      });
+
+      if (isBlockEmpty) {
+        // Пустой блок - удаляем без подтверждения
+        dispatch({ type: ActionTypes.DELETE_CONTEXT_BLOCK, payload: blockId });
+      } else {
+        // Непустой блок - запрашиваем подтверждение
+        openConfirmation(
+          'Delete context block',
+          `Are you sure you want to delete block "${block.title}"?`,
+          () => dispatch({ type: ActionTypes.DELETE_CONTEXT_BLOCK, payload: blockId }),
+          'Delete'
+        );
+      }
     },
     deleteContextItem: (blockId, itemId) => {
       const block = state.contextBlocks.find(b => b.id === blockId);
       if (!block) return;
       const item = block.items.find(i => i.id === itemId);
       if (!item) return;
-      openConfirmation(
-        'Delete context item',
-        `Delete item "${item.title}"?`,
-        () => dispatch({ type: ActionTypes.DELETE_CONTEXT_ITEM, payload: { blockId, itemId } }),
-        'Delete'
-      );
+
+      // Проверяем, пуст ли элемент (нет контента и нет подэлементов с контентом)
+      const itemContentEmpty = !item.content || item.content.trim() === '';
+      const subItemsEmpty = !item.subItems || item.subItems.length === 0 ||
+        item.subItems.every(sub => !sub.content || sub.content.trim() === '');
+      const isItemEmpty = itemContentEmpty && subItemsEmpty;
+
+      if (isItemEmpty) {
+        // Пустой элемент - удаляем без подтверждения
+        dispatch({ type: ActionTypes.DELETE_CONTEXT_ITEM, payload: { blockId, itemId } });
+      } else {
+        // Непустой элемент - запрашиваем подтверждение
+        openConfirmation(
+          'Delete context item',
+          `Delete item "${item.title}"?`,
+          () => dispatch({ type: ActionTypes.DELETE_CONTEXT_ITEM, payload: { blockId, itemId } }),
+          'Delete'
+        );
+      }
     },
     // Метод для удаления подэлемента
     deleteContextSubItem: (blockId, itemId, subItemId) => {
       const block = state.contextBlocks.find(b => b.id === blockId);
       if (!block) return;
-      
+
       const item = block.items.find(i => i.id === itemId);
       if (!item || !Array.isArray(item.subItems)) return;
-      
+
       const subItem = item.subItems.find(s => s.id === subItemId);
       if (!subItem) return;
-      
-      openConfirmation(
-        'Delete context subitem',
-        `Delete subitem "${subItem.title}"?`,
-        () => dispatch({ 
-          type: ActionTypes.DELETE_CONTEXT_SUBITEM, 
-          payload: { blockId, itemId, subItemId } 
-        }),
-        'Delete'
-      );
+
+      // Проверяем, пуст ли подэлемент
+      const isSubItemEmpty = !subItem.content || subItem.content.trim() === '';
+
+      if (isSubItemEmpty) {
+        // Пустой подэлемент - удаляем без подтверждения
+        dispatch({
+          type: ActionTypes.DELETE_CONTEXT_SUBITEM,
+          payload: { blockId, itemId, subItemId }
+        });
+      } else {
+        // Непустой подэлемент - запрашиваем подтверждение
+        openConfirmation(
+          'Delete context subitem',
+          `Delete subitem "${subItem.title}"?`,
+          () => dispatch({
+            type: ActionTypes.DELETE_CONTEXT_SUBITEM,
+            payload: { blockId, itemId, subItemId }
+          }),
+          'Delete'
+        );
+      }
     },
     
     updatePromptBlock: useCallback((id, data) => {
@@ -219,19 +267,26 @@ export function AppProvider({ children }) {
         'Delete'
       );
     },
-    updateSelectedContexts: (promptId, selectedContexts) => {
+    updateSelectedContexts: (promptId, selectedContexts, selectionOrder) => {
       // Нормализуем данные перед обновлением
-      const normalizedSelectedContexts = Array.isArray(selectedContexts) 
+      const normalizedSelectedContexts = Array.isArray(selectedContexts)
         ? selectedContexts.map(sel => ({
             ...sel,
-            itemIds: Array.isArray(sel.itemIds) ? sel.itemIds : [], 
+            itemIds: Array.isArray(sel.itemIds) ? sel.itemIds : [],
             subItemIds: Array.isArray(sel.subItemIds) ? sel.subItemIds : []
           }))
         : [];
-      
+
+      // Нормализуем порядок выбора
+      const normalizedSelectionOrder = Array.isArray(selectionOrder) ? selectionOrder : [];
+
       dispatch({
         type: ActionTypes.UPDATE_SELECTED_CONTEXTS,
-        payload: { promptId, selectedContexts: normalizedSelectedContexts }
+        payload: {
+          promptId,
+          selectedContexts: normalizedSelectedContexts,
+          selectionOrder: normalizedSelectionOrder
+        }
       });
     },
     

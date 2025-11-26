@@ -1,4 +1,5 @@
-# 🦖 Promptozaurus - User Guide
+# PromptyFlow - User Guide
+**Website: http://promptyflow.com/**
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -15,7 +16,7 @@
 
 ## Introduction
 
-**Promptozaurus** is a professional tool for creating, organizing, and managing prompts for AI models. The application allows you to structure large volumes of contextual information and create complex multi-stage prompts.
+**PromptyFlow** is a professional tool for creating, organizing, and managing prompts for AI models. The application allows you to structure large volumes of contextual information and create complex multi-stage prompts.
 
 ### Key Features:
 - 📁 Project management with auto-save
@@ -30,7 +31,7 @@
 ### Installation
 1. Download the installer for your operating system
 2. Run the installation and follow the instructions
-3. After installation, launch Promptozaurus
+3. After installation, launch PromptyFlow
 
 ### First Launch
 On first launch, the application will:
@@ -301,7 +302,7 @@ In the AI dialog you can configure:
 ### Application Won't Start
 - Check system requirements
 - Reinstall the application
-- Delete settings folder in `%AppData%/Promptozaurus`
+- Delete settings folder in `%AppData%/PromptyFlow`
 
 ### Project Won't Save
 - Check access rights to projects folder
@@ -332,7 +333,8 @@ In the AI dialog you can configure:
 ## Feedback
 
 If you have questions or suggestions:
-- 📧 Email: support@promptozaurus.com
+- 🌐 Website: http://promptyflow.com/
+- 📧 Email: support@promptyflow.com
 - 🐛 Bug reports: GitHub Issues
 - 💬 Community: Discord server
 
@@ -340,4 +342,4 @@ If you have questions or suggestions:
 
 **Documentation Version**: 1.0.0  
 **Last Updated**: 2025  
-**© Promptozaurus Team**
+**© PromptyFlow Team**
