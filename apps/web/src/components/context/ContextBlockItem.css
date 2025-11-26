@@ -1,0 +1,294 @@
+/* Context Block Item Styles - портировано из originals/src/styles/context-selection.css */
+
+/* Блок контекста */
+.cn-block {
+  background: #0f172a;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 2px solid #1e3a8a;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cn-block--active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25), 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Заголовок блока */
+.cn-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cn-block__header:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+}
+
+.cn-block--active .cn-block__header {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.cn-block__title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #bfdbfe;
+}
+
+.cn-block--active .cn-block__title {
+  color: #ffffff;
+}
+
+.cn-block__stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.cn-block__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cn-block__action-btn {
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cn-block__action-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* Кнопка удаления - красная */
+.cn-block__action-btn--delete {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.2);
+}
+
+.cn-block__action-btn--delete:hover {
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.35);
+}
+
+/* Кнопка экспорта - зелёная */
+.cn-block__action-btn--export {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.2);
+}
+
+.cn-block__action-btn--export:hover {
+  color: #86efac;
+  background: rgba(74, 222, 128, 0.35);
+}
+
+/* Содержимое блока */
+.cn-block__content {
+  padding: 12px;
+  background: #0f172a;
+  border-radius: 0 0 6px 6px;
+}
+
+/* Ряды с элементами */
+.cn-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cn-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+/* Ряд с подэлементами */
+.cn-row--grouped {
+  padding: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  background: rgba(30, 58, 138, 0.15);
+}
+
+.cn-row--grouped:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(30, 58, 138, 0.25);
+}
+
+.cn-row__item {
+  flex-shrink: 0;
+}
+
+.cn-row__subitems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+/* Тайлы (элементы и подэлементы) */
+.cn-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  border: 1px solid #1e40af;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cn-tile:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  border-color: #3b82f6;
+}
+
+.cn-tile--item {
+  min-width: 180px;
+  max-width: 320px;
+}
+
+.cn-tile--subitem {
+  min-width: 100px;
+  max-width: 200px;
+  padding: 5px 8px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  border-color: #1e40af;
+  opacity: 0.95;
+}
+
+.cn-tile--subitem:hover {
+  opacity: 1;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+}
+
+/* Активный тайл */
+.cn-tile--active {
+  border-color: #60a5fa;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3), 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.cn-tile__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.cn-tile__title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e0f2fe;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cn-tile--subitem .cn-tile__title {
+  font-size: 11px;
+  font-weight: 400;
+  color: #bae6fd;
+}
+
+.cn-tile__chars {
+  font-size: 10px;
+  color: #7dd3fc;
+}
+
+.cn-tile--subitem .cn-tile__chars {
+  font-size: 9px;
+  color: #38bdf8;
+}
+
+/* Кнопки действий на тайле */
+.cn-tile__actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.cn-tile:hover .cn-tile__actions {
+  opacity: 1;
+}
+
+.cn-tile__action {
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  border-radius: 3px;
+  color: #93c5fd;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cn-tile__action:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.cn-tile__action--add:hover {
+  color: #60a5fa;
+}
+
+.cn-tile__action--delete:hover {
+  color: #f87171;
+}
+
+/* Кнопка добавления элемента */
+.cn-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 2px dashed #1e40af;
+  background: rgba(30, 64, 175, 0.1);
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cn-add-btn:hover {
+  border-color: #3b82f6;
+  border-style: solid;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.cn-add-btn--subitem {
+  width: 28px;
+  height: 28px;
+  border-width: 1px;
+}
+
+/* Пустое состояние */
+.cn-empty {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
