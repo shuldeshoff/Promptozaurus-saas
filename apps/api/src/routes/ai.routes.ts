@@ -32,8 +32,8 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
           data: models,
         });
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Failed to get models:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Failed to get models');
         reply.status(500).send({
           success: false,
           error: 'Failed to get models',
@@ -72,8 +72,8 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
           data: models,
         });
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error(`Failed to refresh ${provider} models:`, errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, `Failed to refresh ${provider} models`);
         reply.status(500).send({
           success: false,
           error: 'Failed to refresh models',
@@ -159,8 +159,8 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
           data: response,
         });
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Failed to send AI message:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Failed to send AI message');
         reply.status(500).send({
           success: false,
           error: 'Failed to send message to AI',

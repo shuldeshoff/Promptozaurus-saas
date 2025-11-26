@@ -74,8 +74,8 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           },
         });
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Failed to upsert API key:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Failed to upsert API key');
         reply.status(500).send({
           success: false,
           error: 'Failed to save API key',
@@ -111,8 +111,8 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           message: 'API key deleted',
         });
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Failed to delete API key:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Failed to delete API key');
         reply.status(500).send({
           success: false,
           error: 'Failed to delete API key',
@@ -172,8 +172,8 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           },
         });
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Failed to test API key:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Failed to test API key');
 
         // Update status to error
         await apiKeyService.updateApiKeyStatus(

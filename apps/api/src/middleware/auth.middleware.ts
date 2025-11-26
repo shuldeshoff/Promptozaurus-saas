@@ -1,12 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { JwtPayload } from '../services/jwt.service.js';
 
-declare module 'fastify' {
-  interface FastifyRequest {
-    user?: JwtPayload | undefined;
-  }
-}
-
 declare module '@fastify/jwt' {
   interface FastifyJWT {
     user: JwtPayload;
@@ -26,7 +20,7 @@ export async function optionalAuth(request: FastifyRequest, _reply: FastifyReply
     await request.jwtVerify();
   } catch (err) {
     // Optional auth - continue even if token is invalid
-    request.user = undefined;
+    // request.user will be undefined
   }
 }
 

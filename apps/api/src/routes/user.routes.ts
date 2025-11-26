@@ -38,20 +38,20 @@ export async function userRoutes(fastify: FastifyInstance) {
           projectLimit: 10, // Free plan
         };
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Get profile error:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Get profile error');
         return reply.code(500).send({ error: 'Failed to get profile' });
       }
     }
   );
 
   // Update user profile
-  fastify.patch(
+  fastify.patch<{ Body: UpdateProfileBody }>(
     '/api/user/profile',
     { preHandler: authenticate },
     async (
-      request: FastifyRequest<{ Body: UpdateProfileBody }>,
-      reply: FastifyReply
+      request,
+      reply
     ) => {
       try {
         const { userId } = request.user as { userId: string };
@@ -73,8 +73,8 @@ export async function userRoutes(fastify: FastifyInstance) {
           updatedAt: updatedUser.updatedAt,
         };
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error('Update profile error:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        fastify.log.error({ error: errorMessage }, 'Update profile error');
         return reply.code(500).send({ error: 'Failed to update profile' });
       }
     }

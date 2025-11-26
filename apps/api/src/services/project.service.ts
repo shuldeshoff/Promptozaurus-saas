@@ -52,7 +52,7 @@ class ProjectService {
       data: {
         name: input.name,
         userId: input.userId,
-        data: initialData,
+        data: initialData as any,
       },
     });
   }
@@ -73,7 +73,7 @@ class ProjectService {
 
     return await prisma.project.update({
       where: { id: projectId },
-      data: input,
+      data: input as any,
     });
   }
 
@@ -105,7 +105,7 @@ class ProjectService {
       data: {
         name: `${original.name} (Copy)`,
         userId,
-        data: original.data,
+        data: original.data as any,
       },
     });
   }
@@ -118,7 +118,7 @@ class ProjectService {
       data: {
         name,
         userId,
-        data,
+        data: data as any,
       },
     });
   }

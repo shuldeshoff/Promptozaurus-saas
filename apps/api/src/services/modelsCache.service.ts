@@ -28,7 +28,7 @@ export const modelsCacheService = {
       });
 
       if (dbCache) {
-        const models = dbCache.models as AIModel[];
+        const models = JSON.parse(JSON.stringify(dbCache.modelsList)) as AIModel[];
         
         // Update Redis cache
         await redisService.set(redisKey, JSON.stringify(models), CACHE_TTL);
@@ -54,15 +54,16 @@ export const modelsCacheService = {
       await redisService.set(redisKey, JSON.stringify(models), CACHE_TTL);
       
       // Update database
+      const expiresAt = new Date(Date.now() + CACHE_TTL * 1000);
       await prisma.modelsCache.upsert({
         where: { provider },
         update: {
-          models: models as any,
-          updatedAt: new Date(),
+          modelsList: models as any,
         },
         create: {
           provider,
-          models: models as any,
+          modelsList: models as any,
+          expiresAt,
         },
       });
     } catch (error) {
@@ -87,7 +88,7 @@ export const modelsCacheService = {
 
       // Get models for each active provider
       const modelsPromises = activeProviders.map((provider) =>
-        this.getCachedModels(provider)
+        this.getCachedModels(provider as AiProvider)
       );
 
       const modelsArrays = await Promise.all(modelsPromises);
@@ -147,7 +148,7 @@ export const modelsCacheService = {
 
       await Promise.all(
         activeProviders.map((provider) =>
-          this.refreshProviderModels(userId, provider).catch((error) => {
+          this.refreshProviderModels(userId, provider as AiProvider).catch((error) => {
             console.error(`Failed to refresh ${provider} models:`, error);
           })
         )
