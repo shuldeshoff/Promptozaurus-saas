@@ -1,4 +1,5 @@
 import { useEditor } from '../../context/EditorContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 import { useUpdateProject } from '../../hooks/useProjects';
 import { useTranslation } from 'react-i18next';
 import type { ContextBlock } from '@promptozaurus/shared';
@@ -22,6 +23,7 @@ const formatChars = (num: number): string => {
 
 const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
   const { t } = useTranslation('blockItem');
+  const { openConfirmation } = useConfirmation();
   const { setActiveContextItem, currentProject } = useEditor();
   const updateProjectMutation = useUpdateProject();
 
@@ -45,17 +47,21 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
     e.stopPropagation();
     if (!currentProject) return;
 
-    if (!window.confirm(t('context.delete'))) return;
+    openConfirmation(
+      t('context.deleteTitle'),
+      t('context.delete'),
+      async () => {
+        const newContextBlocks = currentProject.data.contextBlocks.filter((b) => b.id !== block.id);
 
-    const newContextBlocks = currentProject.data.contextBlocks.filter((b) => b.id !== block.id);
-
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newContextBlocks,
-      },
-    });
+        await updateProjectMutation.mutateAsync({
+          id: currentProject.id,
+          data: {
+            ...currentProject.data,
+            contextBlocks: newContextBlocks,
+          },
+        });
+      }
+    );
   };
 
   // Обработчик экспорта блока
@@ -117,22 +123,26 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
     e.stopPropagation();
     if (!currentProject) return;
 
-    if (!window.confirm(t('context.deleteItem'))) return;
+    openConfirmation(
+      t('context.deleteItemTitle'),
+      t('context.deleteItem'),
+      async () => {
+        const updatedBlock = {
+          ...block,
+          items: block.items.filter((item) => item.id !== itemId),
+        };
 
-    const updatedBlock = {
-      ...block,
-      items: block.items.filter((item) => item.id !== itemId),
-    };
+        const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-    const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
-
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newContextBlocks,
-      },
-    });
+        await updateProjectMutation.mutateAsync({
+          id: currentProject.id,
+          data: {
+            ...currentProject.data,
+            contextBlocks: newContextBlocks,
+          },
+        });
+      }
+    );
   };
 
   // Обработчик добавления sub-item
@@ -182,29 +192,33 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
     e.stopPropagation();
     if (!currentProject) return;
 
-    if (!window.confirm(t('context.deleteSubItem'))) return;
+    openConfirmation(
+      t('context.deleteSubItemTitle'),
+      t('context.deleteSubItem'),
+      async () => {
+        const updatedBlock = {
+          ...block,
+          items: block.items.map((i) =>
+            i.id === itemId
+              ? {
+                  ...i,
+                  subItems: (i.subItems || []).filter((sub) => sub.id !== subItemId),
+                }
+              : i
+          ),
+        };
 
-    const updatedBlock = {
-      ...block,
-      items: block.items.map((i) =>
-        i.id === itemId
-          ? {
-              ...i,
-              subItems: (i.subItems || []).filter((sub) => sub.id !== subItemId),
-            }
-          : i
-      ),
-    };
+        const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-    const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
-
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newContextBlocks,
-      },
-    });
+        await updateProjectMutation.mutateAsync({
+          id: currentProject.id,
+          data: {
+            ...currentProject.data,
+            contextBlocks: newContextBlocks,
+          },
+        });
+      }
+    );
   };
 
   // Клик на элемент - активировать его в редакторе

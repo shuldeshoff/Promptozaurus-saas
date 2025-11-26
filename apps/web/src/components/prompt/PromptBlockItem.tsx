@@ -1,5 +1,6 @@
 import { useMemo, useCallback, useRef } from 'react';
 import { useEditor } from '../../context/EditorContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 import { useUpdateProject } from '../../hooks/useProjects';
 import { useTranslation } from 'react-i18next';
 import type { PromptBlock, SelectedContext } from '@promptozaurus/shared';
@@ -13,6 +14,7 @@ interface PromptBlockItemProps {
 
 const PromptBlockItem = ({ block, isActive }: PromptBlockItemProps) => {
   const { t } = useTranslation('blockItem');
+  const { openConfirmation } = useConfirmation();
   const { currentProject } = useEditor();
   const updateProjectMutation = useUpdateProject();
   const selectionPanelRef = useRef<ContextSelectionPanelRef>(null);
@@ -36,19 +38,23 @@ const PromptBlockItem = ({ block, isActive }: PromptBlockItemProps) => {
       e.stopPropagation();
       if (!currentProject) return;
 
-      if (!window.confirm(t('prompt.delete'))) return;
+      openConfirmation(
+        t('prompt.deleteTitle'),
+        t('prompt.delete'),
+        async () => {
+          const newPromptBlocks = currentProject.data.promptBlocks.filter((b) => b.id !== block.id);
 
-      const newPromptBlocks = currentProject.data.promptBlocks.filter((b) => b.id !== block.id);
-
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          promptBlocks: newPromptBlocks,
-        },
-      });
+          await updateProjectMutation.mutateAsync({
+            id: currentProject.id,
+            data: {
+              ...currentProject.data,
+              promptBlocks: newPromptBlocks,
+            },
+          });
+        }
+      );
     },
-    [currentProject, block.id, updateProjectMutation, t]
+    [currentProject, block.id, updateProjectMutation, t, openConfirmation]
   );
 
   // Обработчик изменения выбора контекста

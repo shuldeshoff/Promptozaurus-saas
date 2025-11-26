@@ -2,6 +2,7 @@
 // originals/src/components/context/ContextEditor.js
 import { useState, useRef, useEffect } from 'react';
 import { useEditor } from '../../context/EditorContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 import { useUpdateProject } from '../../hooks/useProjects';
 import { useTranslation } from 'react-i18next';
 import FullscreenEditor from '../ui/FullscreenEditor';
@@ -12,6 +13,7 @@ import type { ContextItem, ContextSubItem } from '@promptozaurus/shared';
 
 const ContextEditor = () => {
   const { t } = useTranslation();
+  const { openConfirmation } = useConfirmation();
   const {
     currentProject,
     activeContextBlockId,
@@ -279,22 +281,26 @@ const ContextEditor = () => {
     if (!currentProject) return;
     console.log(`Удаление элемента ${itemId} из блока ${block.id}`);
 
-    if (!window.confirm(t('editor.context.actions.deleteConfirm'))) return;
+    openConfirmation(
+      t('editor.context.actions.deleteTitle'),
+      t('editor.context.actions.deleteConfirm'),
+      async () => {
+        const updatedBlocks = currentProject.data.contextBlocks.map((b) => {
+          if (b.id === block.id) {
+            return {
+              ...b,
+              items: b.items.filter((item) => item.id !== itemId),
+            };
+          }
+          return b;
+        });
 
-    const updatedBlocks = currentProject.data.contextBlocks.map((b) => {
-      if (b.id === block.id) {
-        return {
-          ...b,
-          items: b.items.filter((item) => item.id !== itemId),
-        };
+        await updateProjectMutation.mutateAsync({
+          id: currentProject.id,
+          data: { ...currentProject.data, contextBlocks: updatedBlocks },
+        });
       }
-      return b;
-    });
-
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    );
   };
 
   // Обработчик удаления подэлемента (строки 408-412)
@@ -302,30 +308,34 @@ const ContextEditor = () => {
     if (!currentProject) return;
     console.log(`Удаление подэлемента ${subItemId} из элемента ${itemId}`);
 
-    if (!window.confirm(t('editor.context.actions.deleteConfirm'))) return;
+    openConfirmation(
+      t('editor.context.actions.deleteTitle'),
+      t('editor.context.actions.deleteConfirm'),
+      async () => {
+        const updatedBlocks = currentProject.data.contextBlocks.map((b) => {
+          if (b.id === block.id) {
+            return {
+              ...b,
+              items: b.items.map((item) => {
+                if (item.id === itemId) {
+                  return {
+                    ...item,
+                    subItems: item.subItems?.filter((sub) => sub.id !== subItemId),
+                  };
+                }
+                return item;
+              }),
+            };
+          }
+          return b;
+        });
 
-    const updatedBlocks = currentProject.data.contextBlocks.map((b) => {
-      if (b.id === block.id) {
-        return {
-          ...b,
-          items: b.items.map((item) => {
-            if (item.id === itemId) {
-              return {
-                ...item,
-                subItems: item.subItems?.filter((sub) => sub.id !== subItemId),
-              };
-            }
-            return item;
-          }),
-        };
+        await updateProjectMutation.mutateAsync({
+          id: currentProject.id,
+          data: { ...currentProject.data, contextBlocks: updatedBlocks },
+        });
       }
-      return b;
-    });
-
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    );
   };
 
   // Обработчик начала добавления нового элемента (строки 180-196)
