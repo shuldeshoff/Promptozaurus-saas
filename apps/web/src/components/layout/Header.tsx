@@ -1,11 +1,14 @@
 import { useAuthStore } from '../../store/auth.store';
 import { useTranslation } from 'react-i18next';
 import { useEditor } from '../../context/EditorContext';
+import { useUpdateProject } from '../../hooks/useProjects';
+import SaveStatus from '../SaveStatus';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuthStore();
   const { currentProject } = useEditor();
+  const updateMutation = useUpdateProject();
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ru' : 'en';
@@ -23,6 +26,16 @@ const Header = () => {
             {currentProject?.name || t('header.project.newProject', 'New Project')}
           </span>
         </div>
+
+        {/* Save Status Indicator */}
+        {currentProject && (
+          <SaveStatus
+            isSaving={updateMutation.isPending}
+            lastSaved={updateMutation.isSuccess ? new Date() : null}
+            error={updateMutation.error as Error | null}
+            isOffline={false}
+          />
+        )}
       </div>
 
       <div className="flex items-center space-x-2">

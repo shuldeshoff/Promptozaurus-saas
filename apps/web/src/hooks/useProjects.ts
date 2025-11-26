@@ -73,8 +73,38 @@ export function useUpdateProject() {
       );
       return response.data.data;
     },
+    // Optimistic updates для мгновенной реакции UI (из originals концепции)
+    onMutate: async ({ id, name, data }) => {
+      // Отменяем исходящие запросы для этого проекта
+      await queryClient.cancelQueries({ queryKey: projectKeys.detail(id) });
+
+      // Сохраняем предыдущее значение
+      const previousProject = queryClient.getQueryData<Project>(projectKeys.detail(id));
+
+      // Оптимистично обновляем cache
+      if (previousProject) {
+        const optimisticProject: Project = {
+          ...previousProject,
+          ...(name !== undefined && { name }),
+          ...(data !== undefined && { data }),
+          updatedAt: new Date().toISOString(),
+        };
+        queryClient.setQueryData(projectKeys.detail(id), optimisticProject);
+      }
+
+      // Возвращаем контекст для rollback
+      return { previousProject };
+    },
+    // Rollback при ошибке
+    onError: (err, { id }, context) => {
+      if (context?.previousProject) {
+        queryClient.setQueryData(projectKeys.detail(id), context.previousProject);
+      }
+      console.error('Error updating project:', err);
+    },
+    // Обновляем cache после успешного сохранения
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: projectKeys.detail(data.id) });
+      queryClient.setQueryData(projectKeys.detail(data.id), data);
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
   });

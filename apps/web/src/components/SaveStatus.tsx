@@ -49,9 +49,9 @@ export default function SaveStatus({ isSaving, lastSaved, error, isOffline }: Sa
   };
 
   const getStatusIcon = () => {
-    if (isOffline) return '📡';
-    if (error) return '❌';
-    if (isSaving) return '⏳';
+    if (isOffline) return '';
+    if (error) return '';
+    if (isSaving) return '...';
     if (lastSaved) return '✓';
     return '';
   };
