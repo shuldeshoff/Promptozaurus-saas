@@ -58,10 +58,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'ru', // Жёстко устанавливаем русский
-    fallbackLng: 'ru',
+    lng: localStorage.getItem('i18nextLng') || 'ru', // Берём из localStorage или ru по умолчанию
+    fallbackLng: 'en',
     defaultNS: 'common',
-    debug: true, // Включаем debug для проверки
+    debug: false, // Отключаем debug в production
     interpolation: {
       escapeValue: false,
     },
