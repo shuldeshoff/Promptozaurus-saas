@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Project as SharedProject, Template, PromptBlock, SelectedContext, ContextBlock } from '@promptozaurus/shared';
+import { Project as SharedProject, PromptBlock, SelectedContext, ContextBlock } from '@promptozaurus/shared';
 import { useCompilePrompt } from '../hooks/useContextPrompt';
 import { useUpdateProject } from '../hooks/useProjects';
 import TemplateLibraryModal from './TemplateLibraryModal';
@@ -31,8 +31,8 @@ export default function ProjectEditor({ project }: ProjectEditorProps) {
   const contextBlocks = project.data.contextBlocks || [];
   const promptBlocks = project.data.promptBlocks || [];
 
-  const handleTemplateSelect = (template: Template) => {
-    console.log('Selected template:', template);
+  const handleTemplateSelect = (filename: string) => {
+    console.log('Selected template:', filename);
     // TODO: Implement template insertion into current prompt
   };
 

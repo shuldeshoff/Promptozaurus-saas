@@ -5,14 +5,13 @@ import {
   useCreateTemplate,
   useUpdateTemplate,
   useDeleteTemplate,
-  useSearchTemplates,
 } from '../hooks/useTemplates';
-import { Template } from '@promptozaurus/shared';
 
+// Упрощённая версия для работы с .txt файлами
 interface TemplateLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectTemplate?: (template: Template) => void;
+  onSelectTemplate?: (filename: string) => void;
 }
 
 export default function TemplateLibraryModal({
@@ -22,19 +21,21 @@ export default function TemplateLibraryModal({
 }: TemplateLibraryModalProps) {
   const { t } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [editName, setEditName] = useState('');
   const [editContent, setEditContent] = useState('');
 
   const { data: allTemplates, isLoading } = useTemplates();
-  const { data: searchResults } = useSearchTemplates(searchQuery);
   const createMutation = useCreateTemplate();
   const updateMutation = useUpdateTemplate();
   const deleteMutation = useDeleteTemplate();
 
-  const templates = searchQuery ? searchResults : allTemplates;
+  // Простой клиентский поиск по filename
+  const templates = searchQuery
+    ? allTemplates?.filter((f) => f.toLowerCase().includes(searchQuery.toLowerCase()))
+    : allTemplates;
 
   const handleCreate = async () => {
     if (!editName.trim() || !editContent.trim()) {
@@ -43,8 +44,9 @@ export default function TemplateLibraryModal({
     }
 
     try {
+      const filename = editName.endsWith('.txt') ? editName : `${editName}.txt`;
       await createMutation.mutateAsync({
-        name: editName,
+        filename,
         content: editContent,
       });
       setIsCreating(false);
@@ -59,9 +61,9 @@ export default function TemplateLibraryModal({
     if (!selectedTemplate || !editName.trim() || !editContent.trim()) return;
 
     try {
+      const filename = editName.endsWith('.txt') ? editName : `${editName}.txt`;
       await updateMutation.mutateAsync({
-        id: selectedTemplate.id,
-        name: editName,
+        filename,
         content: editContent,
       });
       setIsEditing(false);
@@ -71,12 +73,12 @@ export default function TemplateLibraryModal({
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (filename: string) => {
     if (!confirm(t('messages.confirmDeleteTemplate', 'Delete this template?'))) return;
 
     try {
-      await deleteMutation.mutateAsync(id);
-      if (selectedTemplate?.id === id) {
+      await deleteMutation.mutateAsync(filename);
+      if (selectedTemplate === filename) {
         setSelectedTemplate(null);
       }
     } catch {
@@ -84,21 +86,21 @@ export default function TemplateLibraryModal({
     }
   };
 
-  const handleSelect = (template: Template) => {
+  const handleSelect = (filename: string) => {
     if (onSelectTemplate) {
-      onSelectTemplate(template);
+      onSelectTemplate(filename);
       onClose();
     } else {
-      setSelectedTemplate(template);
-      setEditName(template.name);
-      setEditContent(template.content);
+      setSelectedTemplate(filename);
+      setEditName(filename.replace(/\.txt$/, ''));
+      setEditContent(''); // Загрузится из useTemplate при необходимости
     }
   };
 
-  const startEdit = (template: Template) => {
-    setSelectedTemplate(template);
-    setEditName(template.name);
-    setEditContent(template.content);
+  const startEdit = (filename: string) => {
+    setSelectedTemplate(filename);
+    setEditName(filename.replace(/\.txt$/, ''));
+    setEditContent(''); // Загрузится из useTemplate
     setIsEditing(true);
   };
 
@@ -170,20 +172,17 @@ export default function TemplateLibraryModal({
                     : t('messages.noTemplates', 'No templates yet')}
                 </div>
               ) : (
-                templates.map((template) => (
+                templates.map((filename) => (
                   <div
-                    key={template.id}
+                    key={filename}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedTemplate?.id === template.id
+                      selectedTemplate === filename
                         ? 'bg-blue-600'
                         : 'bg-gray-800 hover:bg-gray-700'
                     }`}
-                    onClick={() => handleSelect(template)}
+                    onClick={() => handleSelect(filename)}
                   >
-                    <div className="font-medium text-white truncate">{template.name}</div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      {template.content.substring(0, 50)}...
-                    </div>
+                    <div className="font-medium text-white truncate">{filename}</div>
                   </div>
                 ))
               )}
@@ -203,28 +202,24 @@ export default function TemplateLibraryModal({
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                    placeholder={t('labels.enterName', 'Enter name...')}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
                   />
                 </div>
-
-                <div className="flex-1 flex flex-col mb-4">
+                <div className="flex-1 flex flex-col">
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     {t('labels.content', 'Content')}
                   </label>
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 font-mono text-sm resize-none"
-                    placeholder={t('labels.enterContent', 'Enter template content...')}
+                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white resize-none"
                   />
                 </div>
-
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-4">
                   <button
                     onClick={isCreating ? handleCreate : handleUpdate}
                     disabled={createMutation.isPending || updateMutation.isPending}
-                    className="flex-1 py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     {isCreating ? t('buttons.create') : t('buttons.save')}
                   </button>
@@ -237,52 +232,34 @@ export default function TemplateLibraryModal({
                 </div>
               </div>
             ) : selectedTemplate ? (
-              /* Preview */
+              /* Template Preview */
               <div className="flex-1 flex flex-col p-4">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-white">{selectedTemplate.name}</h3>
-                  <p className="text-sm text-gray-400">
-                    {new Date(selectedTemplate.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                <div className="flex-1 overflow-y-auto mb-4">
-                  <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono p-4 bg-gray-800 rounded-lg">
-                    {selectedTemplate.content}
-                  </pre>
-                </div>
-
-                <div className="flex gap-2">
-                  {onSelectTemplate && (
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-white">{selectedTemplate}</h3>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => handleSelect(selectedTemplate)}
-                      className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      onClick={() => startEdit(selectedTemplate)}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                     >
-                      {t('buttons.useTemplate', 'Use Template')}
+                      {t('buttons.edit')}
                     </button>
-                  )}
-                  <button
-                    onClick={() => startEdit(selectedTemplate)}
-                    className="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-                  >
-                    {t('buttons.edit')}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(selectedTemplate.id)}
-                    disabled={deleteMutation.isPending}
-                    className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {t('buttons.delete')}
-                  </button>
+                    <button
+                      onClick={() => handleDelete(selectedTemplate)}
+                      disabled={deleteMutation.isPending}
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50"
+                    >
+                      {t('buttons.delete')}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 bg-gray-800 border border-gray-700 rounded-lg p-4 overflow-y-auto">
+                  <pre className="text-gray-300 whitespace-pre-wrap">{editContent || 'Loading...'}</pre>
                 </div>
               </div>
             ) : (
               /* Empty State */
               <div className="flex-1 flex items-center justify-center text-gray-400">
-                <div className="text-center">
-                  <div className="text-6xl mb-4">📝</div>
-                  <p>{t('messages.selectTemplate', 'Select a template or create a new one')}</p>
-                </div>
+                {t('messages.selectTemplateToView', 'Select a template to view')}
               </div>
             )}
           </div>

@@ -141,3 +141,21 @@ export function useExportProject() {
   });
 }
 
+// Compile prompt with context (для PromptEditor)
+export function useCompilePrompt(promptBlockId: number, wrapWithTags: boolean) {
+  return useQuery({
+    queryKey: ['compile-prompt', promptBlockId, wrapWithTags],
+    queryFn: async () => {
+      const response = await apiClient.post<{
+        success: boolean;
+        data: { compiledPrompt: string; totalChars: number };
+      }>('/api/projects/compile-prompt', {
+        promptBlockId,
+        wrapWithTags,
+      });
+      return response.data.data;
+    },
+    enabled: !!promptBlockId,
+  });
+}
+
