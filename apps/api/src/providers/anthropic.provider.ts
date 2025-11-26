@@ -79,13 +79,13 @@ export class AnthropicProvider extends BaseAIProvider {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
         throw new Error(
           errorData.error?.message || `Anthropic API error: ${response.statusText}`
         );
       }
 
-      const data: AnthropicResponse = await response.json();
+      const data = await response.json() as AnthropicResponse;
 
       return {
         content: data.content[0]?.text || '',

@@ -37,8 +37,9 @@ export async function userRoutes(fastify: FastifyInstance) {
           projectCount,
           projectLimit: 10, // Free plan
         };
-      } catch (error) {
-        fastify.log.error('Get profile error:', error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error('Get profile error:', errorMessage);
         return reply.code(500).send({ error: 'Failed to get profile' });
       }
     }
@@ -71,8 +72,9 @@ export async function userRoutes(fastify: FastifyInstance) {
           theme: updatedUser.theme,
           updatedAt: updatedUser.updatedAt,
         };
-      } catch (error) {
-        fastify.log.error('Update profile error:', error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error('Update profile error:', errorMessage);
         return reply.code(500).send({ error: 'Failed to update profile' });
       }
     }

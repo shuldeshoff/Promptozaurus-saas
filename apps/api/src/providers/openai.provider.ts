@@ -68,7 +68,7 @@ export class OpenAIProvider extends BaseAIProvider {
         throw new Error(`OpenAI API error: ${response.statusText}`);
       }
 
-      const data: OpenAIModelsResponse = await response.json();
+      const data = await response.json() as OpenAIModelsResponse;
 
       // Filter and format models
       const chatModels = data.data
@@ -115,13 +115,13 @@ export class OpenAIProvider extends BaseAIProvider {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
         throw new Error(
           errorData.error?.message || `OpenAI API error: ${response.statusText}`
         );
       }
 
-      const data: OpenAIChatResponse = await response.json();
+      const data = await response.json() as OpenAIChatResponse;
 
       return {
         content: data.choices[0]?.message.content || '',

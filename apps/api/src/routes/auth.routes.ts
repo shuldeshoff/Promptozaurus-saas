@@ -48,7 +48,7 @@ export async function authRoutes(fastify: FastifyInstance) {
           }),
         });
 
-        const tokens = await tokenResponse.json();
+        const tokens = await tokenResponse.json() as { access_token?: string };
 
         if (!tokens.access_token) {
           throw new Error('No access token received');
@@ -59,7 +59,12 @@ export async function authRoutes(fastify: FastifyInstance) {
           headers: { Authorization: `Bearer ${tokens.access_token}` },
         });
 
-        const googleProfile = await userInfoResponse.json();
+        const googleProfile = await userInfoResponse.json() as {
+          id: string;
+          email: string;
+          name: string;
+          picture?: string;
+        };
 
         // Detect language from request headers
         const acceptLanguage = request.headers['accept-language'] || '';
@@ -92,8 +97,9 @@ export async function authRoutes(fastify: FastifyInstance) {
             maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
           })
           .redirect(process.env.CORS_ORIGIN || 'http://localhost:5173');
-      } catch (error) {
-        fastify.log.error('OAuth callback error:', error);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error('OAuth callback error:', errorMessage);
         return reply.redirect(`${process.env.CORS_ORIGIN}?error=auth_failed`);
       }
     }

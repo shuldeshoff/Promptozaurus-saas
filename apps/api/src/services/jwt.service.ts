@@ -1,6 +1,7 @@
 import { User } from '@prisma/client';
 
 export interface JwtPayload {
+  id: string;
   userId: string;
   email: string;
 }
@@ -16,6 +17,7 @@ class JwtService {
 
   generateTokens(user: User): TokenPair {
     const payload: JwtPayload = {
+      id: user.id,
       userId: user.id,
       email: user.email,
     };
