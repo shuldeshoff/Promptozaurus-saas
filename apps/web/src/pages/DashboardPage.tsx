@@ -6,20 +6,23 @@ import ProjectEditor from '../components/ProjectEditor';
 import SaveStatus from '../components/SaveStatus';
 import AIConfigModal from '../components/AIConfigModal';
 import AIResponseModal from '../components/AIResponseModal';
-import { Project } from '../hooks/useProjects';
+import { useProject } from '../hooks/useProjects';
 import { useAutoSave } from '../hooks/useAutoSave';
 
 export default function DashboardPage() {
   const { user, logout } = useAuthStore();
   const { t, i18n } = useTranslation();
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [isAIConfigModalOpen, setIsAIConfigModalOpen] = useState(false);
   const [isAIResponseModalOpen, setIsAIResponseModalOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  // Fetch selected project with auto-refresh
+  const { data: selectedProject } = useProject(selectedProjectId || undefined);
+
   // Auto-save setup
   const autoSave = useAutoSave({
-    project: selectedProject,
+    project: selectedProject || null,
     enabled: true,
     debounceMs: 2000,
   });
@@ -162,10 +165,10 @@ export default function DashboardPage() {
 
           <ProjectList
             onSelectProject={(project) => {
-              setSelectedProject(project);
+              setSelectedProjectId(project.id);
               setIsMobileSidebarOpen(false); // Close sidebar on mobile after selection
             }}
-            selectedProjectId={selectedProject?.id}
+            selectedProjectId={selectedProjectId || undefined}
           />
         </aside>
 
