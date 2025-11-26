@@ -5,6 +5,28 @@ import { useAuthStore } from './store/auth.store';
 import ErrorBoundary from './components/ErrorBoundary';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
+import { ConfirmationProvider } from './context/ConfirmationContext';
+import ConfirmationModal from './components/ui/ConfirmationModal';
+import { useConfirmation } from './context/ConfirmationContext';
+
+// Вспомогательный компонент для рендера ConfirmationModal
+function ConfirmationModalWrapper() {
+  const { confirmationState, closeConfirmation } = useConfirmation();
+  return (
+    <ConfirmationModal
+      isOpen={confirmationState.isOpen}
+      onClose={closeConfirmation}
+      title={confirmationState.title}
+      message={confirmationState.message}
+      onConfirm={confirmationState.onConfirm}
+      confirmButtonText={confirmationState.confirmButtonText}
+      confirmButtonClass={confirmationState.confirmButtonClass}
+      withInput={confirmationState.withInput}
+      inputDefaultValue={confirmationState.inputDefaultValue}
+      options={confirmationState.options}
+    />
+  );
+}
 
 function App() {
   const { user, isLoading, fetchUser } = useAuthStore();
@@ -28,7 +50,10 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        {user ? <DashboardPage /> : <LandingPage />}
+        <ConfirmationProvider>
+          {user ? <DashboardPage /> : <LandingPage />}
+          <ConfirmationModalWrapper />
+        </ConfirmationProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
