@@ -122,31 +122,31 @@ const MainLayout = () => {
       {/* Основной контент - трёхпанельный layout */}
       <div className="flex flex-1 overflow-hidden" ref={containerRef}>
         {/* Навигационная панель (левая) */}
-        <div style={navPanelStyle} className="bg-gray-800 overflow-hidden">
+        <div style={navPanelStyle} className="nav-panel-container">
           <NavigationPanel />
         </div>
 
         {/* Разделитель для навигационной панели */}
         <div
-          className="w-1 bg-gray-700 hover:bg-blue-500 cursor-col-resize flex-shrink-0 transition-colors"
+          className="resize-handle resize-handle-x"
           onMouseDown={startNavResize}
           title="Изменить ширину навигационной панели"
         />
 
         {/* Панель блоков (центральная) */}
-        <div style={blocksPanelStyle} className="bg-gray-850 overflow-hidden">
+        <div style={blocksPanelStyle} className="blocks-panel-container">
           <BlocksPanel />
         </div>
 
         {/* Разделитель для панели блоков */}
         <div
-          className="w-1 bg-gray-700 hover:bg-blue-500 cursor-col-resize flex-shrink-0 transition-colors"
+          className="resize-handle resize-handle-x"
           onMouseDown={startBlocksResize}
           title="Изменить ширину панели блоков"
         />
 
         {/* Панель редактора (правая) */}
-        <div style={editorPanelStyle} className="bg-gray-900 overflow-hidden">
+        <div style={editorPanelStyle} className="editor-panel-container">
           <EditorPanel />
         </div>
       </div>

@@ -82,7 +82,7 @@ const BlocksPanel = () => {
   );
 
   return (
-    <div className="w-full h-full border-x border-gray-700 p-4 overflow-y-auto bg-gray-850">
+    <div className="w-full h-full border-x border-gray-700 p-4 overflow-y-auto">
       {/* Блок контекста */}
       {activeTab === 'context' && (
         <div className="h-full">

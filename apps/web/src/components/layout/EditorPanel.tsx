@@ -1,35 +1,17 @@
 import { useEditor } from '../../context/EditorContext';
-import { useTranslation } from 'react-i18next';
 import ContextEditor from '../context/ContextEditor';
 import PromptEditor from '../prompt/PromptEditor';
 
 const EditorPanel = () => {
-  const { t } = useTranslation('editor');
-  const { activeTab, currentProject } = useEditor();
+  const { activeTab } = useEditor();
 
-  if (!currentProject) {
-    return (
-      <div className="flex items-center justify-center h-full p-6">
-        <div className="text-center text-gray-400">
-          <p className="text-lg">{t('editor.noProject', 'No project selected')}</p>
-          <p className="text-sm mt-2">{t('editor.selectOrCreate', 'Select or create a project to start')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (activeTab === 'context') {
-    return (
-      <div className="w-full h-full overflow-y-auto">
-        <ContextEditor />
-      </div>
-    );
-  }
-
-  // Prompt tab
   return (
-    <div className="w-full h-full p-6">
-      <PromptEditor />
+    <div className="flex-1 p-4 bg-gray-900 overflow-y-auto">
+      {/* Отображение редактора для контекстных блоков */}
+      {activeTab === 'context' && <ContextEditor />}
+      
+      {/* Отображение редактора для блоков промптов */}
+      {activeTab === 'prompt' && <PromptEditor />}
     </div>
   );
 };
