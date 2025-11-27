@@ -7,6 +7,7 @@ import { useTemplates, useTemplate, useCreateTemplate, useUpdateTemplate } from 
 import { useCompilePrompt } from '../../hooks/useProjects';
 import { useConfirmation } from '../../context/ConfirmationContext';
 import FullscreenEditor from '../ui/FullscreenEditor';
+import AIResponseModal from '../AIResponseModal';
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut';
 import { useUpdateProject } from '../../hooks/useProjects';
 import { Template } from '@promptozaurus/shared';
@@ -31,6 +32,7 @@ const PromptEditor = () => {
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   // Template management через API
   const { data: templates = [], isLoading: isLoadingTemplates } = useTemplates();
@@ -322,13 +324,11 @@ const PromptEditor = () => {
   // Обработчик отправки в ИИ (строки 298-315)
   const handleSendToAI = () => {
     if (!compiledPrompt || !compiledPrompt.trim()) {
-      alert(t('prompt.ai.noContent')); // Позже заменим на уведомление
+      alert(t('prompt.ai.noContent'));
       return;
     }
 
-    // TODO: Открыть AIResponseModal (когда будет портирован)
-    console.log('Send to AI:', compiledPrompt);
-    alert('AI integration coming soon!');
+    setIsAIModalOpen(true);
   };
 
   // Горячая клавиша Ctrl+E (строки 317-325)
@@ -733,6 +733,13 @@ const PromptEditor = () => {
         onSave={handleSaveFullscreen}
         title={fullscreenEditor.title}
         content={fullscreenEditor.content}
+      />
+
+      {/* Модальное окно AI Response */}
+      <AIResponseModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        initialPrompt={compiledPrompt}
       />
     </div>
   );
