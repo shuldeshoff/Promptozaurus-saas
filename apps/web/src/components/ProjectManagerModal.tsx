@@ -91,115 +91,142 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {/* Create new project section */}
-          {isCreating ? (
-            <div className="mb-6 p-4 bg-gray-700 rounded-lg">
-              <h3 className="text-lg font-medium text-white mb-3">{t('buttons.create')} {t('labels.project')}</h3>
-              <input
-                type="text"
-                value={newProjectName}
-                onChange={(e) => setNewProjectName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
-                placeholder={t('labels.enterName')}
-                className="w-full px-4 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 mb-3"
-                autoFocus
-              />
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => {
-                    setIsCreating(false);
-                    setNewProjectName('');
-                  }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors"
-                >
-                  {t('buttons.cancel')}
-                </button>
-                <button
-                  onClick={handleCreateProject}
-                  disabled={createMutation.isPending}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                >
-                  {createMutation.isPending ? t('buttons.creating') : t('buttons.create')}
-                </button>
+          <div className="mb-6">
+            {isCreating ? (
+              <div className="p-4 bg-gray-700 rounded-lg border border-gray-600">
+                <h3 className="text-sm font-medium text-gray-300 mb-3 uppercase tracking-wider">
+                  {t('buttons.create')} {t('labels.project')}
+                </h3>
+                <input
+                  type="text"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
+                  placeholder={t('labels.enterName')}
+                  className="w-full px-4 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 mb-3"
+                  autoFocus
+                />
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => {
+                      setIsCreating(false);
+                      setNewProjectName('');
+                    }}
+                    className="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-500 transition-colors"
+                  >
+                    {t('buttons.cancel')}
+                  </button>
+                  <button
+                    onClick={handleCreateProject}
+                    disabled={createMutation.isPending}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {createMutation.isPending ? t('buttons.creating') : t('buttons.create')}
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setIsCreating(true)}
-              className="w-full mb-6 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              {t('buttons.create')} {t('labels.project')}
-            </button>
-          )}
+            ) : (
+              <button
+                onClick={() => setIsCreating(true)}
+                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                {t('buttons.create')} {t('labels.project')}
+              </button>
+            )}
+          </div>
 
           {/* Projects list */}
           {isLoading ? (
-            <div className="text-center text-gray-400 py-8">
-              {t('messages.loading')}
+            <div className="text-center text-gray-400 py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <p className="mt-3">{t('messages.loading')}</p>
             </div>
           ) : projects && projects.length > 0 ? (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">
-                {t('labels.projects')} ({projects.length})
-              </h3>
-              {projects.map((project) => (
-                <div
-                  key={project.id}
-                  className={`p-4 rounded-lg transition-colors cursor-pointer ${
-                    currentProject?.id === project.id
-                      ? 'bg-blue-700 hover:bg-blue-600'
-                      : 'bg-gray-700 hover:bg-gray-600'
-                  }`}
-                  onClick={() => handleSelectProject(project)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-white font-medium flex items-center">
-                        {project.name}
-                        {currentProject?.id === project.id && (
-                          <span className="ml-2 px-2 py-0.5 bg-blue-500 text-xs rounded">
-                            {t('labels.active')}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                  {t('labels.projects')}
+                </h3>
+                <span className="text-xs text-gray-500 bg-gray-700 px-2 py-1 rounded">
+                  {projects.length} {projects.length === 1 ? 'проект' : 'проектов'}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    className={`group p-4 rounded-lg transition-all cursor-pointer border ${
+                      currentProject?.id === project.id
+                        ? 'bg-blue-600 hover:bg-blue-500 border-blue-500'
+                        : 'bg-gray-750 hover:bg-gray-700 border-gray-700 hover:border-gray-600'
+                    }`}
+                    onClick={() => handleSelectProject(project)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-white font-medium truncate">
+                            {project.name}
+                          </h3>
+                          {currentProject?.id === project.id && (
+                            <span className="flex-shrink-0 px-2 py-0.5 bg-blue-500 text-white text-xs rounded font-medium">
+                              Активен
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                          <span className="flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {new Date(project.updatedAt).toLocaleDateString()}
                           </span>
-                        )}
-                      </h3>
-                      <p className="text-sm text-gray-400 mt-1">
-                        {new Date(project.updatedAt).toLocaleDateString()} • 
-                        {' '}{project.data?.contextBlocks?.length || 0} {t('labels.contextBlocks')} • 
-                        {' '}{project.data?.promptBlocks?.length || 0} {t('labels.prompts')}
-                      </p>
+                          <span>•</span>
+                          <span>{project.data?.contextBlocks?.length || 0} контекстов</span>
+                          <span>•</span>
+                          <span>{project.data?.promptBlocks?.length || 0} промптов</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteProject(project, e)}
+                        className={`ml-3 p-2 rounded transition-colors ${
+                          currentProject?.id === project.id
+                            ? 'text-blue-200 hover:text-white hover:bg-blue-500'
+                            : 'text-gray-500 hover:text-red-400 hover:bg-gray-600'
+                        }`}
+                        title={t('buttons.delete')}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
                     </div>
-                    <button
-                      onClick={(e) => handleDeleteProject(project, e)}
-                      className="ml-4 p-2 text-gray-400 hover:text-red-500 hover:bg-gray-600 rounded transition-colors"
-                      title={t('buttons.delete')}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="text-center text-gray-400 py-8">
-              <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <p className="text-lg mb-2">{t('messages.noProjects')}</p>
-              <p className="text-sm text-gray-500">{t('messages.createFirstProject', 'Создайте свой первый проект')}</p>
+            <div className="text-center text-gray-400 py-16">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-700 rounded-full mb-4">
+                <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <p className="text-lg font-medium text-gray-300 mb-2">{t('messages.noProjects')}</p>
+              <p className="text-sm text-gray-500">Нажмите кнопку выше, чтобы создать первый проект</p>
             </div>
           )}
         </div>
