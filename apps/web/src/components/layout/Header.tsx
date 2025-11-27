@@ -20,8 +20,7 @@ const Header = () => {
   const [projectSelectorMode, setProjectSelectorMode] = useState<'open' | 'create' | null>(null);
   
   // Состояния для редактирования названия проекта
-  const [projectName, setProjectName] = useState(currentProject?.name || t('project.newProject'));
-  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [projectName, setProjectName] = useState(currentProject?.name || '');
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ru' : 'en';
@@ -30,8 +29,10 @@ const Header = () => {
 
   // Синхронизация названия проекта
   useState(() => {
-    if (currentProject?.name && !isEditingProject) {
+    if (currentProject?.name) {
       setProjectName(currentProject.name);
+    } else {
+      setProjectName('');
     }
   });
 
@@ -47,24 +48,11 @@ const Header = () => {
   const handleSaveProject = async () => {
     if (!currentProject) return;
     
-    // Обновляем название проекта перед сохранением
-    if (projectName !== currentProject.name) {
-      await updateMutation.mutateAsync({
-        id: currentProject.id,
-        name: projectName,
-      });
-    }
-  };
-
-  const handleSaveProjectAs = () => {
-    // TODO: Реализовать "Сохранить как"
-    console.log('Сохранение проекта как...');
-  };
-
-  // Обработчик для импорта контекста
-  const handleImportContext = () => {
-    // TODO: Реализовать импорт контекста
-    console.log('Импорт контекста');
+    // Принудительное сохранение проекта
+    await updateMutation.mutateAsync({
+      id: currentProject.id,
+      data: currentProject.data,
+    });
   };
 
   // Обработчики редактирования названия проекта
@@ -73,14 +61,20 @@ const Header = () => {
   };
 
   const handleProjectNameBlur = async () => {
-    setIsEditingProject(false);
-    if (projectName.trim() === '') {
-      setProjectName(t('project.newProject'));
+    if (!currentProject) return;
+    
+    const trimmedName = projectName.trim();
+    if (trimmedName === '') {
+      setProjectName(currentProject.name);
+      return;
     }
     
-    // Сохраняем изменение названия
-    if (currentProject && projectName !== currentProject.name) {
-      await handleSaveProject();
+    // Автосохранение при изменении названия
+    if (trimmedName !== currentProject.name) {
+      await updateMutation.mutateAsync({
+        id: currentProject.id,
+        name: trimmedName,
+      });
     }
   };
 
@@ -88,8 +82,8 @@ const Header = () => {
     if (e.key === 'Enter') {
       e.currentTarget.blur();
     } else if (e.key === 'Escape') {
-      setProjectName(currentProject?.name || t('project.newProject'));
-      setIsEditingProject(false);
+      setProjectName(currentProject?.name || '');
+      e.currentTarget.blur();
     }
   };
 
@@ -103,58 +97,42 @@ const Header = () => {
               <div className="mr-2 font-medium text-sm text-gray-300 whitespace-nowrap">
                 {t('project.label')}
               </div>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-2 items-center">
                 <button 
-                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-20"
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-24"
                   onClick={handleNewProject}
                   title={t('tooltips.createNewProject')}
                 >
                   {t('project.new')}
                 </button>
                 <button 
-                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-20"
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-24"
                   onClick={handleOpenProject}
                   title={t('tooltips.openExistingProject')}
                 >
                   {t('project.open')}
                 </button>
                 <button 
-                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-24"
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-28 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleSaveProject}
                   title={t('tooltips.saveCurrentProject')}
                   disabled={!currentProject}
                 >
                   {t('project.save')}
                 </button>
-                <button 
-                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors w-32"
-                  onClick={handleSaveProjectAs}
-                  title={t('tooltips.saveProjectWithNewName')}
-                  disabled={!currentProject}
-                >
-                  {t('project.saveAs')}
-                </button>
                 
                 {/* Редактируемое название проекта */}
-                <div 
-                  className="ml-2 px-2 py-1 bg-gray-700 text-white text-xs rounded max-w-[200px] min-w-[100px]"
-                  onClick={() => currentProject && setIsEditingProject(true)}
+                <input
+                  type="text"
+                  className="px-3 py-1 bg-gray-700 border border-gray-600 text-white text-xs rounded focus:outline-none focus:border-blue-500 w-64 disabled:opacity-50 disabled:cursor-not-allowed"
+                  value={projectName}
+                  onChange={handleProjectNameChange}
+                  onBlur={handleProjectNameBlur}
+                  onKeyDown={handleProjectNameKeyDown}
+                  placeholder={t('project.newProject')}
+                  disabled={!currentProject}
                   title={t('tooltips.editProjectName')}
-                >
-                  {isEditingProject ? (
-                    <input
-                      type="text"
-                      className="bg-gray-600 border border-gray-500 text-white text-xs rounded px-1 py-0 w-full focus:outline-none focus:border-blue-500"
-                      value={projectName}
-                      onChange={handleProjectNameChange}
-                      onBlur={handleProjectNameBlur}
-                      onKeyDown={handleProjectNameKeyDown}
-                      autoFocus
-                    />
-                  ) : (
-                    <div className="cursor-pointer truncate">{projectName}</div>
-                  )}
-                </div>
+                />
 
                 {/* Save Status Indicator */}
                 {currentProject && (
@@ -168,55 +146,29 @@ const Header = () => {
               </div>
             </div>
             
-            {/* Кнопки для работы с контекстом */}
-            <div className="flex items-center gap-2">
-              <button 
-                className="px-3 py-1 bg-amber-600 text-white text-xs rounded hover:bg-amber-700 transition-colors flex items-center w-40"
-                onClick={handleImportContext}
-                title={t('tooltips.importContextBlock')}
-                disabled={!currentProject}
+            {/* Share button */}
+            <button
+              onClick={() => setIsSharingModalOpen(true)}
+              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center w-32 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={t('tooltips.shareProject')}
+              disabled={!currentProject}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-1 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-4 w-4 mr-1 flex-shrink-0" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" 
-                  />
-                </svg>
-                <span className="truncate">{t('context.import')}</span>
-              </button>
-
-              {/* Share button */}
-              <button
-                onClick={() => setIsSharingModalOpen(true)}
-                className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center w-36 disabled:opacity-50 disabled:cursor-not-allowed"
-                title={t('tooltips.shareProject')}
-                disabled={!currentProject}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                  />
-                </svg>
-                <span className="truncate">{t('share')}</span>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+              <span className="truncate">{t('share')}</span>
+            </button>
           </div>
 
           {/* Управляющие кнопки справа */}
