@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import {
   useProjects,
   useCreateProject,
@@ -7,6 +8,7 @@ import {
   useDuplicateProject,
   Project,
 } from '../hooks/useProjects';
+import { useConfirmation } from '../context/ConfirmationContext';
 
 interface ProjectListProps {
   onSelectProject: (project: Project) => void;
@@ -15,6 +17,7 @@ interface ProjectListProps {
 
 export default function ProjectList({ onSelectProject, selectedProjectId }: ProjectListProps) {
   const { t } = useTranslation('common');
+  const { openConfirmation } = useConfirmation();
   const [newProjectName, setNewProjectName] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -32,36 +35,43 @@ export default function ProjectList({ onSelectProject, selectedProjectId }: Proj
       setNewProjectName('');
       setShowCreateForm(false);
       onSelectProject(newProject);
+      toast.success(t('projectCreated', 'Project created successfully'));
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string; message?: string } } };
       if (error.response?.data?.error === 'Project limit reached') {
-        alert(error.response.data.message || t('projectLimitReached'));
+        toast.error(error.response.data.message || t('projectLimitReached'));
       } else {
-        alert(t('failedToCreateProject'));
+        toast.error(t('failedToCreateProject'));
       }
     }
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!confirm(t('confirmDeleteProject'))) return;
-
-    try {
-      await deleteMutation.mutateAsync(id);
-    } catch {
-      alert(t('failedToDeleteProject'));
-    }
+    openConfirmation(
+      t('confirmDeleteProject'),
+      t('confirmDeleteProjectMessage', 'This action cannot be undone'),
+      async () => {
+        try {
+          await deleteMutation.mutateAsync(id);
+          toast.success(t('projectDeleted', 'Project deleted'));
+        } catch {
+          toast.error(t('failedToDeleteProject'));
+        }
+      }
+    );
   };
 
   const handleDuplicateProject = async (id: string) => {
     try {
       const duplicated = await duplicateMutation.mutateAsync(id);
       onSelectProject(duplicated);
+      toast.success(t('projectDuplicated', 'Project duplicated'));
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string; message?: string } } };
       if (error.response?.data?.error === 'Project limit reached') {
-        alert(error.response.data.message || t('projectLimitReached'));
+        toast.error(error.response.data.message || t('projectLimitReached'));
       } else {
-        alert(t('failedToDuplicateProject'));
+        toast.error(t('failedToDuplicateProject'));
       }
     }
   };

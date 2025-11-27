@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { queryClient } from './lib/queryClient';
 import { useAuthStore } from './store/auth.store';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -53,6 +54,31 @@ function App() {
         <ConfirmationProvider>
           {user ? <DashboardPage /> : <LandingPage />}
           <ConfirmationModalWrapper />
+          
+          {/* Toast notifications */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#1f2937',
+                color: '#fff',
+                border: '1px solid #374151',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
         </ConfirmationProvider>
       </QueryClientProvider>
     </ErrorBoundary>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { AiProvider } from '@promptozaurus/shared';
 import {
   useApiKeys,
@@ -7,6 +8,7 @@ import {
   useDeleteApiKey,
   useTestApiKey,
 } from '../hooks/useApiKeys';
+import { useConfirmation } from '../context/ConfirmationContext';
 
 interface AIConfigModalProps {
   isOpen: boolean;
@@ -53,6 +55,7 @@ const PROVIDERS: Array<{
 
 export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const { t } = useTranslation('common');
+  const { openConfirmation } = useConfirmation();
   const [editingProvider, setEditingProvider] = useState<AiProvider | null>(null);
   const [apiKeyInput, setApiKeyInput] = useState('');
 
@@ -63,7 +66,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
 
   const handleSave = async () => {
     if (!editingProvider || !apiKeyInput.trim()) {
-      alert(t('messages.fillAllFields', 'Please fill all fields'));
+      toast.error(t('messages.fillAllFields', 'Please fill all fields'));
       return;
     }
 
@@ -74,27 +77,33 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
       });
       setEditingProvider(null);
       setApiKeyInput('');
+      toast.success(t('messages.apiKeySaved', 'API key saved successfully'));
     } catch {
-      alert(t('messages.failedToSave', 'Failed to save API key'));
+      toast.error(t('messages.failedToSave', 'Failed to save API key'));
     }
   };
 
   const handleDelete = async (provider: AiProvider) => {
-    if (!confirm(t('messages.confirmDelete', 'Are you sure you want to delete?'))) return;
-
-    try {
-      await deleteMutation.mutateAsync(provider);
-    } catch {
-      alert(t('messages.failedToDelete', 'Failed to delete API key'));
-    }
+    openConfirmation(
+      t('messages.confirmDelete', 'Confirm deletion'),
+      t('messages.confirmDeleteApiKey', 'Delete API key for this provider?'),
+      async () => {
+        try {
+          await deleteMutation.mutateAsync(provider);
+          toast.success(t('messages.apiKeyDeleted', 'API key deleted'));
+        } catch {
+          toast.error(t('messages.failedToDelete', 'Failed to delete API key'));
+        }
+      }
+    );
   };
 
   const handleTest = async (provider: AiProvider) => {
     try {
       const result = await testMutation.mutateAsync(provider);
-      alert(`✅ ${result.message}`);
+      toast.success(`✅ ${result.message}`);
     } catch {
-      alert(t('messages.testFailed', 'API key test failed'));
+      toast.error(t('messages.testFailed', 'API key test failed'));
     }
   };
 

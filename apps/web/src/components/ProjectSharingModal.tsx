@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { ProjectShare } from '@promptozaurus/shared';
 import {
   useProjectShares,
@@ -35,13 +36,13 @@ export default function ProjectSharingModal({
 
   const handleAddShare = async () => {
     if (!newEmail.trim()) {
-      alert(t('messages.enterEmail', 'Please enter an email'));
+      toast.error(t('messages.enterEmail', 'Please enter an email'));
       return;
     }
 
     // Простая валидация email
     if (!newEmail.includes('@')) {
-      alert(t('messages.invalidEmail', 'Invalid email format'));
+      toast.error(t('messages.invalidEmail', 'Invalid email format'));
       return;
     }
 
@@ -53,16 +54,18 @@ export default function ProjectSharingModal({
       });
       setNewEmail('');
       setNewPermission('view');
+      toast.success(t('messages.sharedSuccessfully', 'Project shared successfully'));
     } catch (error: any) {
-      alert(error.response?.data?.error || t('messages.failedToShare', 'Failed to share project'));
+      toast.error(error.response?.data?.error || t('messages.failedToShare', 'Failed to share project'));
     }
   };
 
   const handleChangePermission = async (shareId: string, permission: 'view' | 'edit') => {
     try {
       await updateShareMutation.mutateAsync({ shareId, permission });
+      toast.success(t('messages.permissionUpdated', 'Permission updated'));
     } catch (error: any) {
-      alert(error.response?.data?.error || t('messages.failedToUpdate', 'Failed to update permission'));
+      toast.error(error.response?.data?.error || t('messages.failedToUpdate', 'Failed to update permission'));
     }
   };
 
@@ -73,8 +76,9 @@ export default function ProjectSharingModal({
       async () => {
         try {
           await deleteShareMutation.mutateAsync({ shareId: share.id, projectId });
+          toast.success(t('messages.shareDeleted', 'Access removed'));
         } catch (error: any) {
-          alert(error.response?.data?.error || t('messages.failedToDelete', 'Failed to delete share'));
+          toast.error(error.response?.data?.error || t('messages.failedToDelete', 'Failed to delete share'));
         }
       }
     );

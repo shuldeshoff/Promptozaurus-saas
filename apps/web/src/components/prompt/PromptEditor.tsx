@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useEditor } from '../../context/EditorContext';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useTemplates, useTemplate, useCreateTemplate, useUpdateTemplate } from '../../hooks/useTemplates';
 import { useCompilePrompt } from '../../hooks/useProjects';
 import { useConfirmation } from '../../context/ConfirmationContext';
@@ -324,7 +325,7 @@ const PromptEditor = () => {
   // Обработчик отправки в ИИ (строки 298-315)
   const handleSendToAI = () => {
     if (!compiledPrompt || !compiledPrompt.trim()) {
-      alert(t('prompt.ai.noContent'));
+      toast.error(t('prompt.ai.noContent'));
       return;
     }
 

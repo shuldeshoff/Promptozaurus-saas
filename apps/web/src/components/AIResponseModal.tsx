@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useAIModels, useSendMessage, AIResponse } from '../hooks/useAI';
 import { AiProvider } from '@promptozaurus/shared';
 
@@ -26,7 +27,7 @@ export default function AIResponseModal({
 
   const handleSend = async () => {
     if (!selectedModel || !prompt.trim()) {
-      alert(t('messages.selectModelAndPrompt', 'Please select a model and enter a prompt'));
+      toast.error(t('messages.selectModelAndPrompt', 'Please select a model and enter a prompt'));
       return;
     }
 
@@ -44,21 +45,21 @@ export default function AIResponseModal({
 
       setResponse(result);
     } catch {
-      alert(t('messages.failedToSend', 'Failed to send message'));
+      toast.error(t('messages.failedToSend', 'Failed to send message'));
     }
   };
 
   const handleCopyResponse = async () => {
     if (response?.content) {
       await navigator.clipboard.writeText(response.content);
-      alert(t('messages.copiedToClipboard', 'Copied to clipboard!'));
+      toast.success(t('messages.copiedToClipboard', 'Copied to clipboard!'));
     }
   };
 
   const handleCopyPrompt = async () => {
     if (prompt) {
       await navigator.clipboard.writeText(prompt);
-      alert(t('messages.copiedToClipboard', 'Copied to clipboard!'));
+      toast.success(t('messages.copiedToClipboard', 'Copied to clipboard!'));
     }
   };
 

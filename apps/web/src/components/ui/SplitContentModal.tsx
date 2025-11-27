@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import Modal from './Modal';
 import SplitPreviewList from './SplitPreviewList';
 import { splitIntoEqualParts, splitByDelimiter, splitByParagraphs, splitByPattern } from '../../utils/splitAlgorithms';
@@ -90,7 +91,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
     const parts = splitContent();
 
     if (parts.length <= 1) {
-      alert(t('errors.splitFailed'));
+      toast.error(t('errors.splitFailed'));
       return;
     }
 
@@ -104,7 +105,7 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
       const selectedContent = splitParts.filter((_, index) => selectedParts[index]);
 
       if (selectedContent.length === 0) {
-        alert(t('errors.noSelection'));
+        toast.error(t('errors.noSelection'));
         return;
       }
 

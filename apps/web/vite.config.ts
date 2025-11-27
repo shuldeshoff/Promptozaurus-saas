@@ -19,4 +19,15 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // Удаляем console.* и debugger в production
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+  },
 });

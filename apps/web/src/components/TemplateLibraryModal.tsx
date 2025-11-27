@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { Template } from '@promptozaurus/shared';
 import {
   useTemplates,
@@ -59,7 +60,7 @@ export default function TemplateLibraryModal({
 
   const handleCreate = async () => {
     if (!editName.trim() || !editContent.trim()) {
-      alert(t('messages.fillAllFields', 'Please fill all fields'));
+      toast.error(t('messages.fillAllFields', 'Please fill all fields'));
       return;
     }
 
@@ -71,8 +72,9 @@ export default function TemplateLibraryModal({
       setIsCreating(false);
       setEditName('');
       setEditContent('');
+      toast.success(t('messages.templateCreated', 'Template created successfully'));
     } catch {
-      alert(t('messages.failedToCreate', 'Failed to create template'));
+      toast.error(t('messages.failedToCreate', 'Failed to create template'));
     }
   };
 
@@ -87,8 +89,9 @@ export default function TemplateLibraryModal({
       });
       setIsEditing(false);
       setSelectedTemplateId(null);
+      toast.success(t('messages.templateUpdated', 'Template updated successfully'));
     } catch {
-      alert(t('messages.failedToUpdate', 'Failed to update template'));
+      toast.error(t('messages.failedToUpdate', 'Failed to update template'));
     }
   };
 
@@ -102,8 +105,9 @@ export default function TemplateLibraryModal({
           if (selectedTemplateId === templateId) {
             setSelectedTemplateId(null);
           }
+          toast.success(t('messages.templateDeleted', 'Template deleted'));
         } catch {
-          alert(t('messages.failedToDelete', 'Failed to delete template'));
+          toast.error(t('messages.failedToDelete', 'Failed to delete template'));
         }
       }
     );
