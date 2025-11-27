@@ -276,12 +276,12 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className={`group p-4 rounded-lg transition-all cursor-pointer border ${
+                    className={`group p-4 rounded-lg transition-all border ${
                       currentProject?.id === project.id
                         ? 'bg-blue-600 hover:bg-blue-500 border-blue-500'
                         : 'bg-gray-750 hover:bg-gray-700 border-gray-700 hover:border-gray-600'
-                    }`}
-                    onClick={() => handleSelectProject(project)}
+                    } ${sharingProjectId === project.id ? '' : 'cursor-pointer'}`}
+                    onClick={() => sharingProjectId === project.id ? null : handleSelectProject(project)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
@@ -376,9 +376,24 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
                     {/* Share form - раскрывается при клике на кнопку Share */}
                     {sharingProjectId === project.id && (
                       <div className="mt-4 pt-4 border-t border-gray-600" onClick={(e) => e.stopPropagation()}>
-                        <h4 className="text-sm font-medium text-gray-300 mb-3">
-                          {t('labels.shareProject', 'Поделиться проектом')}
-                        </h4>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-gray-300">
+                            {t('labels.shareProject', 'Поделиться проектом')}
+                          </h4>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSharingProjectId(null);
+                              setNewShareEmail('');
+                            }}
+                            className="text-gray-400 hover:text-white transition-colors"
+                            title={t('buttons.close', 'Закрыть')}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
                         
                         {/* Форма добавления */}
                         <div className="flex gap-2 mb-3">
