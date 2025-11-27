@@ -25,19 +25,30 @@ const Header = () => {
     <>
       <header className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
         {/* Левая часть - управление проектами */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button 
-            className="px-4 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors whitespace-nowrap font-medium"
+            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center max-w-xs"
             onClick={() => setShowProjectManager(true)}
-            title={t('labels.projects', 'Проекты')}
+            title={currentProject?.name || t('project.selectProject', 'Выберите проект')}
           >
-            {t('labels.projects', 'Проекты')}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 mr-1 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+              />
+            </svg>
+            <span className="truncate">
+              {currentProject?.name || t('project.selectProject', 'Выберите проект')}
+            </span>
           </button>
-          
-          {/* Название текущего проекта */}
-          <div className="px-4 py-1 bg-gray-700 text-white text-sm rounded whitespace-nowrap">
-            {currentProject?.name || t('project.newProject')}
-          </div>
 
           {/* Share button */}
           {currentProject && (
