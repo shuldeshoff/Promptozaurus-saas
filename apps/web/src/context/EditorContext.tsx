@@ -138,13 +138,17 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   }, [setActivePromptBlockId, setActiveTab]);
 
   const setCurrentProject = useCallback((project: Project | null) => {
+    console.log('setCurrentProject вызван с:', project?.name);
     setCurrentProjectState(project);
     if (project) {
       localStorage.setItem('currentProjectId', project.id);
       localStorage.setItem('currentProject', JSON.stringify(project));
+      // Диспатчим событие для синхронизации между компонентами
+      window.dispatchEvent(new CustomEvent('projectUpdated', { detail: project }));
     } else {
       localStorage.removeItem('currentProjectId');
       localStorage.removeItem('currentProject');
+      window.dispatchEvent(new CustomEvent('projectUpdated', { detail: null }));
     }
   }, []);
 
@@ -174,6 +178,18 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('currentProjectId');
       }
     }
+
+    // Подписка на события обновления проекта
+    const handleProjectUpdate = (event: CustomEvent) => {
+      console.log('Получено событие projectUpdated:', event.detail?.name);
+      setCurrentProjectState(event.detail);
+    };
+
+    window.addEventListener('projectUpdated', handleProjectUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('projectUpdated', handleProjectUpdate as EventListener);
+    };
   }, []);
 
   // Селекторы (из originals/src/context/utils/selectors.js)
