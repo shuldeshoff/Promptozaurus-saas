@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '../../store/auth.store';
 import { useTranslation } from 'react-i18next';
 import { useEditor } from '../../context/EditorContext';
-import { useUpdateProject } from '../../hooks/useProjects';
 import ProjectSharingModal from '../ProjectSharingModal';
-import ProjectSelectorModal from '../ProjectSelectorModal';
+import ProjectManagerModal from '../ProjectManagerModal';
 import AIConfigModal from '../AIConfigModal';
 import QuickHelp from '../ui/QuickHelp';
 
@@ -12,144 +11,58 @@ const Header = () => {
   const { t, i18n } = useTranslation('header');
   const { user, logout } = useAuthStore();
   const { currentProject } = useEditor();
-  const updateMutation = useUpdateProject();
   const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [showAIConfig, setShowAIConfig] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [projectSelectorMode, setProjectSelectorMode] = useState<'open' | 'create' | null>(null);
-  
-  // Состояния для редактирования названия проекта
-  const [projectName, setProjectName] = useState(currentProject?.name || '');
+  const [showProjectManager, setShowProjectManager] = useState(false);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ru' : 'en';
     i18n.changeLanguage(newLang);
   };
 
-  // Синхронизация названия проекта при изменении currentProject
-  useEffect(() => {
-    if (currentProject?.name) {
-      setProjectName(currentProject.name);
-    } else {
-      setProjectName('');
-    }
-  }, [currentProject]);
-
-  // Обработчики для проектов
-  const handleNewProject = () => {
-    setProjectSelectorMode('create');
-  };
-
-  const handleOpenProject = () => {
-    setProjectSelectorMode('open');
-  };
-
-  const handleSaveProject = async () => {
-    if (!currentProject) return;
-    
-    // Принудительное сохранение проекта
-    await updateMutation.mutateAsync({
-      id: currentProject.id,
-      data: currentProject.data,
-    });
-  };
-
-  // Обработчики редактирования названия проекта
-  const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProjectName(e.target.value);
-  };
-
-  const handleProjectNameBlur = async () => {
-    if (!currentProject) return;
-    
-    const trimmedName = projectName.trim();
-    if (trimmedName === '') {
-      setProjectName(currentProject.name);
-      return;
-    }
-    
-    // Автосохранение при изменении названия
-    if (trimmedName !== currentProject.name) {
-      await updateMutation.mutateAsync({
-        id: currentProject.id,
-        name: trimmedName,
-      });
-    }
-  };
-
-  const handleProjectNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.currentTarget.blur();
-    } else if (e.key === 'Escape') {
-      setProjectName(currentProject?.name || '');
-      e.currentTarget.blur();
-    }
-  };
-
   return (
     <>
       <header className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
         {/* Левая часть - управление проектами */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button 
-            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
-            onClick={handleNewProject}
-            title={t('tooltips.createNewProject')}
+            className="px-4 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors whitespace-nowrap font-medium"
+            onClick={() => setShowProjectManager(true)}
+            title={t('labels.projects', 'Проекты')}
           >
-            {t('project.new')}
-          </button>
-          <button 
-            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
-            onClick={handleOpenProject}
-            title={t('tooltips.openExistingProject')}
-          >
-            {t('project.open')}
-          </button>
-          <button 
-            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleSaveProject}
-            title={t('tooltips.saveCurrentProject')}
-            disabled={!currentProject}
-          >
-            {t('project.save')}
+            {t('labels.projects', 'Проекты')}
           </button>
           
-          {/* Редактируемое название проекта */}
-          <input
-            type="text"
-            className="px-3 py-1 bg-gray-700 border border-gray-600 text-white text-xs rounded focus:outline-none focus:border-blue-500 w-48 disabled:opacity-50 disabled:cursor-not-allowed"
-            value={projectName}
-            onChange={handleProjectNameChange}
-            onBlur={handleProjectNameBlur}
-            onKeyDown={handleProjectNameKeyDown}
-            placeholder={t('project.newProject')}
-            disabled={!currentProject}
-            title={t('tooltips.editProjectName')}
-          />
+          {/* Название текущего проекта */}
+          <div className="px-4 py-1 bg-gray-700 text-white text-sm rounded whitespace-nowrap">
+            {currentProject?.name || t('project.newProject')}
+          </div>
 
           {/* Share button */}
-          <button
-            onClick={() => setIsSharingModalOpen(true)}
-            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-            title={t('tooltips.shareProject')}
-            disabled={!currentProject}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-1 flex-shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {currentProject && (
+            <button
+              onClick={() => setIsSharingModalOpen(true)}
+              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center whitespace-nowrap"
+              title={t('tooltips.shareProject')}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-              />
-            </svg>
-            <span className="truncate">{t('share')}</span>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-1 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+              <span className="truncate">{t('share')}</span>
+            </button>
+          )}
         </div>
 
         {/* Правая часть - управление приложением */}
@@ -251,6 +164,12 @@ const Header = () => {
         onClose={() => setShowHelp(false)}
       />
 
+      {/* Project Manager Modal */}
+      <ProjectManagerModal
+        isOpen={showProjectManager}
+        onClose={() => setShowProjectManager(false)}
+      />
+
       {/* Project Sharing Modal */}
       {currentProject && (
         <ProjectSharingModal
@@ -258,15 +177,6 @@ const Header = () => {
           onClose={() => setIsSharingModalOpen(false)}
           projectId={currentProject.id}
           projectName={currentProject.name}
-        />
-      )}
-
-      {/* Project Selector Modal */}
-      {projectSelectorMode && (
-        <ProjectSelectorModal
-          isOpen={true}
-          onClose={() => setProjectSelectorMode(null)}
-          mode={projectSelectorMode}
         />
       )}
     </>
