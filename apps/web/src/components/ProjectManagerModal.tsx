@@ -73,7 +73,8 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
         } catch (error) {
           toast.error(t('messages.failedToDeleteProject'));
         }
-      }
+      },
+      t('buttons.delete') // Добавляем локализованный текст кнопки
     );
   };
 
