@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAuthStore } from '../../store/auth.store';
 import { useTranslation } from 'react-i18next';
 import { useEditor } from '../../context/EditorContext';
-import ProjectSharingModal from '../ProjectSharingModal';
 import ProjectManagerModal from '../ProjectManagerModal';
 import AIConfigModal from '../AIConfigModal';
 import QuickHelp from '../ui/QuickHelp';
@@ -11,7 +10,6 @@ const Header = () => {
   const { t, i18n } = useTranslation('header');
   const { user, logout } = useAuthStore();
   const { currentProject } = useEditor();
-  const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [showAIConfig, setShowAIConfig] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
@@ -49,31 +47,6 @@ const Header = () => {
               {currentProject?.name || t('project.selectProject', 'Выберите проект')}
             </span>
           </button>
-
-          {/* Share button */}
-          {currentProject && (
-            <button
-              onClick={() => setIsSharingModalOpen(true)}
-              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center whitespace-nowrap"
-              title={t('tooltips.shareProject')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                />
-              </svg>
-              <span className="truncate">{t('share')}</span>
-            </button>
-          )}
         </div>
 
         {/* Правая часть - управление приложением */}
@@ -180,16 +153,6 @@ const Header = () => {
         isOpen={showProjectManager}
         onClose={() => setShowProjectManager(false)}
       />
-
-      {/* Project Sharing Modal */}
-      {currentProject && (
-        <ProjectSharingModal
-          isOpen={isSharingModalOpen}
-          onClose={() => setIsSharingModalOpen(false)}
-          projectId={currentProject.id}
-          projectName={currentProject.name}
-        />
-      )}
     </>
   );
 };

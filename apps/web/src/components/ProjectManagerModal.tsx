@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useProjects, useCreateProject, useDeleteProject } from '../hooks/useProjects';
 import { useEditor } from '../context/EditorContext';
 import { useConfirmation } from '../context/ConfirmationContext';
+import ProjectSharingModal from './ProjectSharingModal';
 import type { Project } from '../hooks/useProjects';
 import toast from 'react-hot-toast';
 
@@ -20,6 +21,7 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
   const { openConfirmation } = useConfirmation();
   const [newProjectName, setNewProjectName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [sharingProject, setSharingProject] = useState<Project | null>(null);
 
   if (!isOpen) return null;
 
@@ -190,24 +192,47 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
                           <span>{project.data?.promptBlocks?.length || 0} промптов</span>
                         </div>
                       </div>
-                      <button
-                        onClick={(e) => handleDeleteProject(project, e)}
-                        className={`ml-3 p-2 rounded transition-colors ${
-                          currentProject?.id === project.id
-                            ? 'text-blue-200 hover:text-white hover:bg-blue-500'
-                            : 'text-gray-500 hover:text-red-400 hover:bg-gray-600'
-                        }`}
-                        title={t('buttons.delete')}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
+                      <div className="ml-3 flex gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSharingProject(project);
+                          }}
+                          className={`p-2 rounded transition-colors ${
+                            currentProject?.id === project.id
+                              ? 'text-blue-200 hover:text-white hover:bg-blue-500'
+                              : 'text-gray-500 hover:text-blue-400 hover:bg-gray-600'
+                          }`}
+                          title={t('buttons.share', 'Поделиться')}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteProject(project, e)}
+                          className={`p-2 rounded transition-colors ${
+                            currentProject?.id === project.id
+                              ? 'text-blue-200 hover:text-white hover:bg-blue-500'
+                              : 'text-gray-500 hover:text-red-400 hover:bg-gray-600'
+                          }`}
+                          title={t('buttons.delete')}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -231,6 +256,16 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
           )}
         </div>
       </div>
+
+      {/* Project Sharing Modal */}
+      {sharingProject && (
+        <ProjectSharingModal
+          isOpen={!!sharingProject}
+          onClose={() => setSharingProject(null)}
+          projectId={sharingProject.id}
+          projectName={sharingProject.name}
+        />
+      )}
     </div>
   );
 }
