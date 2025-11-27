@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { useEditor } from '../../context/EditorContext';
-import Header from './Header';
 import NavigationPanel from './NavigationPanel';
 import BlocksPanel from './BlocksPanel';
 import EditorPanel from './EditorPanel';
@@ -115,10 +114,7 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-gray-200">
-      {/* Верхняя панель */}
-      <Header />
-
+    <div className="flex flex-col h-full bg-gray-900 text-gray-200">
       {/* Основной контент - трёхпанельный layout */}
       <div className="flex flex-1 overflow-hidden" ref={containerRef}>
         {/* Навигационная панель (левая) */}

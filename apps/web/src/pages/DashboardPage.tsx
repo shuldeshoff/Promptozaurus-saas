@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import ProjectList from '../components/ProjectList';
 import MainLayout from '../components/layout/MainLayout';
+import Header from '../components/layout/Header';
 import { useProject } from '../hooks/useProjects';
 import { EditorProvider, useEditor } from '../context/EditorContext';
 
@@ -22,6 +23,9 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col">
+      {/* Fixed Header */}
+      <Header />
+      
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden relative">
         {/* Mobile Sidebar Overlay */}
