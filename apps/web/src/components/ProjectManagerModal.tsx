@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProjects, useCreateProject, useDeleteProject } from '../hooks/useProjects';
+import { useProjects, useCreateProject, useDeleteProject, useUpdateProject } from '../hooks/useProjects';
 import { useEditor } from '../context/EditorContext';
 import { useConfirmation } from '../context/ConfirmationContext';
 import ProjectSharingModal from './ProjectSharingModal';
@@ -17,11 +17,14 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
   const { data: projects, isLoading } = useProjects();
   const createMutation = useCreateProject();
   const deleteMutation = useDeleteProject();
+  const updateMutation = useUpdateProject();
   const { currentProject, setCurrentProject } = useEditor();
   const { openConfirmation } = useConfirmation();
   const [newProjectName, setNewProjectName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [sharingProject, setSharingProject] = useState<Project | null>(null);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [editingProjectName, setEditingProjectName] = useState('');
 
   if (!isOpen) return null;
 
@@ -70,6 +73,46 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
         }
       }
     );
+  };
+
+  const handleStartRename = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingProjectId(project.id);
+    setEditingProjectName(project.name);
+  };
+
+  const handleRenameProject = async (project: Project) => {
+    if (!editingProjectName.trim()) {
+      toast.error(t('messages.fillAllFields'));
+      return;
+    }
+
+    if (editingProjectName === project.name) {
+      setEditingProjectId(null);
+      return;
+    }
+
+    try {
+      await updateMutation.mutateAsync({
+        id: project.id,
+        name: editingProjectName,
+      });
+
+      // Если переименовываем текущий проект, обновляем его в контексте
+      if (currentProject?.id === project.id) {
+        setCurrentProject({ ...currentProject, name: editingProjectName });
+      }
+
+      toast.success(t('messages.success'));
+      setEditingProjectId(null);
+    } catch (error) {
+      toast.error(t('messages.failedToUpdate'));
+    }
+  };
+
+  const handleCancelRename = () => {
+    setEditingProjectId(null);
+    setEditingProjectName('');
   };
 
   return (
@@ -170,9 +213,32 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-white font-medium truncate">
-                            {project.name}
-                          </h3>
+                          {editingProjectId === project.id ? (
+                            <input
+                              type="text"
+                              value={editingProjectName}
+                              onChange={(e) => setEditingProjectName(e.target.value)}
+                              onBlur={() => handleRenameProject(project)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleRenameProject(project);
+                                } else if (e.key === 'Escape') {
+                                  handleCancelRename();
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex-1 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm focus:outline-none focus:border-blue-400"
+                              autoFocus
+                            />
+                          ) : (
+                            <h3
+                              className="text-white font-medium truncate cursor-text hover:text-blue-200 transition-colors"
+                              onClick={(e) => handleStartRename(project, e)}
+                              title="Кликните для переименования"
+                            >
+                              {project.name}
+                            </h3>
+                          )}
                           {currentProject?.id === project.id && (
                             <span className="flex-shrink-0 px-2 py-0.5 bg-blue-500 text-white text-xs rounded font-medium">
                               Активен
