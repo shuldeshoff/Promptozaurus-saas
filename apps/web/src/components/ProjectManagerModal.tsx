@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { useProjects, useCreateProject, useDeleteProject, useUpdateProject } from '../hooks/useProjects';
 import { useEditor } from '../context/EditorContext';
 import { useConfirmation } from '../context/ConfirmationContext';
@@ -14,6 +15,7 @@ interface ProjectManagerModalProps {
 
 export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerModalProps) {
   const { t } = useTranslation('common');
+  const queryClient = useQueryClient();
   const { data: projects, isLoading } = useProjects();
   const createMutation = useCreateProject();
   const deleteMutation = useDeleteProject();
@@ -93,14 +95,18 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
     }
 
     try {
-      await updateMutation.mutateAsync({
+      const updatedProject = await updateMutation.mutateAsync({
         id: project.id,
         name: editingProjectName,
       });
 
+      // Инвалидируем кеш проектов
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+
       // Если переименовываем текущий проект, обновляем его в контексте
       if (currentProject?.id === project.id) {
-        setCurrentProject({ ...currentProject, name: editingProjectName });
+        setCurrentProject(updatedProject);
       }
 
       toast.success(t('messages.success'));
