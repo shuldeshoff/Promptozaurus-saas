@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Project } from '../hooks/useProjects';
 import type { ContextBlock, PromptBlock } from '@promptozaurus/shared';
 
@@ -51,15 +51,32 @@ interface EditorContextType {
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
-  const [activeTab, setActiveTab] = useState<'context' | 'prompt'>('context');
-  const [activeContextBlockId, setActiveContextBlockId] = useState<number | null>(null);
-  const [activePromptBlockId, setActivePromptBlockId] = useState<number | null>(null);
+  // Загрузка сохраненного состояния из localStorage
+  const [activeTab, setActiveTabState] = useState<'context' | 'prompt'>(() => {
+    const saved = localStorage.getItem('activeTab');
+    return (saved as 'context' | 'prompt') || 'context';
+  });
+
+  const [activeContextBlockId, setActiveContextBlockIdState] = useState<number | null>(() => {
+    const saved = localStorage.getItem('activeContextBlockId');
+    return saved ? parseInt(saved, 10) : null;
+  });
+
+  const [activePromptBlockId, setActivePromptBlockIdState] = useState<number | null>(() => {
+    const saved = localStorage.getItem('activePromptBlockId');
+    return saved ? parseInt(saved, 10) : null;
+  });
+
   const [activeContextItemId, setActiveContextItemId] = useState<number | null>(null);
   const [activeContextSubItemId, setActiveContextSubItemId] = useState<number | null>(null);
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [isAddingSubItem, setIsAddingSubItem] = useState(false);
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  
+  const [currentProject, setCurrentProjectState] = useState<Project | null>(() => {
+    const saved = localStorage.getItem('currentProjectId');
+    return saved ? { id: saved } as Project : null; // Временно, загрузим полные данные из API
+  });
 
   // Load panel sizes from localStorage or use defaults
   const [navPanelWidth, setNavPanelWidthState] = useState(() => {
@@ -82,17 +99,52 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('blocksPanelWidth', width.toString());
   }, []);
 
+  // Обертки для сохранения в localStorage
+  const setActiveTab = useCallback((tab: 'context' | 'prompt') => {
+    setActiveTabState(tab);
+    localStorage.setItem('activeTab', tab);
+  }, []);
+
+  const setActiveContextBlockId = useCallback((id: number | null) => {
+    setActiveContextBlockIdState(id);
+    if (id !== null) {
+      localStorage.setItem('activeContextBlockId', id.toString());
+    } else {
+      localStorage.removeItem('activeContextBlockId');
+    }
+  }, []);
+
+  const setActivePromptBlockId = useCallback((id: number | null) => {
+    setActivePromptBlockIdState(id);
+    if (id !== null) {
+      localStorage.setItem('activePromptBlockId', id.toString());
+    } else {
+      localStorage.removeItem('activePromptBlockId');
+    }
+  }, []);
+
   const setActiveContextBlock = useCallback((id: number | null) => {
     setActiveContextBlockId(id);
     if (id !== null) {
       setActiveTab('context');
     }
-  }, []);
+  }, [setActiveContextBlockId, setActiveTab]);
 
   const setActivePromptBlock = useCallback((id: number | null) => {
     setActivePromptBlockId(id);
     if (id !== null) {
       setActiveTab('prompt');
+    }
+  }, [setActivePromptBlockId, setActiveTab]);
+
+  const setCurrentProject = useCallback((project: Project | null) => {
+    setCurrentProjectState(project);
+    if (project) {
+      localStorage.setItem('currentProjectId', project.id);
+      localStorage.setItem('currentProject', JSON.stringify(project));
+    } else {
+      localStorage.removeItem('currentProjectId');
+      localStorage.removeItem('currentProject');
     }
   }, []);
 
@@ -106,6 +158,22 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       [itemId]: !prev[itemId],
     }));
+  }, []);
+
+  // Восстановление проекта из localStorage при монтировании
+  useEffect(() => {
+    const savedProject = localStorage.getItem('currentProject');
+    if (savedProject) {
+      try {
+        const project = JSON.parse(savedProject);
+        setCurrentProjectState(project);
+        console.log('Восстановлен проект из localStorage:', project.name);
+      } catch (error) {
+        console.error('Ошибка восстановления проекта:', error);
+        localStorage.removeItem('currentProject');
+        localStorage.removeItem('currentProjectId');
+      }
+    }
   }, []);
 
   // Селекторы (из originals/src/context/utils/selectors.js)
