@@ -12,7 +12,7 @@
   },
   "context": {
     "import": "Import Context",
-    "folder": "Contexts Folder"
+    "folder": "Context Folder"
   },
   "ai": {
     "settings": "AI Settings",
@@ -23,19 +23,21 @@
     "language": "Language"
   },
   "help": "Help",
+  "share": "Share",
   "tooltips": {
-    "createNewProject": "Create new project",
-    "openExistingProject": "Open existing project",
-    "saveCurrentProject": "Save current project",
-    "saveProjectWithNewName": "Save project with new name",
+    "createNewProject": "Create a new project",
+    "openExistingProject": "Open an existing project",
+    "saveCurrentProject": "Save the current project",
+    "saveProjectWithNewName": "Save project with a new name",
     "selectProjectsFolder": "Select folder for saving projects",
     "editProjectName": "Click to edit project name",
-    "importContextBlock": "Import context block",
+    "importContextBlock": "Import a context block",
     "selectContextFolder": "Select folder for context blocks",
     "aiSettings": "Artificial Intelligence settings",
     "sendToAI": "Send prompt to AI",
-    "exitApp": "Exit application",
+    "exitApp": "Exit the application",
     "switchLanguage": "Switch language",
-    "help": "Show quick help (F1)"
+    "help": "Show quick help (F1)",
+    "shareProject": "Share project with other users"
   }
 }
