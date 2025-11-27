@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/auth.store';
 import { useTranslation } from 'react-i18next';
 import { useEditor } from '../../context/EditorContext';
@@ -26,14 +26,14 @@ const Header = () => {
     i18n.changeLanguage(newLang);
   };
 
-  // Синхронизация названия проекта
-  useState(() => {
+  // Синхронизация названия проекта при изменении currentProject
+  useEffect(() => {
     if (currentProject?.name) {
       setProjectName(currentProject.name);
     } else {
       setProjectName('');
     }
-  });
+  }, [currentProject]);
 
   // Обработчики для проектов
   const handleNewProject = () => {
