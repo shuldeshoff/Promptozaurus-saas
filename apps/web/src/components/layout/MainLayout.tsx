@@ -4,6 +4,7 @@ import Header from './Header';
 import NavigationPanel from './NavigationPanel';
 import BlocksPanel from './BlocksPanel';
 import EditorPanel from './EditorPanel';
+import QuickHelp from '../ui/QuickHelp';
 
 const MainLayout = () => {
   const {
@@ -15,6 +16,7 @@ const MainLayout = () => {
 
   const [isDraggingNav, setIsDraggingNav] = useState(false);
   const [isDraggingBlocks, setIsDraggingBlocks] = useState(false);
+  const [quickHelpOpen, setQuickHelpOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Начало изменения размера навигационной панели
@@ -78,11 +80,11 @@ const MainLayout = () => {
   // Глобальные горячие клавиши
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // F1 - справка (пока не реализовано)
+      // F1 - справка
       if (e.key === 'F1') {
         e.preventDefault();
-        console.log('F1 pressed - Quick Help (not implemented yet)');
-        // TODO: открыть QuickHelp modal
+        console.log('F1 pressed - opening Quick Help');
+        setQuickHelpOpen(true);
       }
 
       // Ctrl+S - сохранение (автоматически через React Query)
@@ -148,6 +150,9 @@ const MainLayout = () => {
           <EditorPanel />
         </div>
       </div>
+
+      {/* QuickHelp Modal */}
+      <QuickHelp isOpen={quickHelpOpen} onClose={() => setQuickHelpOpen(false)} />
     </div>
   );
 };

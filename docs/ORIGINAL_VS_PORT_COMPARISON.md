@@ -473,7 +473,7 @@ Distribution:  https://promptyflow.com
 ║  Локализация:                100% ✅                      ║
 ║                                                           ║
 ║  AI Integration:            100%  ✅  (UI + API полностью готовы)  ║
-║  QuickHelp (F1):             0%   ❌  (не критично)       ║
+║  QuickHelp (F1):            100%  ✅  (полностью портирован)  ║
 ║                                                           ║
 ║  🎉 ПРОЕКТ ГОТОВ К ИСПОЛЬЗОВАНИЮ                          ║
 ║                                                           ║
