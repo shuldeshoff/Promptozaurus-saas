@@ -5,6 +5,7 @@ import { useEditor } from '../../context/EditorContext';
 import { useUpdateProject } from '../../hooks/useProjects';
 import SaveStatus from '../SaveStatus';
 import ProjectSharingModal from '../ProjectSharingModal';
+import ProjectSelectorModal from '../ProjectSelectorModal';
 import AIConfigModal from '../AIConfigModal';
 import QuickHelp from '../ui/QuickHelp';
 
@@ -16,6 +17,7 @@ const Header = () => {
   const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [showAIConfig, setShowAIConfig] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [projectSelectorMode, setProjectSelectorMode] = useState<'open' | 'create' | null>(null);
   
   // Состояния для редактирования названия проекта
   const [projectName, setProjectName] = useState(currentProject?.name || t('project.newProject'));
@@ -35,13 +37,11 @@ const Header = () => {
 
   // Обработчики для проектов
   const handleNewProject = () => {
-    // TODO: Реализовать создание нового проекта через модальное окно
-    console.log('Создание нового проекта');
+    setProjectSelectorMode('create');
   };
 
   const handleOpenProject = () => {
-    // TODO: Реализовать открытие списка проектов
-    console.log('Открытие проекта');
+    setProjectSelectorMode('open');
   };
 
   const handleSaveProject = async () => {
@@ -327,6 +327,15 @@ const Header = () => {
           onClose={() => setIsSharingModalOpen(false)}
           projectId={currentProject.id}
           projectName={currentProject.name}
+        />
+      )}
+
+      {/* Project Selector Modal */}
+      {projectSelectorMode && (
+        <ProjectSelectorModal
+          isOpen={true}
+          onClose={() => setProjectSelectorMode(null)}
+          mode={projectSelectorMode}
         />
       )}
     </>
