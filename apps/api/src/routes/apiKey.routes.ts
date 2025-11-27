@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { apiKeyService } from '../services/apiKey.service.js';
 import { AiProviderSchema } from '@promptozaurus/shared';
+import { AIProviderFactory } from '../providers/factory.js';
 
 // Request schemas
 const UpsertApiKeySchema = z.object({
@@ -154,33 +155,54 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
           });
         }
 
-        // TODO: Test the API key with the provider
-        // For now, just mark as active
-        await apiKeyService.updateApiKeyStatus(
-          userId,
-          providerResult.data,
-          'active',
-          new Date()
-        );
+        // Test the API key with the provider
+        try {
+          const providerInstance = AIProviderFactory.createProvider(
+            providerResult.data,
+            keyData.key
+          );
 
-        reply.send({
-          success: true,
-          data: {
-            provider: providerResult.data,
-            status: 'active',
-            message: 'API key is valid',
-          },
-        });
+          const isValid = await providerInstance.testConnection();
+
+          if (!isValid) {
+            throw new Error('Connection test failed');
+          }
+
+          // Mark as active
+          await apiKeyService.updateApiKeyStatus(
+            userId,
+            providerResult.data,
+            'active',
+            new Date()
+          );
+
+          reply.send({
+            success: true,
+            data: {
+              provider: providerResult.data,
+              status: 'active',
+              message: 'API key is valid',
+            },
+          });
+        } catch (testError) {
+          // Update status to error
+          await apiKeyService.updateApiKeyStatus(
+            userId,
+            providerResult.data,
+            'error'
+          );
+
+          const errorMessage = testError instanceof Error ? testError.message : 'Connection test failed';
+          fastify.log.warn({ error: errorMessage }, `API key test failed for ${providerResult.data}`);
+
+          return reply.status(400).send({
+            success: false,
+            error: `API key test failed: ${errorMessage}`,
+          });
+        }
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         fastify.log.error({ error: errorMessage }, 'Failed to test API key');
-
-        // Update status to error
-        await apiKeyService.updateApiKeyStatus(
-          userId,
-          providerResult.data,
-          'error'
-        );
 
         reply.status(500).send({
           success: false,
