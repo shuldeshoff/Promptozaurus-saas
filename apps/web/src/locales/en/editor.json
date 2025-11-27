@@ -1,6 +1,8 @@
 {
   "context": {
     "title": "Context Title",
+    "deleteTitle": "Delete Context Block",
+    "delete": "Are you sure you want to delete this context block?",
     "noSelection": {
       "title": "No context block selected",
       "description": "Select an existing block or create a new one in the left panel"
@@ -46,6 +48,8 @@
   },
   "prompt": {
     "title": "Prompt Title",
+    "deleteTitle": "Delete Prompt Block",
+    "delete": "Are you sure you want to delete this prompt block?",
     "noSelection": {
       "title": "No prompt selected",
       "description": "Select an existing block or create a new one in the left panel"
