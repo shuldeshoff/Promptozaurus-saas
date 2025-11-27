@@ -57,8 +57,12 @@ const NavigationPanel = () => {
 
   // Обработчики для добавления новых блоков
   const handleAddContextBlock = async () => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      console.error('Нет текущего проекта для создания блока контекста');
+      return;
+    }
 
+    console.log('Создание нового блока контекста для проекта:', currentProject.name);
     const defaultTitle = generateDefaultContextBlockName(contextBlocks);
     const newBlock: ContextBlock = {
       id: Date.now(),
@@ -66,21 +70,30 @@ const NavigationPanel = () => {
       items: [],
     };
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: [...contextBlocks, newBlock],
-      },
-    });
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: currentProject.id,
+        data: {
+          ...currentProject.data,
+          contextBlocks: [...contextBlocks, newBlock],
+        },
+      });
 
-    // Активируем новый блок
-    setActiveContextBlock(newBlock.id);
+      // Активируем новый блок
+      setActiveContextBlock(newBlock.id);
+      console.log('Блок контекста создан и активирован:', newBlock.id);
+    } catch (error) {
+      console.error('Ошибка создания блока контекста:', error);
+    }
   };
 
   const handleAddPromptBlock = async () => {
-    if (!currentProject) return;
+    if (!currentProject) {
+      console.error('Нет текущего проекта для создания блока промпта');
+      return;
+    }
 
+    console.log('Создание нового блока промпта для проекта:', currentProject.name);
     const defaultTitle = generateDefaultPromptBlockName(promptBlocks);
     const newBlock: PromptBlock = {
       id: Date.now(),
@@ -89,16 +102,21 @@ const NavigationPanel = () => {
       selectedContexts: [],
     };
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        promptBlocks: [...promptBlocks, newBlock],
-      },
-    });
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: currentProject.id,
+        data: {
+          ...currentProject.data,
+          promptBlocks: [...promptBlocks, newBlock],
+        },
+      });
 
-    // Активируем новый блок
-    setActivePromptBlock(newBlock.id);
+      // Активируем новый блок
+      setActivePromptBlock(newBlock.id);
+      console.log('Блок промпта создан и активирован:', newBlock.id);
+    } catch (error) {
+      console.error('Ошибка создания блока промпта:', error);
+    }
   };
 
   // Обработчики для перемещения контекстных блоков
