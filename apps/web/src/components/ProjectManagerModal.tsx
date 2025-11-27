@@ -4,8 +4,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useProjects, useCreateProject, useDeleteProject, useUpdateProject } from '../hooks/useProjects';
 import { useEditor } from '../context/EditorContext';
 import { useConfirmation } from '../context/ConfirmationContext';
-import ProjectSharingModal from './ProjectSharingModal';
+import {
+  useProjectShares,
+  useCreateProjectShare,
+  useDeleteProjectShare,
+} from '../hooks/useProjectShares';
 import type { Project } from '../hooks/useProjects';
+import type { ProjectShare } from '@promptozaurus/shared';
 import toast from 'react-hot-toast';
 
 interface ProjectManagerModalProps {
@@ -24,9 +29,17 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
   const { openConfirmation } = useConfirmation();
   const [newProjectName, setNewProjectName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const [sharingProject, setSharingProject] = useState<Project | null>(null);
+  const [sharingProjectId, setSharingProjectId] = useState<string | null>(null);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editingProjectName, setEditingProjectName] = useState('');
+  
+  // Share form state
+  const [newShareEmail, setNewShareEmail] = useState('');
+  
+  // Hooks для sharing
+  const { data: shares = [], isLoading: sharesLoading } = useProjectShares(sharingProjectId || '');
+  const createShareMutation = useCreateProjectShare();
+  const deleteShareMutation = useDeleteProjectShare();
 
   if (!isOpen) return null;
 
@@ -120,6 +133,59 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
   const handleCancelRename = () => {
     setEditingProjectId(null);
     setEditingProjectName('');
+  };
+
+  const handleStartSharing = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSharingProjectId(sharingProjectId === projectId ? null : projectId);
+    setNewShareEmail('');
+  };
+
+  const handleAddShare = async () => {
+    if (!sharingProjectId) return;
+    
+    if (!newShareEmail.trim()) {
+      toast.error(t('messages.enterEmail'));
+      return;
+    }
+
+    if (!newShareEmail.includes('@')) {
+      toast.error(t('messages.invalidEmail'));
+      return;
+    }
+
+    try {
+      await createShareMutation.mutateAsync({
+        projectId: sharingProjectId,
+        sharedWithEmail: newShareEmail.trim(),
+        permission: 'view',
+      });
+      setNewShareEmail('');
+      toast.success(t('messages.sharedSuccessfully'));
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || t('messages.failedToShare'));
+    }
+  };
+
+  const handleDeleteShare = async (share: ProjectShare) => {
+    if (!sharingProjectId) return;
+    
+    openConfirmation(
+      t('messages.confirmDelete'),
+      t('messages.confirmDeleteShareMessage', { email: share.sharedWithEmail }),
+      async () => {
+        try {
+          await deleteShareMutation.mutateAsync({ 
+            shareId: share.id, 
+            projectId: sharingProjectId 
+          });
+          toast.success(t('messages.shareDeleted'));
+        } catch (error: any) {
+          toast.error(error.response?.data?.error || t('messages.failedToDelete'));
+        }
+      },
+      t('buttons.delete')
+    );
   };
 
   return (
@@ -267,12 +333,11 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
                       </div>
                       <div className="ml-3 flex gap-1">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSharingProject(project);
-                          }}
+                          onClick={(e) => handleStartSharing(project.id, e)}
                           className={`p-2 rounded transition-colors ${
-                            currentProject?.id === project.id
+                            sharingProjectId === project.id
+                              ? 'bg-blue-500 text-white'
+                              : currentProject?.id === project.id
                               ? 'text-blue-200 hover:text-white hover:bg-blue-500'
                               : 'text-gray-500 hover:text-blue-400 hover:bg-gray-600'
                           }`}
@@ -307,6 +372,56 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
                         </button>
                       </div>
                     </div>
+
+                    {/* Share form - раскрывается при клике на кнопку Share */}
+                    {sharingProjectId === project.id && (
+                      <div className="mt-4 pt-4 border-t border-gray-600" onClick={(e) => e.stopPropagation()}>
+                        <h4 className="text-sm font-medium text-gray-300 mb-3">
+                          {t('labels.shareProject', 'Поделиться проектом')}
+                        </h4>
+                        
+                        {/* Форма добавления */}
+                        <div className="flex gap-2 mb-3">
+                          <input
+                            type="email"
+                            value={newShareEmail}
+                            onChange={(e) => setNewShareEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAddShare()}
+                            placeholder={t('labels.enterEmail', 'Email пользователя')}
+                            className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400"
+                          />
+                          <button
+                            onClick={handleAddShare}
+                            disabled={createShareMutation.isPending}
+                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+                          >
+                            {createShareMutation.isPending ? t('buttons.adding', 'Добавление...') : t('buttons.add', 'Добавить')}
+                          </button>
+                        </div>
+
+                        {/* Список пользователей с доступом */}
+                        {sharesLoading ? (
+                          <p className="text-xs text-gray-400">{t('messages.loading')}</p>
+                        ) : shares.length > 0 ? (
+                          <div className="space-y-2">
+                            <p className="text-xs text-gray-400 mb-2">{t('labels.sharedWith', 'Доступ предоставлен')}:</p>
+                            {shares.map((share) => (
+                              <div key={share.id} className="flex items-center justify-between p-2 bg-gray-700 rounded text-sm">
+                                <span className="text-gray-300">{share.sharedWithEmail}</span>
+                                <button
+                                  onClick={() => handleDeleteShare(share)}
+                                  className="text-red-400 hover:text-red-300 text-xs"
+                                >
+                                  {t('buttons.remove', 'Удалить')}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-500">{t('messages.noShares', 'Проект пока ни с кем не поделен')}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -329,16 +444,6 @@ export default function ProjectManagerModal({ isOpen, onClose }: ProjectManagerM
           )}
         </div>
       </div>
-
-      {/* Project Sharing Modal */}
-      {sharingProject && (
-        <ProjectSharingModal
-          isOpen={!!sharingProject}
-          onClose={() => setSharingProject(null)}
-          projectId={sharingProject.id}
-          projectName={sharingProject.name}
-        />
-      )}
     </div>
   );
 }
