@@ -47,7 +47,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   inputDefaultValue = '',
   options = null,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('modals');
 
   // Используем переводы по умолчанию, если не переданы значения
   const modalTitle = title || t('confirmation.title');
