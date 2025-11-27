@@ -1,6 +1,6 @@
 import { useEditor } from '../../context/EditorContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
-import { useUpdateProject } from '../../hooks/useProjects';
+import { useProjectUpdate } from '../../hooks/useProjectUpdate';
 import { useTranslation } from 'react-i18next';
 import type { ContextBlock } from '@promptozaurus/shared';
 import { generateDefaultContextItemName, generateDefaultContextSubItemName } from '../../utils/nameGenerators';
@@ -25,7 +25,7 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
   const { t } = useTranslation('blockItem');
   const { openConfirmation } = useConfirmation();
   const { setActiveContextItem, currentProject } = useEditor();
-  const updateProjectMutation = useUpdateProject();
+  const { updateProjectAndRefresh } = useProjectUpdate();
 
   // Нормализация items
   const normalizedItems = Array.isArray(block.items)
@@ -53,12 +53,9 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
       async () => {
         const newContextBlocks = currentProject.data.contextBlocks.filter((b) => b.id !== block.id);
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: {
-            ...currentProject.data,
-            contextBlocks: newContextBlocks,
-          },
+        await updateProjectAndRefresh({
+          ...currentProject.data,
+          contextBlocks: newContextBlocks,
         });
       }
     );
@@ -106,12 +103,9 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
 
     const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newContextBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      contextBlocks: newContextBlocks,
     });
 
     // Активируем новый item в редакторе
@@ -134,12 +128,9 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
 
         const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: {
-            ...currentProject.data,
-            contextBlocks: newContextBlocks,
-          },
+        await updateProjectAndRefresh({
+          ...currentProject.data,
+          contextBlocks: newContextBlocks,
         });
       }
     );
@@ -175,12 +166,9 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
 
     const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newContextBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      contextBlocks: newContextBlocks,
     });
 
     // Активируем новый sub-item в редакторе
@@ -210,12 +198,9 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
 
         const newContextBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: {
-            ...currentProject.data,
-            contextBlocks: newContextBlocks,
-          },
+        await updateProjectAndRefresh({
+          ...currentProject.data,
+          contextBlocks: newContextBlocks,
         });
       }
     );

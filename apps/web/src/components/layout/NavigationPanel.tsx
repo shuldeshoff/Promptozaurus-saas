@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useEditor } from '../../context/EditorContext';
 import { useTranslation } from 'react-i18next';
-import { useUpdateProject } from '../../hooks/useProjects';
+import { useProjectUpdate } from '../../hooks/useProjectUpdate';
 import type { ContextBlock, PromptBlock } from '@promptozaurus/shared';
 import {
   generateDefaultContextBlockName,
@@ -20,7 +20,7 @@ const NavigationPanel = () => {
     currentProject,
   } = useEditor();
 
-  const updateProjectMutation = useUpdateProject();
+  const { updateProjectAndRefresh } = useProjectUpdate();
 
   // Get blocks from current project
   const contextBlocks = currentProject?.data?.contextBlocks || [];
@@ -71,12 +71,9 @@ const NavigationPanel = () => {
     };
 
     try {
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          contextBlocks: [...contextBlocks, newBlock],
-        },
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        contextBlocks: [...contextBlocks, newBlock],
       });
 
       // Активируем новый блок
@@ -103,12 +100,9 @@ const NavigationPanel = () => {
     };
 
     try {
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          promptBlocks: [...promptBlocks, newBlock],
-        },
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: [...promptBlocks, newBlock],
       });
 
       // Активируем новый блок
@@ -130,12 +124,9 @@ const NavigationPanel = () => {
     const newBlocks = [...contextBlocks];
     [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      contextBlocks: newBlocks,
     });
   };
 
@@ -149,12 +140,9 @@ const NavigationPanel = () => {
     const newBlocks = [...contextBlocks];
     [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        contextBlocks: newBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      contextBlocks: newBlocks,
     });
   };
 
@@ -169,12 +157,9 @@ const NavigationPanel = () => {
     const newBlocks = [...promptBlocks];
     [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        promptBlocks: newBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      promptBlocks: newBlocks,
     });
   };
 
@@ -188,12 +173,9 @@ const NavigationPanel = () => {
     const newBlocks = [...promptBlocks];
     [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        promptBlocks: newBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      promptBlocks: newBlocks,
     });
   };
 

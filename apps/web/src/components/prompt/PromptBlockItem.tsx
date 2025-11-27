@@ -1,7 +1,7 @@
 import { useMemo, useCallback, useRef } from 'react';
 import { useEditor } from '../../context/EditorContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
-import { useUpdateProject } from '../../hooks/useProjects';
+import { useProjectUpdate } from '../../hooks/useProjectUpdate';
 import { useTranslation } from 'react-i18next';
 import type { PromptBlock, SelectedContext } from '@promptozaurus/shared';
 import { ContextSelectionPanel, type ContextSelectionPanelRef } from '../context-selection';
@@ -16,7 +16,7 @@ const PromptBlockItem = ({ block, isActive }: PromptBlockItemProps) => {
   const { t } = useTranslation('blockItem');
   const { openConfirmation } = useConfirmation();
   const { currentProject } = useEditor();
-  const updateProjectMutation = useUpdateProject();
+  const { updateProjectAndRefresh } = useProjectUpdate();
   const selectionPanelRef = useRef<ContextSelectionPanelRef>(null);
 
   // Get context blocks from current project
@@ -44,17 +44,14 @@ const PromptBlockItem = ({ block, isActive }: PromptBlockItemProps) => {
         async () => {
           const newPromptBlocks = currentProject.data.promptBlocks.filter((b) => b.id !== block.id);
 
-          await updateProjectMutation.mutateAsync({
-            id: currentProject.id,
-            data: {
-              ...currentProject.data,
-              promptBlocks: newPromptBlocks,
-            },
+          await updateProjectAndRefresh({
+            ...currentProject.data,
+            promptBlocks: newPromptBlocks,
           });
         }
       );
     },
-    [currentProject, block.id, updateProjectMutation, t, openConfirmation]
+    [currentProject, block.id, updateProjectAndRefresh, t, openConfirmation]
   );
 
   // Обработчик изменения выбора контекста
@@ -70,15 +67,12 @@ const PromptBlockItem = ({ block, isActive }: PromptBlockItemProps) => {
 
       const newPromptBlocks = currentProject.data.promptBlocks.map((b) => (b.id === block.id ? updatedBlock : b));
 
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          promptBlocks: newPromptBlocks,
-        },
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: newPromptBlocks,
       });
     },
-    [currentProject, block, updateProjectMutation]
+    [currentProject, block, updateProjectAndRefresh]
   );
 
   // Обработчики для кнопок выбора

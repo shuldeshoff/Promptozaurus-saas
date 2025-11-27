@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useEditor } from '../../context/EditorContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
-import { useUpdateProject } from '../../hooks/useProjects';
+import { useProjectUpdate } from '../../hooks/useProjectUpdate';
 import { useTranslation } from 'react-i18next';
 import FullscreenEditor from '../ui/FullscreenEditor';
 import SplitContentModal from '../ui/SplitContentModal';
@@ -24,7 +24,7 @@ const ContextEditor = () => {
     toggleExpandItem,
     setExpandedItems,
   } = useEditor();
-  const updateProjectMutation = useUpdateProject();
+  const { updateProjectAndRefresh } = useProjectUpdate();
 
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
@@ -172,10 +172,7 @@ const ContextEditor = () => {
     console.log('Изменение заголовка блока:', e.target.value);
     const updatedBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? { ...b, title: e.target.value } : b));
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчик изменения заголовка элемента (строки 374-378)
@@ -192,10 +189,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчик изменения заголовка подэлемента (строки 380-384)
@@ -220,10 +214,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчик изменения содержимого элемента (строки 386-392)
@@ -241,10 +232,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчик изменения содержимого подэлемента (строки 394-400)
@@ -270,10 +258,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчик удаления элемента (строки 402-406)
@@ -295,10 +280,7 @@ const ContextEditor = () => {
           return b;
         });
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: { ...currentProject.data, contextBlocks: updatedBlocks },
-        });
+        await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
       }
     );
   };
@@ -330,10 +312,7 @@ const ContextEditor = () => {
           return b;
         });
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: { ...currentProject.data, contextBlocks: updatedBlocks },
-        });
+        await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
       }
     );
   };
@@ -397,10 +376,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
 
     setNewItemTitle('');
     setIsAddingItem(false);
@@ -436,10 +412,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
 
     setNewSubItemTitle('');
     setIsAddingSubItem(false);
@@ -499,10 +472,7 @@ const ContextEditor = () => {
 
     const updatedBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? { ...b, items: newItems } : b));
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   const handleMoveItemDown = async (itemId: number) => {
@@ -517,10 +487,7 @@ const ContextEditor = () => {
 
     const updatedBlocks = currentProject.data.contextBlocks.map((b) => (b.id === block.id ? { ...b, items: newItems } : b));
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчики для перемещения подэлементов (аналог строк 484-492)
@@ -549,10 +516,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   const handleMoveSubItemDown = async (itemId: number, subItemId: number) => {
@@ -580,10 +544,7 @@ const ContextEditor = () => {
       return b;
     });
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: { ...currentProject.data, contextBlocks: updatedBlocks },
-    });
+    await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
   };
 
   // Обработчики для полноэкранного редактирования (строки 502-530)
@@ -699,10 +660,7 @@ const ContextEditor = () => {
           return b;
         });
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: { ...currentProject.data, contextBlocks: updatedBlocks },
-        });
+        await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
       } else {
         // Обновляем первую часть в оригинальном подэлементе
         await handleSubItemContentChange(itemId, subItemId, contentParts[0]);
@@ -733,10 +691,7 @@ const ContextEditor = () => {
           return b;
         });
 
-        await updateProjectMutation.mutateAsync({
-          id: currentProject.id,
-          data: { ...currentProject.data, contextBlocks: updatedBlocks },
-        });
+        await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
       }
     } else {
       // Разделяем основной элемент (строки 290-362)
@@ -772,10 +727,7 @@ const ContextEditor = () => {
             return b;
           });
 
-          await updateProjectMutation.mutateAsync({
-            id: currentProject.id,
-            data: { ...currentProject.data, contextBlocks: updatedBlocks },
-          });
+          await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
         } else {
           // Сохраняем исходный текст и создаем все части как подэлементы
           const newSubItems = contentParts.map((content, i) => ({
@@ -803,10 +755,7 @@ const ContextEditor = () => {
             return b;
           });
 
-          await updateProjectMutation.mutateAsync({
-            id: currentProject.id,
-            data: { ...currentProject.data, contextBlocks: updatedBlocks },
-          });
+          await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
 
           // Раскрываем элемент, чтобы показать подэлементы
           setExpandedItems({
@@ -836,10 +785,7 @@ const ContextEditor = () => {
             return b;
           });
 
-          await updateProjectMutation.mutateAsync({
-            id: currentProject.id,
-            data: { ...currentProject.data, contextBlocks: updatedBlocks },
-          });
+          await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
         } else {
           // Сохраняем исходный текст и создаем все части как новые элементы
           const newItems: ContextItem[] = contentParts.map((content, i) => ({
@@ -857,10 +803,7 @@ const ContextEditor = () => {
             return b;
           });
 
-          await updateProjectMutation.mutateAsync({
-            id: currentProject.id,
-            data: { ...currentProject.data, contextBlocks: updatedBlocks },
-          });
+          await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
         }
       }
     }

@@ -10,7 +10,7 @@ import { useConfirmation } from '../../context/ConfirmationContext';
 import FullscreenEditor from '../ui/FullscreenEditor';
 import AIResponseModal from '../AIResponseModal';
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut';
-import { useUpdateProject } from '../../hooks/useProjects';
+import { useProjectUpdate } from '../../hooks/useProjectUpdate';
 import { Template } from '@promptozaurus/shared';
 
 const PromptEditor = () => {
@@ -20,7 +20,7 @@ const PromptEditor = () => {
     activePromptBlockId,
     currentProject,
   } = useEditor();
-  const updateProjectMutation = useUpdateProject();
+  const { updateProjectAndRefresh } = useProjectUpdate();
 
   // Get active prompt block
   const block = currentProject?.data?.promptBlocks?.find((b) => b.id === activePromptBlockId);
@@ -104,12 +104,9 @@ const PromptEditor = () => {
           : b
       );
 
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          promptBlocks: updatedBlocks,
-        },
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: updatedBlocks,
       });
 
       // Закрываем меню после выбора шаблона
@@ -149,12 +146,9 @@ const PromptEditor = () => {
       b.id === block.id ? { ...b, template: e.target.value } : b
     );
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        promptBlocks: updatedBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      promptBlocks: updatedBlocks,
     });
   };
 
@@ -165,12 +159,9 @@ const PromptEditor = () => {
       b.id === block.id ? { ...b, title: e.target.value } : b
     );
 
-    await updateProjectMutation.mutateAsync({
-      id: currentProject.id,
-      data: {
-        ...currentProject.data,
-        promptBlocks: updatedBlocks,
-      },
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      promptBlocks: updatedBlocks,
     });
   };
 
@@ -219,12 +210,9 @@ const PromptEditor = () => {
         b.id === block.id ? { ...b, templateFilename: newTemplate.id } : b
       );
 
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          promptBlocks: updatedBlocks,
-        },
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: updatedBlocks,
       });
 
       setSaveSuccess(true);
@@ -311,12 +299,9 @@ const PromptEditor = () => {
         b.id === block.id ? { ...b, template: newContent } : b
       );
 
-      await updateProjectMutation.mutateAsync({
-        id: currentProject.id,
-        data: {
-          ...currentProject.data,
-          promptBlocks: updatedBlocks,
-        },
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: updatedBlocks,
       });
     }
     setFullscreenEditor((prev) => ({ ...prev, isOpen: false }));
