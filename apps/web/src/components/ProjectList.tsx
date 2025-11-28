@@ -305,6 +305,10 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
       async () => {
     try {
       await deleteMutation.mutateAsync(id);
+          // Если удаляем активный проект, очищаем currentProject
+          if (selectedProjectId === id) {
+            setCurrentProject(null);
+          }
           toast.success(t('messages.projectDeleted', 'Проект удален'));
     } catch {
           toast.error(t('messages.failedToDeleteProject', 'Не удалось удалить проект'));
