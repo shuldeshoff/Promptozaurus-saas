@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/auth.store';
 import { useTranslation } from 'react-i18next';
+import { useEditor } from '../../context/EditorContext';
 import AIConfigModal from '../AIConfigModal';
 import QuickHelp from '../ui/QuickHelp';
 
 const Header = () => {
   const { t, i18n } = useTranslation('header');
   const { user, logout } = useAuthStore();
+  const { currentProject } = useEditor();
   const [showAIConfig, setShowAIConfig] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
@@ -18,9 +20,33 @@ const Header = () => {
   return (
     <>
       <header className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-        {/* Левая часть - логотип или название */}
-        <div className="flex items-center gap-2">
+        {/* Левая часть - логотип и активный проект */}
+        <div className="flex items-center gap-3">
           <h1 className="text-lg font-semibold text-white">PromptyFlow</h1>
+          {currentProject && (
+            <>
+              <span className="text-gray-500">|</span>
+              <div className="flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-blue-400 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                  />
+                </svg>
+                <span className="text-sm text-gray-300 font-medium max-w-xs truncate">
+                  {currentProject.name}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Правая часть - управление приложением */}
