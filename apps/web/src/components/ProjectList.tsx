@@ -5,7 +5,6 @@ import {
   useProjects,
   useCreateProject,
   useDeleteProject,
-  useDuplicateProject,
   useUpdateProject,
   Project,
 } from '../hooks/useProjects';
@@ -41,11 +40,9 @@ interface ProjectCardProps {
   onToggleShare: (e: React.MouseEvent) => void;
   onShareEmailChange: (email: string) => void;
   onAddShare: () => void;
-  onDuplicate: () => void;
   onDelete: () => void;
   onDeleteShare: (shareId: string, email: string, projectId: string) => void;
   createSharePending: boolean;
-  duplicatePending: boolean;
   deletePending: boolean;
   t: any;
 }
@@ -67,11 +64,9 @@ function ProjectCard({
   onToggleShare,
   onShareEmailChange,
   onAddShare,
-  onDuplicate,
   onDelete,
   onDeleteShare,
   createSharePending,
-  duplicatePending,
   deletePending,
   t,
 }: ProjectCardProps) {
@@ -142,30 +137,6 @@ function ProjectCard({
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDuplicate();
-              }}
-              disabled={duplicatePending}
-              className="p-1 hover:bg-gray-600 rounded transition-colors"
-              title={t('buttons.duplicate', 'Дублировать')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                 />
               </svg>
             </button>
@@ -275,7 +246,6 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
   const { data: projects, isLoading, error } = useProjects();
   const createMutation = useCreateProject();
   const deleteMutation = useDeleteProject();
-  const duplicateMutation = useDuplicateProject();
   const updateMutation = useUpdateProject();
   const createShareMutation = useCreateProjectShare();
   const deleteShareMutation = useDeleteProjectShare();
@@ -341,21 +311,6 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
         }
     }
     );
-  };
-
-  const handleDuplicateProject = async (id: string) => {
-    try {
-      const duplicated = await duplicateMutation.mutateAsync(id);
-      onSelectProject(duplicated);
-      toast.success(t('projectDuplicated', 'Project duplicated'));
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: string; message?: string } } };
-      if (error.response?.data?.error === 'Project limit reached') {
-        toast.error(error.response.data.message || t('projectLimitReached'));
-      } else {
-        toast.error(t('failedToDuplicateProject'));
-      }
-    }
   };
 
   const handleStartRename = (project: Project, e: React.MouseEvent) => {
@@ -491,9 +446,24 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
         {canCreateMore && !showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+            className="w-full py-1.5 px-3 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors flex items-center justify-center gap-1"
+            title={t('newProject')}
           >
-            + {t('newProject')}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span>{t('newProject')}</span>
           </button>
         )}
         {!canCreateMore && (
@@ -570,11 +540,9 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
                   onToggleShare={(e) => handleToggleShare(project.id, e)}
                   onShareEmailChange={setNewShareEmail}
                   onAddShare={handleAddShare}
-                  onDuplicate={() => handleDuplicateProject(project.id)}
                   onDelete={() => handleDeleteProject(project.id)}
                   onDeleteShare={handleDeleteShare}
                   createSharePending={createShareMutation.isPending}
-                  duplicatePending={duplicateMutation.isPending}
                   deletePending={deleteMutation.isPending}
                   t={t}
                 />
