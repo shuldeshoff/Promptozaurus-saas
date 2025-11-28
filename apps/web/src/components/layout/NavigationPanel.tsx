@@ -202,9 +202,14 @@ const NavigationPanel = () => {
             {t('contexts.title')}
           </h3>
           <button
-            className="p-1 rounded-full bg-blue-700 hover:bg-blue-600 text-white transition-colors"
+            className={`p-1 rounded-full transition-colors ${
+              currentProject 
+                ? 'bg-blue-700 hover:bg-blue-600 text-white cursor-pointer' 
+                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            }`}
             onClick={handleAddContextBlock}
-            title={t('contexts.add')}
+            disabled={!currentProject}
+            title={currentProject ? t('contexts.add') : t('contexts.noProjectSelected', 'Выберите проект')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -270,9 +275,14 @@ const NavigationPanel = () => {
             {t('prompts.title')}
           </h3>
           <button
-            className="p-1 rounded-full bg-green-700 hover:bg-green-600 text-white transition-colors"
+            className={`p-1 rounded-full transition-colors ${
+              currentProject 
+                ? 'bg-green-700 hover:bg-green-600 text-white cursor-pointer' 
+                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            }`}
             onClick={handleAddPromptBlock}
-            title={t('prompts.add')}
+            disabled={!currentProject}
+            title={currentProject ? t('prompts.add') : t('prompts.noProjectSelected', 'Выберите проект')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

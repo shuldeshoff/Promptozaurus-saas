@@ -6,7 +6,8 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "alreadyTop": "Block is already at the top",
-    "alreadyBottom": "Block is already at the bottom"
+    "alreadyBottom": "Block is already at the bottom",
+    "noProjectSelected": "Select a project"
   },
   "prompts": {
     "title": "Prompts",
@@ -15,6 +16,7 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "alreadyTop": "Block is already at the top",
-    "alreadyBottom": "Block is already at the bottom"
+    "alreadyBottom": "Block is already at the bottom",
+    "noProjectSelected": "Select a project"
   }
 }
