@@ -117,6 +117,7 @@
     "optional": "Optional",
     "projectLimitReached": "You have reached the maximum of 10 projects",
     "failedToCreateProject": "Failed to create project",
+    "projectDeleted": "Project deleted",
     "failedToDeleteProject": "Failed to delete project",
     "failedToDuplicateProject": "Failed to duplicate project",
     "failedToLoadProjects": "Failed to load projects",

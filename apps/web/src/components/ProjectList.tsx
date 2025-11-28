@@ -291,23 +291,23 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string; message?: string } } };
       if (error.response?.data?.error === 'Project limit reached') {
-        toast.error(error.response.data.message || t('projectLimitReached'));
+        toast.error(error.response.data.message || t('messages.projectLimitReached', 'Вы достигли максимума из 10 проектов'));
       } else {
-        toast.error(t('failedToCreateProject'));
+        toast.error(t('messages.failedToCreateProject', 'Не удалось создать проект'));
       }
     }
   };
 
   const handleDeleteProject = async (id: string) => {
     openConfirmation(
-      t('confirmDeleteProject'),
-      t('confirmDeleteProjectMessage', 'This action cannot be undone'),
+      t('messages.confirmDeleteProject', 'Вы уверены, что хотите удалить этот проект?'),
+      t('messages.confirmDeleteProjectMessage', 'Это действие нельзя отменить'),
       async () => {
     try {
       await deleteMutation.mutateAsync(id);
-          toast.success(t('projectDeleted', 'Project deleted'));
+          toast.success(t('messages.projectDeleted', 'Проект удален'));
     } catch {
-          toast.error(t('failedToDeleteProject'));
+          toast.error(t('messages.failedToDeleteProject', 'Не удалось удалить проект'));
         }
     }
     );
@@ -401,11 +401,11 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
   };
 
   if (isLoading) {
-    return <div className="p-4 text-center">{t('loading')}</div>;
+    return <div className="p-4 text-center">{t('messages.loading', 'Загрузка...')}</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-center text-red-500">{t('failedToLoadProjects')}</div>;
+    return <div className="p-4 text-center text-red-500">{t('messages.failedToLoadProjects', 'Не удалось загрузить проекты')}</div>;
   }
 
   const projectCount = projects?.length || 0;
@@ -416,7 +416,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
       {/* Header */}
       <div className="p-4 border-b border-gray-700">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold">{t('projects')}</h2>
+          <h2 className="text-lg font-semibold">{t('labels.projects', 'Проекты')}</h2>
           <div className="flex items-center gap-2">
           <span className="text-sm text-gray-400">
             {projectCount} / 10
@@ -447,7 +447,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
           <button
             onClick={() => setShowCreateForm(true)}
             className="w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded transition-colors flex items-center justify-center"
-            title={t('newProject')}
+            title={t('labels.newProject', 'Новый проект')}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -467,7 +467,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
         )}
         {!canCreateMore && (
           <div className="text-sm text-yellow-500 text-center">
-            {t('projectLimitReached')}
+            {t('messages.projectLimitReached', 'Вы достигли максимума из 10 проектов')}
           </div>
         )}
       </div>
@@ -480,7 +480,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
               type="text"
               value={newProjectName}
               onChange={(e) => setNewProjectName(e.target.value)}
-              placeholder={t('projectName')}
+              placeholder={t('labels.projectName', 'Название проекта')}
               className="w-full px-3 py-2 mb-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
               autoFocus
             />
@@ -490,7 +490,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
                 disabled={createMutation.isPending || !newProjectName.trim()}
                 className="flex-1 py-2 px-4 bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {createMutation.isPending ? t('creating') : t('create')}
+                {createMutation.isPending ? t('buttons.creating', 'Создание...') : t('buttons.create', 'Создать')}
               </button>
               <button
                 type="button"
@@ -500,7 +500,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
                 }}
                 className="flex-1 py-2 px-4 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
               >
-                {t('cancel')}
+                {t('buttons.cancel', 'Отмена')}
               </button>
             </div>
           </form>
@@ -511,7 +511,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
       <div className="flex-1 overflow-y-auto">
         {projects?.length === 0 ? (
           <div className="p-4 text-center text-gray-400">
-            {t('noProjects')}
+            {t('messages.noProjects', 'Пока нет проектов. Создайте свой первый!')}
           </div>
         ) : (
           <div className="p-2 space-y-2">

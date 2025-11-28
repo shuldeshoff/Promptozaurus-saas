@@ -117,6 +117,7 @@
     "optional": "Опционально",
     "projectLimitReached": "Вы достигли максимума из 10 проектов",
     "failedToCreateProject": "Не удалось создать проект",
+    "projectDeleted": "Проект удален",
     "failedToDeleteProject": "Не удалось удалить проект",
     "failedToDuplicateProject": "Не удалось дублировать проект",
     "failedToLoadProjects": "Не удалось загрузить проекты",
