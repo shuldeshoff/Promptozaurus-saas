@@ -223,14 +223,14 @@ function ProjectCard({
                 value={newShareEmail}
                 onChange={(e) => onShareEmailChange(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && onAddShare()}
-                className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+                className="flex-1 px-2 py-1.5 bg-gray-800 border border-gray-600 rounded text-white text-xs focus:outline-none focus:border-blue-500"
               />
               <button
                 onClick={onAddShare}
                 disabled={createSharePending}
-                className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="px-2 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
               >
-                {createSharePending ? t('buttons.adding', 'Добавление...') : t('buttons.add', 'Добавить')}
+                {createSharePending ? '+..' : '+'}
               </button>
             </div>
             
