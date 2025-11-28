@@ -297,6 +297,8 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
       const newProject = await createMutation.mutateAsync(newProjectName);
       setNewProjectName('');
       setShowCreateForm(false);
+      // Устанавливаем новый проект как активный
+      setCurrentProject(newProject);
       onSelectProject(newProject);
       toast.success(t('projectCreated', 'Project created successfully'));
     } catch (err: unknown) {
