@@ -101,6 +101,7 @@
     "info": "Информация",
     "confirmDelete": "Вы уверены, что хотите удалить?",
     "confirmDeleteProject": "Вы уверены, что хотите удалить этот проект?",
+    "confirmDeleteProjectMessage": "Это действие нельзя отменить",
     "confirmDeleteShareMessage": "Удалить доступ для {{email}}?",
     "enterEmail": "Введите email",
     "invalidEmail": "Неверный формат email",
