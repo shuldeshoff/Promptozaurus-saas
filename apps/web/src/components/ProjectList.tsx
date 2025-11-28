@@ -446,7 +446,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
         {canCreateMore && !showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors flex items-center justify-center"
+            className="w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded transition-colors flex items-center justify-center"
             title={t('newProject')}
           >
             <svg
