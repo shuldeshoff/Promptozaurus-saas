@@ -446,12 +446,12 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
         {canCreateMore && !showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="w-full py-1.5 px-3 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors flex items-center justify-center gap-1"
+            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors flex items-center justify-center"
             title={t('newProject')}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -463,7 +463,6 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            <span>{t('newProject')}</span>
           </button>
         )}
         {!canCreateMore && (
