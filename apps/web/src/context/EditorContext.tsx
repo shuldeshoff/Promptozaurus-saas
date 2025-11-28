@@ -74,8 +74,17 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [isAddingSubItem, setIsAddingSubItem] = useState(false);
   
   const [currentProject, setCurrentProjectState] = useState<Project | null>(() => {
-    const saved = localStorage.getItem('currentProjectId');
-    return saved ? { id: saved } as Project : null; // Временно, загрузим полные данные из API
+    try {
+      const savedProject = localStorage.getItem('currentProject');
+      if (savedProject) {
+        return JSON.parse(savedProject) as Project;
+      }
+    } catch (error) {
+      console.error('Error loading currentProject from localStorage:', error);
+      localStorage.removeItem('currentProject');
+      localStorage.removeItem('currentProjectId');
+    }
+    return null;
   });
 
   // Load panel sizes from localStorage or use defaults

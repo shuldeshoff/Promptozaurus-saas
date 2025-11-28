@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import {
@@ -249,6 +249,17 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
   const updateMutation = useUpdateProject();
   const createShareMutation = useCreateProjectShare();
   const deleteShareMutation = useDeleteProjectShare();
+
+  // Проверяем, существует ли selectedProject в списке проектов
+  useEffect(() => {
+    if (!isLoading && projects && selectedProjectId) {
+      const projectExists = projects.some(p => p.id === selectedProjectId);
+      if (!projectExists) {
+        // Проект был удален, очищаем currentProject
+        setCurrentProject(null);
+      }
+    }
+  }, [projects, selectedProjectId, isLoading, setCurrentProject]);
 
   // Если панель свернута, показываем только кнопку toggle
   if (isCollapsed) {
