@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { useAIModels, useSendMessage, AIResponse } from '../hooks/useAI';
+import { useSendMessage, AIResponse } from '../hooks/useAI';
 import { useAIConfig } from '../hooks/useAIConfig';
-import { AiProvider } from '@promptozaurus/shared';
 
 interface AIResponseModalProps {
   isOpen: boolean;
@@ -24,7 +23,6 @@ export default function AIResponseModal({
   const [maxTokens, setMaxTokens] = useState(4000);
   const [response, setResponse] = useState<AIResponse | null>(null);
 
-  const { data: models, isLoading: modelsLoading } = useAIModels();
   const { data: aiConfig } = useAIConfig();
   const sendMutation = useSendMessage();
 
