@@ -134,8 +134,19 @@ export class GeminiProvider extends BaseAIProvider {
         }),
       });
 
-      return response.ok;
-    } catch {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        console.error('Gemini test connection failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Gemini test connection error:', error);
       return false;
     }
   }
