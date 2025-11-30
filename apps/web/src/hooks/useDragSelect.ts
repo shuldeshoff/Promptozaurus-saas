@@ -1,39 +1,38 @@
-// hooks/useDragSelect.ts - Hook for drag-select logic
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 /**
- * Hook for implementing drag-select element selection
- * @param onSelectionChange - Callback on selection change (key, isSelected)
- * @returns Handlers and state for drag-select
+ * Hook for implementing drag-select functionality
+ * @param onSelectionChange - Callback when selection changes (key, isSelected)
+ * @returns Handlers and drag-select state
  */
-export const useDragSelect = (
+export function useDragSelect(
   onSelectionChange: (itemKey: string, isSelected: boolean) => void
-) => {
+) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragMode, setDragMode] = useState<'add' | 'remove' | null>(null);
-  const processedItems = useRef<Set<string>>(new Set());
+  const processedItems = useRef(new Set<string>());
 
   // Start drag-select
   const handleMouseDown = useCallback(
     (itemKey: string, isCurrentlySelected: boolean) => {
       // Determine mode: if item was selected - remove, otherwise - add
-      const mode = isCurrentlySelected ? 'remove' : 'add';
+      const mode: 'add' | 'remove' = isCurrentlySelected ? 'remove' : 'add';
       setDragMode(mode);
       setIsDragging(true);
       processedItems.current = new Set([itemKey]);
 
-      // Apply action to the first element
+      // Apply action to the first item
       onSelectionChange(itemKey, mode === 'add');
     },
     [onSelectionChange]
   );
 
-  // Mouse enters element during drag
+  // Mouse enters item during drag
   const handleMouseEnter = useCallback(
     (itemKey: string) => {
       if (!isDragging || !dragMode) return;
 
-      // Skip already processed elements
+      // Skip already processed items
       if (processedItems.current.has(itemKey)) return;
 
       processedItems.current.add(itemKey);
@@ -78,5 +77,4 @@ export const useDragSelect = (
     handleMouseDown,
     handleMouseEnter,
   };
-};
-
+}

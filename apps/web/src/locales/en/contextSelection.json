@@ -1,22 +1,15 @@
 {
-  "selectAll": "Select all",
-  "selectAllGlobal": "Select all",
-  "selectAllShort": "Select all",
-  "deselectAll": "Deselect all",
-  "clearSelection": "Clear selection",
-  "clearSelectionShort": "Clear",
-  "selected": "selected",
-  "characters": "chars",
   "preview": "Preview",
-  "copyContext": "Copy",
+  "selected": "selected",
+  "characters": "characters",
+  "copyContext": "Copy Context",
   "copied": "Copied!",
-  "noSelection": "No items selected",
-  "noItems": "No items",
-  "noContextBlocks": "No context blocks",
-  "item": "Item",
-  "subItem": "Sub-item",
-  "subItems": "Sub-items",
-  "selectAllSubItems": "Select all sub-items",
-  "deselectAllSubItems": "Deselect all sub-items"
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All",
+  "selectAllGlobal": "Select All Blocks",
+  "clearSelection": "Clear Selection",
+  "selectAllSubItems": "Select all subitems",
+  "deselectAllSubItems": "Deselect all subitems",
+  "noContextBlocks": "No context blocks yet. Create your first context block to get started.",
+  "noItems": "No items in this context block"
 }
-

@@ -1,12 +1,43 @@
-// components/context-selection/ContextSelectionPanel.tsx - Main context selection panel
-import { useState, useCallback, useMemo, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDragSelect } from '../../hooks/useDragSelect';
 import ContextSectionGrid from './ContextSectionGrid';
-import { ContextBlock, SelectedContext } from '@promptozaurus/shared';
+import type { ContextBlock } from '@promptozaurus/shared';
+
+interface SelectedContext {
+  blockId: number;
+  itemIds: number[];
+  subItemIds: string[]; // format: "itemId.subItemId"
+}
+
+interface ContextSelectionPanelProps {
+  promptId: number;
+  contextBlocks: ContextBlock[];
+  selectedContexts: SelectedContext[];
+  selectionOrder?: string[];
+  onSelectionChange: (
+    selectedContexts: SelectedContext[],
+    selectionOrder: string[]
+  ) => void;
+  totalChars?: number;
+}
+
+export interface ContextSelectionPanelRef {
+  selectAll: () => void;
+  clearSelection: () => void;
+  getSelectionCount: () => number;
+}
 
 /**
- * Parses tile key and returns its components
+ * Parse tile key and return its components
  * Format: "blockId-itemId" or "blockId-itemId-subItemId"
  */
 const parseItemKey = (key: string) => {
@@ -19,12 +50,18 @@ const parseItemKey = (key: string) => {
 };
 
 /**
- * Converts internal selection state to selectedContexts format
+ * Convert internal selection state to selectedContexts format
  */
-const convertToSelectedContexts = (selectionOrder: string[], _contextBlocks: ContextBlock[]): SelectedContext[] => {
-  const blocksMap = new Map<number, { blockId: number; itemIds: number[]; subItemIds: string[] }>();
+const convertToSelectedContexts = (
+  selectionOrder: string[],
+  contextBlocks: ContextBlock[]
+): SelectedContext[] => {
+  const blocksMap = new Map<
+    number,
+    { blockId: number; itemIds: number[]; subItemIds: string[] }
+  >();
 
-  selectionOrder.forEach(key => {
+  selectionOrder.forEach((key) => {
     const { blockId, itemId, subItemId } = parseItemKey(key);
 
     if (!blocksMap.has(blockId)) {
@@ -49,26 +86,29 @@ const convertToSelectedContexts = (selectionOrder: string[], _contextBlocks: Con
 };
 
 /**
- * Initializes selectionOrder from existing selectedContexts
+ * Initialize selectionOrder from existing selectedContexts
  */
-const initSelectionOrderFromContexts = (selectedContexts: SelectedContext[], _contextBlocks: ContextBlock[]): string[] => {
+const initSelectionOrderFromContexts = (
+  selectedContexts: SelectedContext[],
+  contextBlocks: ContextBlock[]
+): string[] => {
   const order: string[] = [];
 
   if (!Array.isArray(selectedContexts)) return order;
 
-  selectedContexts.forEach(sel => {
+  selectedContexts.forEach((sel) => {
     if (!sel || !sel.blockId) return;
 
     // Add selected items
     if (Array.isArray(sel.itemIds)) {
-      sel.itemIds.forEach(itemId => {
+      sel.itemIds.forEach((itemId) => {
         order.push(`${sel.blockId}-${itemId}`);
       });
     }
 
     // Add selected subItems
     if (Array.isArray(sel.subItemIds)) {
-      sel.subItemIds.forEach(subItemKey => {
+      sel.subItemIds.forEach((subItemKey) => {
         const [itemId, subItemId] = subItemKey.split('.');
         order.push(`${sel.blockId}-${itemId}-${subItemId}`);
       });
@@ -78,321 +118,394 @@ const initSelectionOrderFromContexts = (selectedContexts: SelectedContext[], _co
   return order;
 };
 
-export interface ContextSelectionPanelRef {
-  selectAll: () => void;
-  clearSelection: () => void;
-  getSelectionCount: () => number;
-}
-
-interface ContextSelectionPanelProps {
-  contextBlocks: ContextBlock[];
-  selectedContexts: SelectedContext[];
-  selectionOrder?: string[];
-  onSelectionChange: (selectedContexts: SelectedContext[], selectionOrder: string[]) => void;
-  totalChars?: number;
-}
-
 /**
  * Main context selection panel with drag-select
  */
-const ContextSelectionPanel = forwardRef<ContextSelectionPanelRef, ContextSelectionPanelProps>(({
-  contextBlocks,
-  selectedContexts,
-  selectionOrder: initialSelectionOrder,
-  onSelectionChange,
-  totalChars = 0,
-}, ref) => {
-  const { t } = useTranslation('contextSelection');
-  const [selectionOrder, setSelectionOrder] = useState<string[]>(() =>
-    Array.isArray(initialSelectionOrder) && initialSelectionOrder.length > 0
-      ? initialSelectionOrder
-      : initSelectionOrderFromContexts(selectedContexts, contextBlocks)
-  );
-  const [copySuccess, setCopySuccess] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+const ContextSelectionPanel = forwardRef<
+  ContextSelectionPanelRef,
+  ContextSelectionPanelProps
+>(
+  (
+    {
+      promptId,
+      contextBlocks,
+      selectedContexts,
+      selectionOrder: initialSelectionOrder,
+      onSelectionChange,
+      totalChars = 0,
+    },
+    ref
+  ) => {
+    const { t } = useTranslation('contextSelection');
+    const [selectionOrder, setSelectionOrder] = useState<string[]>(() =>
+      Array.isArray(initialSelectionOrder) && initialSelectionOrder.length > 0
+        ? initialSelectionOrder
+        : initSelectionOrderFromContexts(selectedContexts, contextBlocks)
+    );
+    const [copySuccess, setCopySuccess] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sync when selectionOrder changes from outside
-  useEffect(() => {
-    if (Array.isArray(initialSelectionOrder) && initialSelectionOrder.length > 0) {
-      setSelectionOrder(initialSelectionOrder);
-    } else {
-      const newOrder = initSelectionOrderFromContexts(selectedContexts, contextBlocks);
-      setSelectionOrder(newOrder);
-    }
-  }, [initialSelectionOrder, selectedContexts, contextBlocks]);
-
-  // Handle selection change
-  const handleSelectionChange = useCallback((itemKey: string, isSelected: boolean) => {
-    setSelectionOrder(prevOrder => {
-      let newOrder: string[];
-
-      if (isSelected) {
-        // Add to end of list
-        newOrder = prevOrder.includes(itemKey) ? prevOrder : [...prevOrder, itemKey];
+    // Sync when selectionOrder changes from outside
+    useEffect(() => {
+      if (
+        Array.isArray(initialSelectionOrder) &&
+        initialSelectionOrder.length > 0
+      ) {
+        setSelectionOrder(initialSelectionOrder);
       } else {
-        // Remove from list
-        newOrder = prevOrder.filter(k => k !== itemKey);
+        const newOrder = initSelectionOrderFromContexts(
+          selectedContexts,
+          contextBlocks
+        );
+        setSelectionOrder(newOrder);
       }
+    }, [initialSelectionOrder, selectedContexts, contextBlocks]);
 
-      // Call callback with new state and selection order
-      const newSelectedContexts = convertToSelectedContexts(newOrder, contextBlocks);
-      onSelectionChange(newSelectedContexts, newOrder);
+    // Selection change handler
+    const handleSelectionChange = useCallback(
+      (itemKey: string, isSelected: boolean) => {
+        setSelectionOrder((prevOrder) => {
+          let newOrder: string[];
 
-      return newOrder;
-    });
-  }, [contextBlocks, onSelectionChange]);
+          if (isSelected) {
+            // Add to end of list
+            newOrder = prevOrder.includes(itemKey)
+              ? prevOrder
+              : [...prevOrder, itemKey];
+          } else {
+            // Remove from list
+            newOrder = prevOrder.filter((k) => k !== itemKey);
+          }
 
-  // Drag-select hook
-  const { isDragging, handleMouseDown, handleMouseEnter } = useDragSelect(handleSelectionChange);
+          // Call callback with new state and selection order
+          const newSelectedContexts = convertToSelectedContexts(
+            newOrder,
+            contextBlocks
+          );
+          onSelectionChange(newSelectedContexts, newOrder);
 
-  // Sets for quick check of selected elements
-  const { selectedItemsMap, selectedSubItemsMap, selectionOrderMap } = useMemo(() => {
-    const itemsMap = new Map<number, Set<number>>();
-    const subItemsMap = new Map<number, Set<string>>();
-    const orderMap = new Map<string, number>();
+          return newOrder;
+        });
+      },
+      [contextBlocks, onSelectionChange]
+    );
 
-    selectionOrder.forEach((key, index) => {
-      const { blockId, itemId, subItemId } = parseItemKey(key);
-      orderMap.set(key, index + 1);
+    // Drag-select hook
+    const { isDragging, handleMouseDown, handleMouseEnter } =
+      useDragSelect(handleSelectionChange);
 
-      if (subItemId !== null) {
-        if (!subItemsMap.has(blockId)) subItemsMap.set(blockId, new Set());
-        subItemsMap.get(blockId)!.add(`${itemId}.${subItemId}`);
-      } else {
-        if (!itemsMap.has(blockId)) itemsMap.set(blockId, new Set());
-        itemsMap.get(blockId)!.add(itemId);
-      }
-    });
+    // Sets for quick checking of selected elements
+    const { selectedItemsMap, selectedSubItemsMap, selectionOrderMap } = useMemo(() => {
+      const itemsMap = new Map<number, Set<number>>(); // blockId -> Set<itemId>
+      const subItemsMap = new Map<number, Set<string>>(); // blockId -> Set<"itemId.subItemId">
+      const orderMap = new Map<string, number>(); // "blockId-itemId[-subItemId]" -> order number
 
-    return { selectedItemsMap: itemsMap, selectedSubItemsMap: subItemsMap, selectionOrderMap: orderMap };
-  }, [selectionOrder]);
+      selectionOrder.forEach((key, index) => {
+        const { blockId, itemId, subItemId } = parseItemKey(key);
+        orderMap.set(key, index + 1);
 
-  // Select all in section
-  const handleSelectAll = useCallback((blockId: number) => {
-    const block = contextBlocks.find(b => b.id === blockId);
-    if (!block) return;
-
-    setSelectionOrder(prevOrder => {
-      const newOrder = [...prevOrder];
-
-      block.items.forEach(item => {
-        const itemKey = `${blockId}-${item.id}`;
-        const hasContent = typeof item.chars === 'number' ? item.chars > 0 : (item.content && item.content.length > 0);
-
-        if (hasContent && !newOrder.includes(itemKey)) {
-          newOrder.push(itemKey);
+        if (subItemId !== null) {
+          if (!subItemsMap.has(blockId)) subItemsMap.set(blockId, new Set());
+          subItemsMap.get(blockId)!.add(`${itemId}.${subItemId}`);
+        } else {
+          if (!itemsMap.has(blockId)) itemsMap.set(blockId, new Set());
+          itemsMap.get(blockId)!.add(itemId);
         }
+      });
 
-        if (Array.isArray(item.subItems)) {
-          item.subItems.forEach(sub => {
-            const subKey = `${blockId}-${item.id}-${sub.id}`;
+      return {
+        selectedItemsMap: itemsMap,
+        selectedSubItemsMap: subItemsMap,
+        selectionOrderMap: orderMap,
+      };
+    }, [selectionOrder]);
+
+    // Select all in section
+    const handleSelectAll = useCallback(
+      (blockId: number) => {
+        const block = contextBlocks.find((b) => b.id === blockId);
+        if (!block) return;
+
+        setSelectionOrder((prevOrder) => {
+          const newOrder = [...prevOrder];
+
+          block.items.forEach((item) => {
+            const itemKey = `${blockId}-${item.id}`;
+            const hasContent =
+              (item.chars || (item.content && item.content.length)) > 0;
+
+            if (hasContent && !newOrder.includes(itemKey)) {
+              newOrder.push(itemKey);
+            }
+
+            if (Array.isArray(item.subItems)) {
+              item.subItems.forEach((sub) => {
+                const subKey = `${blockId}-${item.id}-${sub.id}`;
+                if ((sub.chars || 0) > 0 && !newOrder.includes(subKey)) {
+                  newOrder.push(subKey);
+                }
+              });
+            }
+          });
+
+          const newSelectedContexts = convertToSelectedContexts(
+            newOrder,
+            contextBlocks
+          );
+          onSelectionChange(newSelectedContexts, newOrder);
+
+          return newOrder;
+        });
+      },
+      [contextBlocks, onSelectionChange]
+    );
+
+    // Deselect all in section
+    const handleDeselectAll = useCallback(
+      (blockId: number) => {
+        setSelectionOrder((prevOrder) => {
+          const newOrder = prevOrder.filter((key) => {
+            const { blockId: keyBlockId } = parseItemKey(key);
+            return keyBlockId !== blockId;
+          });
+
+          const newSelectedContexts = convertToSelectedContexts(
+            newOrder,
+            contextBlocks
+          );
+          onSelectionChange(newSelectedContexts, newOrder);
+
+          return newOrder;
+        });
+      },
+      [contextBlocks, onSelectionChange]
+    );
+
+    // Select all subitems of specific item
+    const handleSelectAllSubItems = useCallback(
+      (blockId: number, itemId: number) => {
+        const block = contextBlocks.find((b) => b.id === blockId);
+        if (!block) return;
+
+        const item = block.items.find((i) => i.id === itemId);
+        if (!item || !Array.isArray(item.subItems)) return;
+
+        setSelectionOrder((prevOrder) => {
+          const newOrder = [...prevOrder];
+
+          item.subItems.forEach((sub) => {
+            const subKey = `${blockId}-${itemId}-${sub.id}`;
             if ((sub.chars || 0) > 0 && !newOrder.includes(subKey)) {
               newOrder.push(subKey);
             }
           });
-        }
-      });
 
-      const newSelectedContexts = convertToSelectedContexts(newOrder, contextBlocks);
-      onSelectionChange(newSelectedContexts, newOrder);
+          const newSelectedContexts = convertToSelectedContexts(
+            newOrder,
+            contextBlocks
+          );
+          onSelectionChange(newSelectedContexts, newOrder);
 
-      return newOrder;
-    });
-  }, [contextBlocks, onSelectionChange]);
+          return newOrder;
+        });
+      },
+      [contextBlocks, onSelectionChange]
+    );
 
-  // Deselect in section
-  const handleDeselectAll = useCallback((blockId: number) => {
-    setSelectionOrder(prevOrder => {
-      const newOrder = prevOrder.filter(key => {
-        const { blockId: keyBlockId } = parseItemKey(key);
-        return keyBlockId !== blockId;
-      });
-
-      const newSelectedContexts = convertToSelectedContexts(newOrder, contextBlocks);
-      onSelectionChange(newSelectedContexts, newOrder);
-
-      return newOrder;
-    });
-  }, [contextBlocks, onSelectionChange]);
-
-  // Select all sub-elements of specific element
-  const handleSelectAllSubItems = useCallback((blockId: number, itemId: number) => {
-    const block = contextBlocks.find(b => b.id === blockId);
-    if (!block) return;
-
-    const item = block.items.find(i => i.id === itemId);
-    if (!item || !Array.isArray(item.subItems)) return;
-
-    setSelectionOrder(prevOrder => {
-      const newOrder = [...prevOrder];
-
-      item.subItems.forEach(sub => {
-        const subKey = `${blockId}-${itemId}-${sub.id}`;
-        if ((sub.chars || 0) > 0 && !newOrder.includes(subKey)) {
-          newOrder.push(subKey);
-        }
-      });
-
-      const newSelectedContexts = convertToSelectedContexts(newOrder, contextBlocks);
-      onSelectionChange(newSelectedContexts, newOrder);
-
-      return newOrder;
-    });
-  }, [contextBlocks, onSelectionChange]);
-
-  // Deselect all sub-elements of specific element
-  const handleDeselectAllSubItems = useCallback((blockId: number, itemId: number) => {
-    setSelectionOrder(prevOrder => {
-      const newOrder = prevOrder.filter(key => {
-        const { blockId: keyBlockId, itemId: keyItemId, subItemId } = parseItemKey(key);
-        // Remove only sub-elements of this item
-        return !(keyBlockId === blockId && keyItemId === itemId && subItemId !== null);
-      });
-
-      const newSelectedContexts = convertToSelectedContexts(newOrder, contextBlocks);
-      onSelectionChange(newSelectedContexts, newOrder);
-
-      return newOrder;
-    });
-  }, [contextBlocks, onSelectionChange]);
-
-  // Clear all selection
-  const handleClearAll = useCallback(() => {
-    setSelectionOrder([]);
-    onSelectionChange([], []);
-  }, [onSelectionChange]);
-
-  // Select all elements in all blocks
-  const handleSelectAllGlobal = useCallback(() => {
-    const newOrder: string[] = [];
-
-    contextBlocks.forEach(block => {
-      block.items.forEach(item => {
-        const itemKey = `${block.id}-${item.id}`;
-        const hasContent = typeof item.chars === 'number' ? item.chars > 0 : (item.content && item.content.length > 0);
-
-        if (hasContent) {
-          newOrder.push(itemKey);
-        }
-
-        if (Array.isArray(item.subItems)) {
-          item.subItems.forEach(sub => {
-            const subKey = `${block.id}-${item.id}-${sub.id}`;
-            if ((sub.chars || 0) > 0) {
-              newOrder.push(subKey);
-            }
+    // Deselect all subitems of specific item
+    const handleDeselectAllSubItems = useCallback(
+      (blockId: number, itemId: number) => {
+        setSelectionOrder((prevOrder) => {
+          const newOrder = prevOrder.filter((key) => {
+            const {
+              blockId: keyBlockId,
+              itemId: keyItemId,
+              subItemId,
+            } = parseItemKey(key);
+            // Remove only subitems of this item
+            return !(
+              keyBlockId === blockId &&
+              keyItemId === itemId &&
+              subItemId !== null
+            );
           });
+
+          const newSelectedContexts = convertToSelectedContexts(
+            newOrder,
+            contextBlocks
+          );
+          onSelectionChange(newSelectedContexts, newOrder);
+
+          return newOrder;
+        });
+      },
+      [contextBlocks, onSelectionChange]
+    );
+
+    // Clear all selection
+    const handleClearAll = useCallback(() => {
+      setSelectionOrder([]);
+      onSelectionChange([], []);
+    }, [onSelectionChange]);
+
+    // Select all elements in all blocks
+    const handleSelectAllGlobal = useCallback(() => {
+      const newOrder: string[] = [];
+
+      contextBlocks.forEach((block) => {
+        block.items.forEach((item) => {
+          const itemKey = `${block.id}-${item.id}`;
+          const hasContent =
+            (item.chars || (item.content && item.content.length)) > 0;
+
+          if (hasContent) {
+            newOrder.push(itemKey);
+          }
+
+          if (Array.isArray(item.subItems)) {
+            item.subItems.forEach((sub) => {
+              const subKey = `${block.id}-${item.id}-${sub.id}`;
+              if ((sub.chars || 0) > 0) {
+                newOrder.push(subKey);
+              }
+            });
+          }
+        });
+      });
+
+      setSelectionOrder(newOrder);
+      const newSelectedContexts = convertToSelectedContexts(
+        newOrder,
+        contextBlocks
+      );
+      onSelectionChange(newSelectedContexts, newOrder);
+    }, [contextBlocks, onSelectionChange]);
+
+    // Export methods via ref for use from parent component
+    useImperativeHandle(
+      ref,
+      () => ({
+        selectAll: handleSelectAllGlobal,
+        clearSelection: handleClearAll,
+        getSelectionCount: () => selectionOrder.length,
+      }),
+      [handleSelectAllGlobal, handleClearAll, selectionOrder.length]
+    );
+
+    // Copy
+    const handleCopy = useCallback(async () => {
+      // Collect content from selected elements
+      const contents: string[] = [];
+
+      selectionOrder.forEach((key) => {
+        const { blockId, itemId, subItemId } = parseItemKey(key);
+        const block = contextBlocks.find((b) => b.id === blockId);
+        if (!block) return;
+
+        const item = block.items.find((i) => i.id === itemId);
+        if (!item) return;
+
+        if (subItemId !== null) {
+          const subItem = item.subItems?.find((s) => s.id === subItemId);
+          if (subItem && subItem.content) {
+            contents.push(subItem.content);
+          }
+        } else {
+          if (item.content) {
+            contents.push(item.content);
+          }
         }
       });
-    });
 
-    setSelectionOrder(newOrder);
-    const newSelectedContexts = convertToSelectedContexts(newOrder, contextBlocks);
-    onSelectionChange(newSelectedContexts, newOrder);
-  }, [contextBlocks, onSelectionChange]);
+      const compiledContent = contents.join('\n\n---\n\n');
 
-  // Export methods via ref for use from parent component
-  useImperativeHandle(ref, () => ({
-    selectAll: handleSelectAllGlobal,
-    clearSelection: handleClearAll,
-    getSelectionCount: () => selectionOrder.length,
-  }), [handleSelectAllGlobal, handleClearAll, selectionOrder.length]);
-
-  // Copying
-  const handleCopy = useCallback(async () => {
-    // Collect content from selected elements
-    const contents: string[] = [];
-
-    selectionOrder.forEach(key => {
-      const { blockId, itemId, subItemId } = parseItemKey(key);
-      const block = contextBlocks.find(b => b.id === blockId);
-      if (!block) return;
-
-      const item = block.items.find(i => i.id === itemId);
-      if (!item) return;
-
-      if (subItemId !== null) {
-        const subItem = item.subItems?.find(s => s.id === subItemId);
-        if (subItem && subItem.content) {
-          contents.push(subItem.content);
-        }
-      } else if (item.content) {
-        contents.push(item.content);
+      try {
+        await navigator.clipboard.writeText(compiledContent);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
       }
-    });
+    }, [selectionOrder, contextBlocks]);
 
-    const text = contents.join('\n\n');
+    return (
+      <div
+        ref={containerRef}
+        className={`${isDragging ? 'cs-dragging' : ''} space-y-4`}
+      >
+        {/* Sections with context blocks */}
+        {contextBlocks.map((block) => (
+          <ContextSectionGrid
+            key={block.id}
+            contextBlock={block}
+            selectedItems={selectedItemsMap.get(block.id) || new Set()}
+            selectedSubItems={selectedSubItemsMap.get(block.id) || new Set()}
+            selectionOrderMap={selectionOrderMap}
+            onMouseDown={handleMouseDown}
+            onMouseEnter={handleMouseEnter}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            onSelectAllSubItems={handleSelectAllSubItems}
+            onDeselectAllSubItems={handleDeselectAllSubItems}
+          />
+        ))}
 
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  }, [selectionOrder, contextBlocks]);
+        {contextBlocks.length === 0 && (
+          <div className="text-center py-12 text-gray-400">
+            {t('noContextBlocks')}
+          </div>
+        )}
 
-  return (
-    <div
-      ref={containerRef}
-      className={`${isDragging ? 'cs-dragging' : ''}`}
-    >
-      {/* Sections with context blocks */}
-      {contextBlocks.map(block => (
-        <ContextSectionGrid
-          key={block.id}
-          contextBlock={block}
-          selectedItems={selectedItemsMap.get(block.id) || new Set()}
-          selectedSubItems={selectedSubItemsMap.get(block.id) || new Set()}
-          selectionOrderMap={selectionOrderMap}
-          onMouseDown={handleMouseDown}
-          onMouseEnter={handleMouseEnter}
-          onSelectAll={handleSelectAll}
-          onDeselectAll={handleDeselectAll}
-          onSelectAllSubItems={handleSelectAllSubItems}
-          onDeselectAllSubItems={handleDeselectAllSubItems}
-        />
-      ))}
-
-      {contextBlocks.length === 0 && (
-        <div className="cs-preview__empty">{t('contextSelection:noContextBlocks')}</div>
-      )}
-
-      {/* Statistics preview panel */}
-      <div className="cs-preview">
-        <div className="cs-preview__header">
-          <span className="cs-preview__title">{t('contextSelection:preview')}</span>
-          <div className="cs-preview__stats">
-            <span>{selectionOrder.length} {t('contextSelection:selected')}</span>
-            <span>{totalChars.toLocaleString()} {t('contextSelection:characters')}</span>
-            <button
-              className={`cs-copy-btn ${copySuccess ? 'cs-copy-btn--success' : ''}`}
-              onClick={handleCopy}
-              disabled={selectionOrder.length === 0}
-            >
-              {copySuccess ? t('contextSelection:copied') : t('contextSelection:copyContext')}
-            </button>
+        {/* Preview statistics panel */}
+        <div className="sticky bottom-0 bg-gray-800 border border-gray-700 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-semibold text-white">
+              {t('preview')}
+            </span>
+            <div className="flex items-center gap-4">
+              <span className="text-gray-300">
+                {selectionOrder.length} {t('selected')}
+              </span>
+              <span className="text-gray-300">
+                {totalChars.toLocaleString()} {t('characters')}
+              </span>
+              <button
+                className={`px-4 py-2 rounded-lg transition-colors font-medium ${
+                  copySuccess
+                    ? 'bg-green-600 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                onClick={handleCopy}
+                disabled={selectionOrder.length === 0}
+              >
+                {copySuccess ? t('copied') : t('copyContext')}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Quick action buttons */}
-      <div className="cs-actions">
-        <button className="cs-action-btn cs-action-btn--primary" onClick={handleSelectAllGlobal}>
-          {t('contextSelection:selectAllGlobal')}
-        </button>
-        {selectionOrder.length > 0 && (
-          <button className="cs-action-btn" onClick={handleClearAll}>
-            {t('contextSelection:clearSelection')}
+        {/* Quick action buttons */}
+        <div className="flex gap-2">
+          <button
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            onClick={handleSelectAllGlobal}
+          >
+            {t('selectAllGlobal')}
           </button>
-        )}
+          {selectionOrder.length > 0 && (
+            <button
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              onClick={handleClearAll}
+            >
+              {t('clearSelection')}
+            </button>
+          )}
+        </div>
       </div>
-
-    </div>
-  );
-});
+    );
+  }
+);
 
 ContextSelectionPanel.displayName = 'ContextSelectionPanel';
 
 export default ContextSelectionPanel;
-

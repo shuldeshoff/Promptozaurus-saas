@@ -1,22 +1,15 @@
 {
-  "selectAll": "Выбрать все",
-  "selectAllGlobal": "Выбрать все",
-  "selectAllShort": "Выбрать всё",
-  "deselectAll": "Снять все",
-  "clearSelection": "Очистить выбор",
-  "clearSelectionShort": "Сбросить",
-  "selected": "выбрано",
-  "characters": "симв.",
   "preview": "Предпросмотр",
-  "copyContext": "Копировать",
+  "selected": "выбрано",
+  "characters": "символов",
+  "copyContext": "Копировать контекст",
   "copied": "Скопировано!",
-  "noSelection": "Элементы не выбраны",
-  "noItems": "Нет элементов",
-  "noContextBlocks": "Нет блоков контекста",
-  "item": "Элемент",
-  "subItem": "Подэлемент",
-  "subItems": "Подэлементы",
+  "selectAll": "Выбрать все",
+  "deselectAll": "Снять выбор",
+  "selectAllGlobal": "Выбрать все блоки",
+  "clearSelection": "Очистить выбор",
   "selectAllSubItems": "Выбрать все подэлементы",
-  "deselectAllSubItems": "Снять выбор подэлементов"
+  "deselectAllSubItems": "Снять выбор подэлементов",
+  "noContextBlocks": "Пока нет блоков контекста. Создайте свой первый блок контекста чтобы начать.",
+  "noItems": "В этом блоке контекста пока нет элементов"
 }
-

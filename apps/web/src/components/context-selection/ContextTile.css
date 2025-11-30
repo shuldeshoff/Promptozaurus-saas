@@ -1,0 +1,102 @@
+/* Context Selection Tiles */
+.context-tile {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #374151;
+  background-color: #1f2937;
+  transition: all 0.2s;
+  cursor: pointer;
+  user-select: none;
+  min-width: 120px;
+}
+
+.context-tile--item {
+  min-width: 140px;
+}
+
+.context-tile--subitem {
+  min-width: 100px;
+  padding: 0.5rem 0.75rem;
+}
+
+.context-tile--available:hover {
+  border-color: #6366f1;
+  background-color: #2563eb20;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.context-tile--selected {
+  border-color: #6366f1;
+  background-color: #4f46e5;
+  color: white;
+}
+
+.context-tile--selected:hover {
+  border-color: #818cf8;
+  background-color: #6366f1;
+}
+
+.context-tile--unavailable {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.context-tile__order {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #8b5cf6;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.context-tile__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.context-tile__title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+}
+
+.context-tile__chars {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.context-tile--selected .context-tile__chars {
+  opacity: 0.9;
+}
+
+/* Dragging state */
+.cs-dragging {
+  user-select: none;
+}
+
+.cs-dragging .context-tile {
+  transition: none;
+}
+
