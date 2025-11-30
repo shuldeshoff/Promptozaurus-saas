@@ -56,20 +56,20 @@
     },
     "template": {
       "loading": "Loading...",
-      "file": "File",
+      "file": "Template",
       "select": "Select Template",
       "searchPlaceholder": "Search templates...",
       "notFound": "Nothing found",
-      "noFiles": "No .txt files",
+      "noFiles": "No saved templates",
       "loadingFiles": "Loading templates...",
       "selectButton": "Select Template",
       "previewHint": "Select a template from the list on the left to preview",
-      "hoverHint": "Hover over a file name for preview",
+      "hoverHint": "Hover over a template name for preview",
       "placeholder": "Enter template text..."
     },
     "saveTemplate": {
       "title": "Save Template",
-      "message": "Enter file name (without .txt) or leave:"
+      "message": "Enter template name or leave:"
     },
     "chars": "characters",
     "wrapWithTags": "Wrap with tags",
@@ -100,7 +100,7 @@
       "saved": "Saved",
       "saveAs": "Save As...",
       "selectFolder": "Select Template Folder",
-      "selectFolderTooltip": "Specify directory for txt templates",
+      "selectFolderTooltip": "Manage templates in library",
       "copyTemplate": "Copy Template",
       "copied": "Copied",
       "copyFull": "Copy Full Prompt",
