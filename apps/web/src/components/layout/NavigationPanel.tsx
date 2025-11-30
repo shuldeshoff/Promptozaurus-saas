@@ -76,7 +76,8 @@ const NavigationPanel = () => {
         contextBlocks: [...contextBlocks, newBlock],
       });
 
-      // Активируем новый блок
+      // Активируем новый блок контекста
+      setActiveTab('context');
       setActiveContextBlock(newBlock.id);
       console.log('Блок контекста создан и активирован:', newBlock.id);
     } catch (error) {
@@ -105,7 +106,8 @@ const NavigationPanel = () => {
         promptBlocks: [...promptBlocks, newBlock],
       });
 
-      // Активируем новый блок
+      // Активируем новый блок промпта
+      setActiveTab('prompt');
       setActivePromptBlock(newBlock.id);
       console.log('Блок промпта создан и активирован:', newBlock.id);
     } catch (error) {
