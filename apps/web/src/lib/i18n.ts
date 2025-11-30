@@ -20,6 +20,8 @@ import splitModalEN from '../locales/en/splitModal.json';
 import splitModalRU from '../locales/ru/splitModal.json';
 import aiEN from '../locales/en/ai.json';
 import aiRU from '../locales/ru/ai.json';
+import aiConfigEN from '../locales/en/aiConfig.json';
+import aiConfigRU from '../locales/ru/aiConfig.json';
 import notificationsEN from '../locales/en/notifications.json';
 import notificationsRU from '../locales/ru/notifications.json';
 import contextSelectionEN from '../locales/en/contextSelection.json';
@@ -36,6 +38,7 @@ const resources = {
     modals: modalsEN,
     splitModal: splitModalEN,
     ai: aiEN,
+    aiConfig: aiConfigEN,
     notifications: notificationsEN,
     contextSelection: contextSelectionEN,
   },
@@ -49,6 +52,7 @@ const resources = {
     modals: modalsRU,
     splitModal: splitModalRU,
     ai: aiRU,
+    aiConfig: aiConfigRU,
     notifications: notificationsRU,
     contextSelection: contextSelectionRU,
   },
