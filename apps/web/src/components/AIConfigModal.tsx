@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { AiProvider } from '@promptozaurus/shared';
@@ -13,6 +13,17 @@ import { useConfirmation } from '../context/ConfirmationContext';
 interface AIConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface ModelConfig {
+  id: string;
+  provider: AiProvider;
+  modelId: string;
+  modelName: string;
+  customName: string;
+  temperature: number;
+  maxTokens: number;
+  isDefault: boolean;
 }
 
 const PROVIDERS: Array<{
@@ -47,6 +58,37 @@ const PROVIDERS: Array<{
   },
 ];
 
+// Hardcoded models for providers (будет заменено на загрузку из API позже)
+const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; name: string; contextLength: number }>> = {
+  openai: [
+    { id: 'gpt-4o', name: 'GPT-4o', contextLength: 128000 },
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', contextLength: 128000 },
+    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', contextLength: 128000 },
+    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', contextLength: 16385 },
+  ],
+  anthropic: [
+    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', contextLength: 200000 },
+    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', contextLength: 200000 },
+    { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', contextLength: 200000 },
+    { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', contextLength: 200000 },
+  ],
+  gemini: [
+    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', contextLength: 1000000 },
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', contextLength: 2000000 },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', contextLength: 1000000 },
+  ],
+  grok: [
+    { id: 'grok-beta', name: 'Grok Beta', contextLength: 131072 },
+    { id: 'grok-vision-beta', name: 'Grok Vision Beta', contextLength: 8192 },
+  ],
+  openrouter: [
+    { id: 'openai/gpt-4o', name: 'GPT-4o', contextLength: 128000 },
+    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', contextLength: 200000 },
+    { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', contextLength: 1000000 },
+    { id: 'meta-llama/llama-3.1-70b-instruct', name: 'Llama 3.1 70B', contextLength: 131072 },
+  ],
+};
+
 export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const { t } = useTranslation('aiConfig');
   const { openConfirmation } = useConfirmation();
@@ -64,9 +106,38 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const deleteMutation = useDeleteApiKey();
   const testMutation = useTestApiKey();
 
+  // State for model configurations
+  const [modelConfigs, setModelConfigs] = useState<ModelConfig[]>([]);
+  const [newModelConfig, setNewModelConfig] = useState({
+    provider: '' as AiProvider | '',
+    modelId: '',
+    customName: '',
+    temperature: 0.7,
+    maxTokens: 4000,
+    isDefault: false,
+  });
+
+  // Load model configs from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('aiModelConfigs');
+    if (stored) {
+      try {
+        setModelConfigs(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse model configs:', e);
+      }
+    }
+  }, []);
+
+  // Save model configs to localStorage
+  const saveModelConfigs = (configs: ModelConfig[]) => {
+    setModelConfigs(configs);
+    localStorage.setItem('aiModelConfigs', JSON.stringify(configs));
+  };
+
   const handleSave = async () => {
     if (!editingProvider || !apiKeyInput.trim()) {
-      toast.error(t('common:messages.fillAllFields', 'Please fill all fields'));
+      toast.error(t('providers.enterApiKey'));
       return;
     }
 
@@ -77,22 +148,22 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
       });
       setEditingProvider(null);
       setApiKeyInput('');
-      toast.success(t('common:messages.apiKeySaved', 'API key saved successfully'));
+      toast.success(t('notifications.keySaved', { provider: PROVIDERS.find(p => p.id === editingProvider)?.name }));
     } catch {
-      toast.error(t('common:messages.failedToSave', 'Failed to save API key'));
+      toast.error(t('notifications.keySaveError'));
     }
   };
 
   const handleDelete = async (provider: AiProvider) => {
     openConfirmation(
-      t('common:messages.confirmDelete', 'Confirm deletion'),
-      t('common:messages.confirmDeleteApiKey', 'Delete API key for this provider?'),
+      t('notifications.deleteKeyConfirm', { provider: PROVIDERS.find(p => p.id === provider)?.name }),
+      '',
       async () => {
         try {
           await deleteMutation.mutateAsync(provider);
-          toast.success(t('common:messages.apiKeyDeleted', 'API key deleted'));
+          toast.success(t('notifications.keyDeleted', { provider: PROVIDERS.find(p => p.id === provider)?.name }));
         } catch {
-          toast.error(t('common:messages.failedToDelete', 'Failed to delete API key'));
+          toast.error(t('notifications.keyDeleteError'));
         }
       }
     );
@@ -103,7 +174,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
       const result = await testMutation.mutateAsync(provider);
       toast.success(`✅ ${result.message}`);
     } catch {
-      toast.error(t('common:messages.testFailed', 'API key test failed'));
+      toast.error(t('notifications.connectionTestError'));
     }
   };
 
@@ -131,11 +202,11 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'active':
-        return t('providers.active', 'Active');
+        return t('providers.active');
       case 'error':
-        return t('providers.error', 'Error');
+        return t('providers.error');
       default:
-        return t('providers.notConfigured', 'Not Configured');
+        return t('providers.notConfigured');
     }
   };
 
@@ -144,6 +215,73 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
       ...prev,
       [provider]: !prev[provider]
     }));
+  };
+
+  // Model configuration handlers
+  const handleAddModelConfig = () => {
+    if (!newModelConfig.provider || !newModelConfig.modelId || !newModelConfig.customName.trim()) {
+      toast.error(t('notifications.selectProviderAndModel'));
+      return;
+    }
+
+    const selectedModel = PROVIDER_MODELS[newModelConfig.provider as AiProvider]?.find(m => m.id === newModelConfig.modelId);
+    if (!selectedModel) {
+      toast.error(t('notifications.selectProviderAndModel'));
+      return;
+    }
+
+    const newConfig: ModelConfig = {
+      id: `${Date.now()}-${Math.random()}`,
+      provider: newModelConfig.provider as AiProvider,
+      modelId: newModelConfig.modelId,
+      modelName: selectedModel.name,
+      customName: newModelConfig.customName,
+      temperature: newModelConfig.temperature,
+      maxTokens: newModelConfig.maxTokens,
+      isDefault: newModelConfig.isDefault || modelConfigs.length === 0,
+    };
+
+    // If setting as default, unset other defaults
+    let updatedConfigs = modelConfigs;
+    if (newConfig.isDefault) {
+      updatedConfigs = modelConfigs.map(c => ({ ...c, isDefault: false }));
+    }
+
+    saveModelConfigs([...updatedConfigs, newConfig]);
+    toast.success(t('notifications.configAdded'));
+
+    // Reset form
+    setNewModelConfig({
+      provider: '',
+      modelId: '',
+      customName: '',
+      temperature: 0.7,
+      maxTokens: 4000,
+      isDefault: false,
+    });
+  };
+
+  const handleRemoveModelConfig = (configId: string) => {
+    const config = modelConfigs.find(c => c.id === configId);
+    if (!config) return;
+
+    openConfirmation(
+      t('notifications.deleteConfigConfirm', { name: config.customName }),
+      '',
+      () => {
+        saveModelConfigs(modelConfigs.filter(c => c.id !== configId));
+        toast.success(t('notifications.configDeleted'));
+      }
+    );
+  };
+
+  const handleSetDefaultModel = (configId: string) => {
+    const updated = modelConfigs.map(c => ({
+      ...c,
+      isDefault: c.id === configId,
+    }));
+    saveModelConfigs(updated);
+    toast.success(t('notifications.defaultModelSet'));
   };
 
   if (!isOpen) return null;
@@ -180,14 +318,14 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                       disabled={testMutation.isPending}
                       className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors disabled:opacity-50"
                     >
-                      {t('providers.test', 'Test')}
+                      {t('providers.test')}
                     </button>
                     <button
                       onClick={() => handleDelete(provider.id)}
                       disabled={deleteMutation.isPending}
                       className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50"
                     >
-                      {t('providers.delete', 'Delete')}
+                      {t('providers.delete')}
                     </button>
                   </>
                 )}
@@ -221,7 +359,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   </button>
                 </div>
                 <div className="text-xs text-gray-500">
-                  {t(`providers.getKeyHints.${provider.id}`, `Get key on ${provider.name} console`)}
+                  {t(`providers.getKeyHints.${provider.id}`)}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -230,8 +368,8 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                     className="flex-1 py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     {upsertMutation.isPending 
-                      ? t('providers.checkingKey', 'Checking...') 
-                      : t('providers.saveAndCheck', 'Save and check')
+                      ? t('providers.checkingKey') 
+                      : t('providers.saveAndCheck')
                     }
                   </button>
                   {isEditing && (
@@ -239,7 +377,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                       onClick={cancelEdit}
                       className="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                     >
-                      {t('providers.cancel', 'Cancel')}
+                      {t('providers.cancel')}
                     </button>
                   )}
                 </div>
@@ -277,9 +415,112 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               <h3 className="text-lg font-semibold text-white mb-4">
                 {t('models.addConfigTitle')}
               </h3>
-              <div className="text-center py-8 text-gray-400">
-                <p>{t('models.comingSoon')}</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">{t('models.provider')}</label>
+                  <select
+                    value={newModelConfig.provider}
+                    onChange={(e) => setNewModelConfig(prev => ({ 
+                      ...prev, 
+                      provider: e.target.value as AiProvider,
+                      modelId: '' 
+                    }))}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">{t('models.selectProvider')}</option>
+                    {configuredProviders.map(provider => (
+                      <option key={provider.id} value={provider.id}>
+                        {provider.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">{t('models.model')}</label>
+                  <select
+                    value={newModelConfig.modelId}
+                    onChange={(e) => setNewModelConfig(prev => ({ ...prev, modelId: e.target.value }))}
+                    disabled={!newModelConfig.provider}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                  >
+                    <option value="">{t('models.selectModel')}</option>
+                    {newModelConfig.provider && PROVIDER_MODELS[newModelConfig.provider as AiProvider]?.map(model => (
+                      <option key={model.id} value={model.id}>
+                        {model.name} ({model.contextLength} {t('models.tokens')})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">{t('models.configName')}</label>
+                  <input
+                    type="text"
+                    value={newModelConfig.customName}
+                    onChange={(e) => setNewModelConfig(prev => ({ ...prev, customName: e.target.value }))}
+                    placeholder={t('models.configNamePlaceholder')}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">
+                    {t('models.temperature')}: {newModelConfig.temperature}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="2"
+                    step="0.1"
+                    value={newModelConfig.temperature}
+                    onChange={(e) => setNewModelConfig(prev => ({ 
+                      ...prev, 
+                      temperature: parseFloat(e.target.value) 
+                    }))}
+                    className="w-full"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">{t('models.maxTokens')}</label>
+                  <input
+                    type="number"
+                    value={newModelConfig.maxTokens}
+                    onChange={(e) => setNewModelConfig(prev => ({ 
+                      ...prev, 
+                      maxTokens: parseInt(e.target.value) || 0 
+                    }))}
+                    min="100"
+                    max="128000"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                
+                <div className="flex items-center">
+                  <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newModelConfig.isDefault}
+                      onChange={(e) => setNewModelConfig(prev => ({ 
+                        ...prev, 
+                        isDefault: e.target.checked 
+                      }))}
+                      className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+                    />
+                    {t('models.setAsDefault')}
+                  </label>
+                </div>
               </div>
+              
+              <button
+                onClick={handleAddModelConfig}
+                disabled={!newModelConfig.provider || !newModelConfig.modelId || !newModelConfig.customName}
+                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {t('models.addConfig')}
+              </button>
             </div>
             
             {/* Список настроенных моделей */}
@@ -288,9 +529,53 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                 {t('models.configuredModels')}
               </h3>
               
-              <div className="text-center py-6 text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
-                {t('models.noConfiguredModels')}
-              </div>
+              {modelConfigs.length === 0 ? (
+                <div className="text-center py-6 text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
+                  {t('models.noConfiguredModels')}
+                </div>
+              ) : (
+                modelConfigs.map(model => (
+                  <div key={model.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-white">{model.customName}</h4>
+                        {model.isDefault && (
+                          <span className="px-2 py-0.5 text-xs bg-purple-900 text-purple-300 rounded-full">
+                            {t('models.default')}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-400 mt-1">
+                        {PROVIDERS.find(p => p.id === model.provider)?.name} • {model.modelName} • 
+                        {t('models.temperature')}: {model.temperature} • {t('models.maxTokens')}: {model.maxTokens}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {!model.isDefault && (
+                        <button
+                          onClick={() => handleSetDefaultModel(model.id)}
+                          className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+                          title={t('models.setAsDefault')}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleRemoveModelConfig(model.id)}
+                        className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                        title={t('models.deleteConfig')}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}
@@ -303,13 +588,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     <div className="space-y-6">
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h3 className="text-lg font-semibold text-white mb-4">
-          {t('settings.globalTitle', 'Global Settings')}
+          {t('settings.globalTitle')}
         </h3>
         
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-400 mb-2">
-              {t('settings.requestTimeout', 'Request Timeout (ms)')}
+              {t('settings.requestTimeout')}
             </label>
             <input
               type="number"
@@ -320,13 +605,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
             />
             <div className="text-xs text-gray-500 mt-1">
-              {t('settings.timeoutHint', 'Maximum time to wait for AI response (10-600 seconds)')}
+              {t('settings.timeoutHint')}
             </div>
           </div>
           
           <div>
             <label className="block text-sm text-gray-400 mb-2">
-              {t('settings.retryCount', 'Retry Count on Error')}
+              {t('settings.retryCount')}
             </label>
             <input
               type="number"
@@ -346,10 +631,10 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               />
               <div>
                 <div className="text-sm text-white">
-                  {t('settings.streamingEnabled', 'Streaming Response')}
+                  {t('settings.streamingEnabled')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {t('settings.streamingHint', 'Show AI response as it is generated (if supported by model)')}
+                  {t('settings.streamingHint')}
                 </div>
               </div>
             </label>
@@ -362,10 +647,10 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               />
               <div>
                 <div className="text-sm text-white">
-                  {t('settings.autoSave', 'Auto-save Responses')}
+                  {t('settings.autoSave')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {t('settings.autoSaveHint', 'Automatically save AI responses to context')}
+                  {t('settings.autoSaveHint')}
                 </div>
               </div>
             </label>
@@ -374,20 +659,20 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
           <button
             className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
           >
-            {t('settings.saveSettings', 'Save Settings')}
+            {t('settings.saveSettings')}
           </button>
         </div>
       </div>
       
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h3 className="text-lg font-semibold text-white mb-4">
-          {t('settings.statsTitle', 'Usage Statistics')}
+          {t('settings.statsTitle')}
         </h3>
         
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <div className="text-gray-400">
-              {t('settings.configuredProviders', 'Configured Providers')}
+              {t('settings.configuredProviders')}
             </div>
             <div className="text-xl font-semibold text-white">
               {apiKeys?.filter(k => k.status === 'active').length || 0} / {PROVIDERS.length}
@@ -396,10 +681,10 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
           
           <div>
             <div className="text-gray-400">
-              {t('settings.configuredModels', 'Configured Models')}
+              {t('settings.configuredModels')}
             </div>
             <div className="text-xl font-semibold text-white">
-              0
+              {modelConfigs.length}
             </div>
           </div>
         </div>
@@ -419,7 +704,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-white">
-              {t('title', 'AI Parameters')}
+              {t('title')}
             </h2>
           </div>
           <button
@@ -435,9 +720,9 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
         {/* Tabs */}
         <div className="flex border-b border-gray-700 px-6">
           {[
-            { id: 'providers' as const, label: t('tabs.providers', 'Providers'), icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
-            { id: 'models' as const, label: t('tabs.models', 'Models'), icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z' },
-            { id: 'settings' as const, label: t('tabs.settings', 'Settings'), icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
+            { id: 'providers' as const, label: t('tabs.providers'), icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+            { id: 'models' as const, label: t('tabs.models'), icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z' },
+            { id: 'settings' as const, label: t('tabs.settings'), icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -480,7 +765,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             onClick={onClose}
             className="px-4 py-2 bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
           >
-            {t('close', 'Close')}
+            {t('close')}
           </button>
         </div>
       </div>
