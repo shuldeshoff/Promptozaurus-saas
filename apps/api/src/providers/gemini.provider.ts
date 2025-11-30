@@ -118,7 +118,8 @@ export class GeminiProvider extends BaseAIProvider {
 
   async testConnection(): Promise<boolean> {
     try {
-      const url = `${this.baseUrl}/models/gemini-pro:generateContent?key=${this.apiKey}`;
+      // Use gemini-1.5-flash-latest which is available in v1beta
+      const url = `${this.baseUrl}/models/gemini-1.5-flash-latest:generateContent?key=${this.apiKey}`;
       
       const response = await fetch(url, {
         method: 'POST',
