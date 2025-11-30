@@ -22,7 +22,7 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
     '/ai/models',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
 
       try {
         const models = await modelsCacheService.getUserModels(userId);
@@ -49,7 +49,7 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
     '/ai/models/:provider/refresh',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
       const { provider } = request.params;
 
       // Validate provider
@@ -89,7 +89,7 @@ export const aiRoutes: FastifyPluginAsync = async (fastify) => {
     '/ai/send',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
 
       // Validate body
       const bodyResult = SendMessageSchema.safeParse(request.body);
