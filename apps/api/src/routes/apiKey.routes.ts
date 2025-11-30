@@ -16,7 +16,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
     '/user/api-keys',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
 
       const keys = await apiKeyService.getUserApiKeys(userId);
 
@@ -35,7 +35,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
     '/user/api-keys/:provider',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
       const { provider } = request.params;
       const { apiKey } = request.body;
 
@@ -92,7 +92,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
     '/user/api-keys/:provider',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
       const { provider } = request.params;
 
       // Validate provider
@@ -129,7 +129,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
     '/user/api-keys/:provider/test',
     { preHandler: [authenticate] },
     async (request, reply) => {
-      const userId = request.user!.id;
+      const userId = (request.user as any).userId || request.user!.id;
       const { provider } = request.params;
 
       // Validate provider
