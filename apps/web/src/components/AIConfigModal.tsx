@@ -63,9 +63,13 @@ const PROVIDERS: Array<{
   },
 ];
 
-// Hardcoded models for providers (будет заменено на загрузку из API позже)
+// Hardcoded models for providers (обновлено на основе реальных тестов 30.11.2025)
 const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; name: string; contextLength: number }>> = {
   openai: [
+    // GPT-5 модели (новые, протестированы)
+    { id: 'gpt-5-mini', name: 'GPT-5 Mini', contextLength: 128000 },
+    { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', contextLength: 128000 },
+    // GPT-4 модели (legacy, могут работать)
     { id: 'gpt-4o', name: 'GPT-4o', contextLength: 128000 },
     { id: 'gpt-4o-mini', name: 'GPT-4o Mini', contextLength: 128000 },
     { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', contextLength: 128000 },
@@ -73,20 +77,32 @@ const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; name: string; cont
   ],
   anthropic: [
     { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', contextLength: 200000 },
+    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', contextLength: 200000 },
     { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', contextLength: 200000 },
     { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', contextLength: 200000 },
     { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', contextLength: 200000 },
   ],
   gemini: [
+    // Gemini 2.5 модели (упомянуты в документации, региональные ограничения!)
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash ⚠️ ', contextLength: 1000000 },
+    { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite ⚠️', contextLength: 1000000 },
+    // Gemini 2.0 и 1.5 модели
     { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', contextLength: 1000000 },
     { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', contextLength: 2000000 },
     { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', contextLength: 1000000 },
   ],
   grok: [
-    { id: 'grok-beta', name: 'Grok Beta', contextLength: 131072 },
+    // Новые модели Grok (протестированы, работают отлично)
+    { id: 'grok-3-mini', name: 'Grok 3 Mini', contextLength: 131072 },
+    { id: 'grok-4-1-fast-non-reasoning', name: 'Grok 4.1 Fast', contextLength: 131072 },
+    // Legacy модели (могут не работать)
+    { id: 'grok-beta', name: 'Grok Beta (deprecated)', contextLength: 131072 },
     { id: 'grok-vision-beta', name: 'Grok Vision Beta', contextLength: 8192 },
   ],
   openrouter: [
+    // Бесплатные модели (протестированы)
+    { id: 'meta-llama/llama-3.2-3b-instruct:free', name: 'Llama 3.2 3B (Free)', contextLength: 131072 },
+    // Платные модели
     { id: 'openai/gpt-4o', name: 'GPT-4o', contextLength: 128000 },
     { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', contextLength: 200000 },
     { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', contextLength: 1000000 },

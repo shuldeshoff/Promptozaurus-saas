@@ -12,6 +12,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:ai": "bash scripts/test-ai-providers.sh",
+    "test:ai-providers": "vitest run src/tests/ai-providers.test.ts",
+    "test:ai-e2e": "vitest run src/tests/ai-e2e.test.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"

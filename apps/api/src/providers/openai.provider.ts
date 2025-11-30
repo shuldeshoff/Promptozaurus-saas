@@ -15,6 +15,7 @@ interface OpenAIChatRequest {
   messages: OpenAIMessage[];
   temperature?: number;
   max_tokens?: number;
+  max_completion_tokens?: number;
 }
 
 interface OpenAIChatResponse {
@@ -97,11 +98,22 @@ export class OpenAIProvider extends BaseAIProvider {
       content: options.prompt,
     });
 
+    // GPT-5 and later models use max_completion_tokens instead of max_tokens
+    const isGpt5OrLater = options.model.includes('gpt-5') || options.model.includes('gpt-6');
+    
+    // GPT-5-mini only supports temperature=1 (default)
+    const temperature = isGpt5OrLater && options.model.includes('mini') 
+      ? 1 
+      : (options.temperature ?? 0.7);
+    
     const requestBody: OpenAIChatRequest = {
       model: options.model,
       messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.maxTokens,
+      temperature,
+      ...(isGpt5OrLater 
+        ? { max_completion_tokens: options.maxTokens }
+        : { max_tokens: options.maxTokens }
+      ),
     };
 
     try {

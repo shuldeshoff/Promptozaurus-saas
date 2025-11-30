@@ -1,24 +1,23 @@
 import { defineConfig } from 'vitest/config';
-import path from 'path';
 
 export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    testMatch: ['**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
         'dist/',
-        '**/*.spec.ts',
-        '**/*.test.ts',
+        '**/*.d.ts',
+        '**/*.config.ts',
+        '**/tests/**',
       ],
     },
-    setupFiles: ['./vitest.setup.ts'],
-    // Установить таймаут для медленных тестов
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    testTimeout: 30000, // 30 секунд по умолчанию для AI тестов
+    hookTimeout: 30000,
+    teardownTimeout: 30000,
   },
 });
-
