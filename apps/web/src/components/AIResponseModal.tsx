@@ -19,7 +19,7 @@ export default function AIResponseModal({
   initialPrompt = '',
 }: AIResponseModalProps) {
   const { t } = useTranslation('common');
-  const { currentProject, setActiveTab, setActiveContextBlockId } = useEditor();
+  const { currentProject, setActiveTab, setActiveContextBlock } = useEditor();
   const { updateProjectAndRefresh } = useProjectUpdate();
   
   const [selectedConfigId, setSelectedConfigId] = useState<string>('');
@@ -137,7 +137,7 @@ export default function AIResponseModal({
 
       toast.success(`Ответ сохранён в новый блок "${blockTitle}"`);
       setActiveTab('context');
-      setTimeout(() => setActiveContextBlockId(newBlockId), 200);
+      setTimeout(() => setActiveContextBlock(newBlockId), 200);
       onClose();
       setShowSaveOptions(false);
       setNewBlockTitle('');
@@ -189,7 +189,7 @@ export default function AIResponseModal({
 
       toast.success(`Ответ добавлен в блок "${targetBlock.title}"`);
       setActiveTab('context');
-      setTimeout(() => setActiveContextBlockId(selectedBlockId), 200);
+      setTimeout(() => setActiveContextBlock(selectedBlockId), 200);
       onClose();
       setShowSaveOptions(false);
       setSelectedBlockId(null);
