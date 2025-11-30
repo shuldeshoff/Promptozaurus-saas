@@ -308,12 +308,6 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
             </div>
           </div>
         </div>
-
-        <div className="flex justify-end pt-4">
-          <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600" onClick={handlePreview}>
-            {t('previewButton')}
-          </button>
-        </div>
       </div>
     );
   };
@@ -327,14 +321,6 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
           <SplitPreviewList parts={splitParts} selected={selectedParts} onTogglePart={handleTogglePart} onToggleAll={handleToggleAll} />
           <div className="text-right text-sm text-gray-400">
             {t('previewSection.selected')}: {getSelectedCount()} {t('previewSection.of')} {splitParts.length}
-          </div>
-          <div className="flex justify-between gap-2 pt-2">
-            <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" onClick={() => setPreviewMode(false)}>
-              {t('previewSection.backToSettings')}
-            </button>
-            <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleApply} disabled={getSelectedCount() === 0}>
-              {t('apply')}
-            </button>
           </div>
         </div>
       ) : (
@@ -350,7 +336,10 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
       title={t('title')}
       primaryButtonText={previewMode ? t('apply') : t('previewButton')}
       onPrimaryButtonClick={previewMode ? handleApply : handlePreview}
+      primaryButtonDisabled={previewMode && getSelectedCount() === 0}
       secondaryButtonText={t('cancel')}
+      tertiaryButtonText={previewMode ? t('previewSection.backToSettings') : undefined}
+      onTertiaryButtonClick={previewMode ? () => setPreviewMode(false) : undefined}
     >
       {modalContent}
     </Modal>

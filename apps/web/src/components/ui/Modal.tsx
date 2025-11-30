@@ -19,6 +19,9 @@ interface ModalProps {
   inputPlaceholder?: string;
   inputDefaultValue?: string;
   options?: ModalOption[] | null;
+  tertiaryButtonText?: string;
+  onTertiaryButtonClick?: () => void;
+  primaryButtonDisabled?: boolean;
 }
 
 /**
@@ -37,6 +40,9 @@ const Modal = ({
   inputPlaceholder,
   inputDefaultValue = '',
   options = null,
+  tertiaryButtonText,
+  onTertiaryButtonClick,
+  primaryButtonDisabled = false,
 }: ModalProps) => {
   const { t } = useTranslation('modals');
 
@@ -144,14 +150,27 @@ const Modal = ({
           )}
         </div>
 
-        <div className="flex justify-end gap-2 px-4 py-3 border-t border-gray-700 flex-shrink-0">
-          <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors" onClick={onClose}>
-            {secondaryBtnText}
-          </button>
+        <div className="flex justify-between gap-2 px-4 py-3 border-t border-gray-700 flex-shrink-0">
+          <div>
+            {tertiaryButtonText && onTertiaryButtonClick && (
+              <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors" onClick={onTertiaryButtonClick}>
+                {tertiaryButtonText}
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors" onClick={onClose}>
+              {secondaryBtnText}
+            </button>
 
-          <button className={`px-4 py-2 text-white rounded transition-colors ${primaryButtonClassName}`} onClick={handlePrimaryButtonClick}>
-            {primaryBtnText}
-          </button>
+            <button 
+              className={`px-4 py-2 text-white rounded transition-colors ${primaryButtonClassName} disabled:opacity-50 disabled:cursor-not-allowed`} 
+              onClick={handlePrimaryButtonClick}
+              disabled={primaryButtonDisabled}
+            >
+              {primaryBtnText}
+            </button>
+          </div>
         </div>
       </div>
     </div>
