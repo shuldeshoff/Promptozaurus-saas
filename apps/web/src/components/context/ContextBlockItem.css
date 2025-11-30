@@ -112,9 +112,10 @@
 
 .cn-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   justify-content: flex-start;
+  min-width: 0; /* Позволяет flex-элементам сжиматься */
 }
 
 /* Ряд с подэлементами */
@@ -139,6 +140,9 @@
   flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-start;
+  flex: 1;
+  min-width: 0; /* Позволяет контейнеру сжиматься */
+  overflow: hidden; /* Предотвращает выход за границы */
 }
 
 /* Тайлы (элементы и подэлементы) */
@@ -163,13 +167,13 @@
 }
 
 .cn-tile--item {
-  min-width: 180px;
-  max-width: 320px;
+  min-width: 140px;
+  max-width: 220px;
 }
 
 .cn-tile--subitem {
-  min-width: 100px;
-  max-width: 200px;
+  min-width: 80px;
+  max-width: 150px;
   padding: 5px 8px;
   background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
   border-color: #1e40af;
