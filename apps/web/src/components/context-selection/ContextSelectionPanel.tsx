@@ -225,8 +225,8 @@ const ContextSelectionPanel = forwardRef<
 
           block.items.forEach((item) => {
             const itemKey = `${blockId}-${item.id}`;
-            const hasContent =
-              (item.chars || (item.content && item.content.length)) > 0;
+            const itemChars = typeof item.chars === 'number' ? item.chars : (item.content ? item.content.length : 0);
+            const hasContent = itemChars > 0;
 
             if (hasContent && !newOrder.includes(itemKey)) {
               newOrder.push(itemKey);
@@ -235,7 +235,8 @@ const ContextSelectionPanel = forwardRef<
             if (Array.isArray(item.subItems)) {
               item.subItems.forEach((sub) => {
                 const subKey = `${blockId}-${item.id}-${sub.id}`;
-                if ((sub.chars || 0) > 0 && !newOrder.includes(subKey)) {
+                const subChars = typeof sub.chars === 'number' ? sub.chars : 0;
+                if (subChars > 0 && !newOrder.includes(subKey)) {
                   newOrder.push(subKey);
                 }
               });
@@ -287,7 +288,8 @@ const ContextSelectionPanel = forwardRef<
 
           item.subItems.forEach((sub) => {
             const subKey = `${blockId}-${itemId}-${sub.id}`;
-            if ((sub.chars || 0) > 0 && !newOrder.includes(subKey)) {
+            const subChars = typeof sub.chars === 'number' ? sub.chars : 0;
+            if (subChars > 0 && !newOrder.includes(subKey)) {
               newOrder.push(subKey);
             }
           });
@@ -345,8 +347,8 @@ const ContextSelectionPanel = forwardRef<
       contextBlocks.forEach((block) => {
         block.items.forEach((item) => {
           const itemKey = `${block.id}-${item.id}`;
-          const hasContent =
-            (item.chars || (item.content && item.content.length)) > 0;
+          const itemChars = typeof item.chars === 'number' ? item.chars : (item.content ? item.content.length : 0);
+          const hasContent = itemChars > 0;
 
           if (hasContent) {
             newOrder.push(itemKey);
@@ -355,7 +357,8 @@ const ContextSelectionPanel = forwardRef<
           if (Array.isArray(item.subItems)) {
             item.subItems.forEach((sub) => {
               const subKey = `${block.id}-${item.id}-${sub.id}`;
-              if ((sub.chars || 0) > 0) {
+              const subChars = typeof sub.chars === 'number' ? sub.chars : 0;
+              if (subChars > 0) {
                 newOrder.push(subKey);
               }
             });
