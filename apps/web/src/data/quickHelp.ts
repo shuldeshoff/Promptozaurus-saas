@@ -1,5 +1,4 @@
-// src/data/quickHelp.ts - Компактная справка для быстрого доступа по F1
-// Портировано 1:1 из originals/src/data/quickHelp.js
+// src/data/quickHelp.ts - Компактная справка
 
 export interface QuickHelpSection {
   title: string;
@@ -24,23 +23,23 @@ export const quickHelpData: QuickHelpData = {
         title: "О PromptyFlow",
         items: [
           "• Профессиональный конструктор промптов для AI",
-          "• Сайт: https://promptyflow.com/",
+          "• Сайт: http://promptyflow.com/",
           "• Основная идея: гибкое управление структурой контекста",
           "• Выбирайте какие части контекста включать в промпт",
           "• Создавайте многоуровневые шаблоны для разных задач"
         ]
       },
       {
-        title: "🎯 Основы работы",
+        title: "Основы работы",
         items: [
           "• Создайте проект: кнопка Новый проект",
-          "• Добавьте контекст: вкладка Контекст → ➕ Добавить блок",
-          "• Создайте промпт: вкладка Промпт → ➕ Добавить промпт",
+          "• Добавьте контекст: вкладка Контекст → Добавить блок",
+          "• Создайте промпт: вкладка Промпт → Добавить промпт",
           "• Используйте {{context}} в шаблоне для вставки контекста"
         ]
       },
       {
-        title: "📁 Гибкая структура контекста",
+        title: "Гибкая структура контекста",
         items: [
           "• Блок → Элемент → Подэлемент (3 уровня)",
           "• Drag-select для точечного выбора нужных частей",
@@ -49,7 +48,7 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "✏️ Редактор промптов",
+        title: "Редактор промптов",
         items: [
           "• Шаблон: основной текст с {{context}}",
           "• Выбор контекста: выделите нужные блоки/элементы",
@@ -58,17 +57,16 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "⌨️ Горячие клавиши",
+        title: "Горячие клавиши",
         items: [
           "• Ctrl+S — Сохранить проект",
           "• Ctrl+E — Полноэкранный редактор",
           "• Ctrl+C/V — Копировать/Вставить",
-          "• Esc — Закрыть модальное окно",
-          "• F1 — Эта справка"
+          "• Esc — Закрыть модальное окно"
         ]
       },
       {
-        title: "🤖 AI интеграция",
+        title: "AI интеграция",
         items: [
           "• Настройки AI → Добавить API ключ",
           "• Скомпилировать → Отправить в AI",
@@ -78,7 +76,7 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "💡 Советы",
+        title: "Советы",
         items: [
           "• Разбивайте большие тексты кнопкой 'Разделить'",
           "• Сохраняйте шаблоны для переиспользования",
@@ -88,7 +86,7 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "🔐 Безопасность",
+        title: "Безопасность",
         items: [
           "• API ключи шифруются AES-256-GCM",
           "• Данные хранятся на защищённом сервере",
@@ -105,23 +103,23 @@ export const quickHelpData: QuickHelpData = {
         title: "About PromptyFlow",
         items: [
           "• Professional prompt constructor for AI models",
-          "• Website: https://promptyflow.com/",
+          "• Website: http://promptyflow.com/",
           "• Core idea: flexible context structure management",
           "• Choose which context parts to include in prompts",
           "• Create multi-level templates for different tasks"
         ]
       },
       {
-        title: "🎯 Getting Started",
+        title: "Getting Started",
         items: [
           "• Create project: New Project button",
-          "• Add context: Context tab → ➕ Add Block",
-          "• Create prompt: Prompt tab → ➕ Add Prompt",
+          "• Add context: Context tab → Add Block",
+          "• Create prompt: Prompt tab → Add Prompt",
           "• Use {{context}} in template for context insertion"
         ]
       },
       {
-        title: "📁 Flexible Context Structure",
+        title: "Flexible Context Structure",
         items: [
           "• Block → Item → Sub-item (3 levels)",
           "• Drag-select for precise selection of needed parts",
@@ -130,7 +128,7 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "✏️ Prompt Editor",
+        title: "Prompt Editor",
         items: [
           "• Template: main text with {{context}}",
           "• Context selection: select needed blocks/items",
@@ -139,17 +137,16 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "⌨️ Keyboard Shortcuts",
+        title: "Keyboard Shortcuts",
         items: [
           "• Ctrl+S — Save project",
           "• Ctrl+E — Fullscreen editor",
           "• Ctrl+C/V — Copy/Paste",
-          "• Esc — Close modal window",
-          "• F1 — This help"
+          "• Esc — Close modal window"
         ]
       },
       {
-        title: "🤖 AI Integration",
+        title: "AI Integration",
         items: [
           "• AI Settings → Add API key",
           "• Compile → Send to AI",
@@ -159,7 +156,7 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "💡 Tips",
+        title: "Tips",
         items: [
           "• Split large texts with 'Split' button",
           "• Save templates for reuse",
@@ -169,7 +166,7 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
-        title: "🔐 Security",
+        title: "Security",
         items: [
           "• API keys encrypted with AES-256-GCM",
           "• Data stored on secure server",

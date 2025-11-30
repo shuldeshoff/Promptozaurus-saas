@@ -79,13 +79,6 @@ const MainLayout = () => {
   // Глобальные горячие клавиши
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // F1 - справка
-      if (e.key === 'F1') {
-        e.preventDefault();
-        console.log('F1 pressed - opening Quick Help');
-        setQuickHelpOpen(true);
-      }
-
       // Ctrl+S - сохранение (автоматически через React Query)
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
