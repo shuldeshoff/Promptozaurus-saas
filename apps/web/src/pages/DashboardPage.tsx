@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MainLayout from '../components/layout/MainLayout';
 import Header from '../components/layout/Header';
 import ProjectList from '../components/ProjectList';
+import EmptyProjectState from '../components/layout/EmptyProjectState';
 import { EditorProvider, useEditor } from '../context/EditorContext';
 import { Project } from '../hooks/useProjects';
 
@@ -24,6 +25,10 @@ function DashboardContent() {
     setIsProjectsPanelCollapsed(!isProjectsPanelCollapsed);
   };
 
+  const handleOpenProjectsPanel = () => {
+    setIsProjectsPanelCollapsed(false);
+  };
+
   return (
     <div className="h-screen bg-gray-900 flex flex-col overflow-hidden">
       {/* Fixed Header */}
@@ -41,7 +46,14 @@ function DashboardContent() {
         
         {/* Main Editor Area */}
         <div className="flex-1 overflow-hidden">
-          <MainLayout />
+          {currentProject ? (
+            <MainLayout />
+          ) : (
+            <EmptyProjectState
+              isProjectsPanelCollapsed={isProjectsPanelCollapsed}
+              onOpenProjectsPanel={handleOpenProjectsPanel}
+            />
+          )}
         </div>
       </main>
     </div>

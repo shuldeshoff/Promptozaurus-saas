@@ -1,0 +1,9 @@
+{
+  "emptyState": {
+    "title": "No project selected or created",
+    "description": "Select an existing project or create a new one to start working with contexts and prompts",
+    "openProjectsPanel": "Open projects panel",
+    "hint": "Use the panel on the left to create or select a project"
+  }
+}
+
