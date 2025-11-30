@@ -29,6 +29,10 @@ export function useProjectUpdate() {
       // Инвалидируем кеш проектов
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project', currentProject.id] });
+      
+      // ВАЖНО: Инвалидируем кеш скомпилированных промптов
+      // Это заставит "Готовый промпт" обновиться после любых изменений
+      queryClient.invalidateQueries({ queryKey: ['compile-prompt'] });
 
       return updatedProject;
     } catch (error) {
