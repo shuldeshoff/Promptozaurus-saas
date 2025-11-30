@@ -135,11 +135,19 @@ export function compilePrompt(
 
   // Replace placeholder with actual context
   let compiled = promptBlock.template || '';
+  
+  // Support multiple placeholder formats
+  if (compiled.includes('{context}')) {
+    compiled = compiled.replace(/\{context\}/g, contextContent);
+  }
   if (compiled.includes('{{context}}')) {
     compiled = compiled.replace(/\{\{context\}\}/g, contextContent);
   }
   if (compiled.includes('[КОНТЕКСТ]')) {
     compiled = compiled.replace(/\[КОНТЕКСТ\]/g, contextContent);
+  }
+  if (compiled.includes('[контекст]')) {
+    compiled = compiled.replace(/\[контекст\]/g, contextContent);
   }
 
   return compiled;
