@@ -26,8 +26,6 @@ export default function AIResponseModal({
   
   const [phase, setPhase] = useState<ModalPhase>('INITIAL');
   const [selectedConfigId, setSelectedConfigId] = useState<string>('');
-  const [temperature, setTemperature] = useState(0.7);
-  const [maxTokens, setMaxTokens] = useState(4000);
   const [response, setResponse] = useState<AIResponse | null>(null);
   const [showSaveOptions, setShowSaveOptions] = useState(false);
   const [newBlockTitle, setNewBlockTitle] = useState('');
@@ -55,8 +53,6 @@ export default function AIResponseModal({
       
       if (modelToSelect && !selectedConfigId) {
         setSelectedConfigId(modelToSelect.id);
-        setTemperature(modelToSelect.temperature);
-        setMaxTokens(modelToSelect.maxTokens);
       }
     }
   }, [isOpen, aiConfig, selectedConfigId]);
@@ -80,8 +76,8 @@ export default function AIResponseModal({
         model: selectedModelConfig.modelId,
         prompt: initialPrompt,
         systemPrompt: undefined,
-        temperature,
-        maxTokens,
+        temperature: selectedModelConfig.temperature,
+        maxTokens: selectedModelConfig.maxTokens,
         timeout,
       });
 
@@ -98,11 +94,6 @@ export default function AIResponseModal({
   
   const handleConfigChange = (configId: string) => {
     setSelectedConfigId(configId);
-    const config = aiConfig?.models?.find(m => m.id === configId);
-    if (config) {
-      setTemperature(config.temperature);
-      setMaxTokens(config.maxTokens);
-    }
   };
 
   const handleCopyResponse = async () => {
@@ -295,38 +286,6 @@ export default function AIResponseModal({
                   ))}
                 </div>
 
-                {/* Temperature & Max Tokens Override */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-700">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Температура: {temperature}
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={temperature}
-                      onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Макс. токенов
-                    </label>
-                    <input
-                      type="number"
-                      value={maxTokens}
-                      onChange={(e) => setMaxTokens(parseInt(e.target.value) || 0)}
-                      min="100"
-                      max="128000"
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
                   <button
@@ -365,7 +324,7 @@ export default function AIResponseModal({
               {selectedModelConfig?.customName} ({selectedModelConfig?.provider})
             </p>
             <p className="text-sm text-gray-500 mt-4">
-              {initialPrompt.length} символов • {maxTokens} макс. токенов
+              {initialPrompt.length} символов • {selectedModelConfig?.maxTokens} макс. токенов
             </p>
           </div>
         </div>
