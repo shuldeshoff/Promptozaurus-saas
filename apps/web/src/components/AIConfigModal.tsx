@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { AiProvider } from '@promptozaurus/shared';
@@ -105,11 +105,6 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     } catch {
       toast.error(t('common:messages.testFailed', 'API key test failed'));
     }
-  };
-
-  const startEdit = (provider: AiProvider) => {
-    setEditingProvider(provider);
-    setApiKeyInput('');
   };
 
   const cancelEdit = () => {
