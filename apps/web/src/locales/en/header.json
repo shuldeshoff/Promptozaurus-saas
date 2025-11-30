@@ -5,14 +5,11 @@
     "open": "Open",
     "save": "Save",
     "saveAs": "Save As...",
-    "projectsFolder": "Projects Folder",
     "currentPath": "Project: {{path}}",
     "newProject": "New Project",
     "untitled": "Untitled"
   },
   "context": {
-    "import": "Import Context",
-    "folder": "Context Folder"
   },
   "ai": {
     "settings": "AI Settings",
@@ -29,10 +26,7 @@
     "openExistingProject": "Open an existing project",
     "saveCurrentProject": "Save the current project",
     "saveProjectWithNewName": "Save project with a new name",
-    "selectProjectsFolder": "Select folder for saving projects",
     "editProjectName": "Click to edit project name",
-    "importContextBlock": "Import a context block",
-    "selectContextFolder": "Select folder for context blocks",
     "aiSettings": "Artificial Intelligence settings",
     "sendToAI": "Send prompt to AI",
     "exitApp": "Exit the application",

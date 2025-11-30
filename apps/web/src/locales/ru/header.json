@@ -5,14 +5,11 @@
     "open": "Открыть",
     "save": "Сохранить",
     "saveAs": "Сохранить как...",
-    "projectsFolder": "Папка проектов",
     "currentPath": "Проект: {{path}}",
     "newProject": "Новый проект",
     "untitled": "Без названия"
   },
   "context": {
-    "import": "Импорт контекста",
-    "folder": "Папка контекстов"
   },
   "ai": {
     "settings": "Настройки AI",
@@ -29,10 +26,7 @@
     "openExistingProject": "Открыть существующий проект",
     "saveCurrentProject": "Сохранить текущий проект",
     "saveProjectWithNewName": "Сохранить проект с новым именем",
-    "selectProjectsFolder": "Выбрать папку для сохранения проектов",
     "editProjectName": "Нажмите для редактирования названия проекта",
-    "importContextBlock": "Импортировать блок контекста",
-    "selectContextFolder": "Выбрать папку для блоков контекста",
     "aiSettings": "Настройки искусственного интеллекта",
     "sendToAI": "Отправить промпт в AI",
     "exitApp": "Выйти из приложения",
