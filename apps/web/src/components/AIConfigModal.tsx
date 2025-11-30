@@ -399,11 +399,11 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                 <div className="text-xs text-gray-500">
                   {t(`providers.getKeyHints.${provider.id}`)}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-end">
                   <button
                     onClick={handleSave}
                     disabled={upsertMutation.isPending}
-                    className="flex-1 py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     {upsertMutation.isPending 
                       ? t('providers.checkingKey') 
@@ -413,7 +413,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   {isEditing && (
                     <button
                       onClick={cancelEdit}
-                      className="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                      className="py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors whitespace-nowrap"
                     >
                       {t('providers.cancel')}
                     </button>
