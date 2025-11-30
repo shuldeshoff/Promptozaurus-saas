@@ -130,7 +130,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     autoSave: true,
   });
 
-  const { data: serverConfig, isLoading: configLoading } = useAIConfig();
+  const { data: serverConfig } = useAIConfig();
   const saveConfigMutation = useSaveAIConfig();
 
   // Инициализация из серверной конфигурации
