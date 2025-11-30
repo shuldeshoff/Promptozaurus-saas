@@ -13,6 +13,7 @@ import { contextRoutes } from './routes/context.routes.js';
 import { templateRoutes } from './routes/template.routes.js';
 import { apiKeyRoutes } from './routes/apiKey.routes.js';
 import { aiRoutes } from './routes/ai.routes.js';
+import { aiConfigRoutes } from './routes/aiConfig.routes.js';
 import { projectShareRoutes } from './routes/projectShare.routes.js';
 
 config();
@@ -77,6 +78,7 @@ await server.register(templateRoutes);
 await server.register(apiKeyRoutes);
 await server.register(aiRoutes);
 await server.register(projectShareRoutes);
+await server.register(aiConfigRoutes);
 
 // Start server
 const start = async () => {

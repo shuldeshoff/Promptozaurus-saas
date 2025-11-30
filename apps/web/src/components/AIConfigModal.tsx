@@ -8,6 +8,11 @@ import {
   useDeleteApiKey,
   useTestApiKey,
 } from '../hooks/useApiKeys';
+import {
+  useAIConfig,
+  useSaveAIConfig,
+  UserAISettings,
+} from '../hooks/useAIConfig';
 import { useConfirmation } from '../context/ConfirmationContext';
 
 interface AIConfigModalProps {
@@ -117,22 +122,38 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     isDefault: false,
   });
 
-  // Load model configs from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('aiModelConfigs');
-    if (stored) {
-      try {
-        setModelConfigs(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse model configs:', e);
-      }
-    }
-  }, []);
+  // Global settings (из серверной конфигурации)
+  const [globalSettings, setGlobalSettings] = useState<UserAISettings>({
+    timeout: 60000,
+    retryCount: 3,
+    streamingEnabled: true,
+    autoSave: true,
+  });
 
-  // Save model configs to localStorage
+  const { data: serverConfig, isLoading: configLoading } = useAIConfig();
+  const saveConfigMutation = useSaveAIConfig();
+
+  // Инициализация из серверной конфигурации
+  useEffect(() => {
+    if (serverConfig) {
+      setModelConfigs(serverConfig.models || []);
+      setGlobalSettings(serverConfig.settings);
+    }
+  }, [serverConfig]);
+
+  // Сохранение конфигурации на сервере (и локально как fallback)
   const saveModelConfigs = (configs: ModelConfig[]) => {
     setModelConfigs(configs);
-    localStorage.setItem('aiModelConfigs', JSON.stringify(configs));
+    try {
+      localStorage.setItem('aiModelConfigs', JSON.stringify(configs));
+    } catch {
+      // ignore localStorage errors
+    }
+
+    saveConfigMutation.mutate({
+      settings: globalSettings,
+      models: configs,
+    });
   };
 
   const handleSave = async () => {
@@ -276,12 +297,29 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   };
 
   const handleSetDefaultModel = (configId: string) => {
-    const updated = modelConfigs.map(c => ({
+    const updated = modelConfigs.map((c) => ({
       ...c,
       isDefault: c.id === configId,
     }));
     saveModelConfigs(updated);
     toast.success(t('notifications.defaultModelSet'));
+  };
+
+  const handleSaveSettings = () => {
+    saveConfigMutation.mutate(
+      {
+        settings: globalSettings,
+        models: modelConfigs,
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('notifications.settingsSaved'));
+        },
+        onError: () => {
+          toast.error(t('notifications.modelsUpdateError'));
+        },
+      }
+    );
   };
 
   if (!isOpen) return null;
@@ -598,7 +636,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             </label>
             <input
               type="number"
-              defaultValue={60000}
+              value={globalSettings.timeout}
+              onChange={(e) =>
+                setGlobalSettings((prev) => ({
+                  ...prev,
+                  timeout: parseInt(e.target.value || '0', 10),
+                }))
+              }
               min="10000"
               max="600000"
               step="1000"
@@ -615,7 +659,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             </label>
             <input
               type="number"
-              defaultValue={3}
+              value={globalSettings.retryCount}
+              onChange={(e) =>
+                setGlobalSettings((prev) => ({
+                  ...prev,
+                  retryCount: parseInt(e.target.value || '0', 10),
+                }))
+              }
               min="0"
               max="10"
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
@@ -626,7 +676,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                defaultChecked={true}
+                checked={globalSettings.streamingEnabled}
+                onChange={(e) =>
+                  setGlobalSettings((prev) => ({
+                    ...prev,
+                    streamingEnabled: e.target.checked,
+                  }))
+                }
                 className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
               />
               <div>
@@ -642,7 +698,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                defaultChecked={true}
+                checked={globalSettings.autoSave}
+                onChange={(e) =>
+                  setGlobalSettings((prev) => ({
+                    ...prev,
+                    autoSave: e.target.checked,
+                  }))
+                }
                 className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
               />
               <div>
@@ -657,7 +719,9 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
           </div>
           
           <button
-            className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            onClick={handleSaveSettings}
+            disabled={saveConfigMutation.isPending}
+            className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50"
           >
             {t('settings.saveSettings')}
           </button>
