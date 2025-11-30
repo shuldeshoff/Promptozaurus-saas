@@ -449,30 +449,30 @@ const ContextSelectionPanel = forwardRef<
         )}
 
         {/* Preview statistics panel */}
-        <div className="sticky bottom-0 bg-gray-800 border border-gray-700 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-white">
-              {t('preview')}
-            </span>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-300">
+        <div className="sticky bottom-0 bg-gray-800 border border-gray-700 rounded-lg p-3 md:p-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-base md:text-lg font-semibold text-white">
+                {t('preview')}
+              </span>
+              <span className="text-sm md:text-base text-gray-300">
                 {selectionOrder.length} {t('selected')}
               </span>
-              <span className="text-gray-300">
+              <span className="text-sm md:text-base text-gray-300">
                 {totalChars.toLocaleString()} {t('characters')}
               </span>
-              <button
-                className={`px-4 py-2 rounded-lg transition-colors font-medium ${
-                  copySuccess
-                    ? 'bg-green-600 text-white'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                onClick={handleCopy}
-                disabled={selectionOrder.length === 0}
-              >
-                {copySuccess ? t('copied') : t('copyContext')}
-              </button>
             </div>
+            <button
+              className={`px-4 py-2 rounded-lg transition-colors font-medium text-sm md:text-base whitespace-nowrap ${
+                copySuccess
+                  ? 'bg-green-600 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              onClick={handleCopy}
+              disabled={selectionOrder.length === 0}
+            >
+              {copySuccess ? t('copied') : t('copyContext')}
+            </button>
           </div>
         </div>
 
