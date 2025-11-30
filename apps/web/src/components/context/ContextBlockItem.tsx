@@ -4,6 +4,23 @@ import { useProjectUpdate } from '../../hooks/useProjectUpdate';
 import { useTranslation } from 'react-i18next';
 import type { ContextBlock } from '@promptozaurus/shared';
 import { generateDefaultContextItemName, generateDefaultContextSubItemName } from '../../utils/nameGenerators';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableContextItem } from './SortableContextItem';
+import { SortableSubItem } from './SortableSubItem';
 import './ContextBlockItem.css';
 
 interface ContextBlockItemProps {
@@ -218,6 +235,87 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
     setActiveContextItem(itemId, subItemId);
   };
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Обработчик окончания перетаскивания основных элементов
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !currentProject) return;
+
+    const activeId = Number(active.id);
+    const overId = Number(over.id);
+
+    const oldIndex = block.items.findIndex((item) => item.id === activeId);
+    const newIndex = block.items.findIndex((item) => item.id === overId);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newItems = arrayMove(block.items, oldIndex, newIndex);
+
+    const updatedBlock = {
+      ...block,
+      items: newItems,
+    };
+
+    const newContextBlocks = currentProject.data.contextBlocks.map((b) =>
+      b.id === block.id ? updatedBlock : b
+    );
+
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      contextBlocks: newContextBlocks,
+    });
+  };
+
+  // Обработчик окончания перетаскивания подэлементов
+  const handleSubItemDragEnd = async (itemId: number, event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !currentProject) return;
+
+    const item = block.items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    // Извлекаем ID из составного ключа "parentId-subItemId"
+    const activeSubId = Number(active.id.toString().split('-')[1]);
+    const overSubId = Number(over.id.toString().split('-')[1]);
+
+    const oldIndex = item.subItems.findIndex((sub) => sub.id === activeSubId);
+    const newIndex = item.subItems.findIndex((sub) => sub.id === overSubId);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newSubItems = arrayMove(item.subItems, oldIndex, newIndex);
+
+    const updatedBlock = {
+      ...block,
+      items: block.items.map((i) =>
+        i.id === itemId
+          ? {
+              ...i,
+              subItems: newSubItems,
+            }
+          : i
+      ),
+    };
+
+    const newContextBlocks = currentProject.data.contextBlocks.map((b) =>
+      b.id === block.id ? updatedBlock : b
+    );
+
+    await updateProjectAndRefresh({
+      ...currentProject.data,
+      contextBlocks: newContextBlocks,
+    });
+  };
+
   return (
     <div className={`cn-block ${isActive ? 'cn-block--active' : ''}`}>
       {/* Заголовок блока */}
@@ -257,71 +355,65 @@ const ContextBlockItem = ({ block, isActive }: ContextBlockItemProps) => {
         {normalizedItems.length === 0 ? (
           <div className="cn-empty">{t('context.noItems')}</div>
         ) : (
-          <div className="cn-rows">
-            {normalizedItems.map((item) => {
-              const itemChars = item.chars || 0;
-              const hasSubItems = item.subItems.length > 0;
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={normalizedItems.map((item) => item.id.toString())} strategy={verticalListSortingStrategy}>
+              <div className="cn-rows">
+                {normalizedItems.map((item) => {
+                  const itemChars = item.chars || 0;
+                  const hasSubItems = item.subItems.length > 0;
 
-              return (
-                <div key={item.id} className={`cn-row ${hasSubItems ? 'cn-row--grouped' : ''}`}>
-                  {/* Основной элемент слева */}
-                  <div className="cn-row__item">
-                    <div className="cn-tile cn-tile--item" onClick={(e) => handleItemClick(item.id, e)}>
-                      <div className="cn-tile__content">
-                        <span className="cn-tile__title" title={item.title}>
-                          {item.title.length > 35 ? item.title.substring(0, 32) + '...' : item.title}
-                        </span>
-                        <span className="cn-tile__chars">{formatChars(itemChars)}</span>
+                  return (
+                    <div key={item.id} className={`cn-row ${hasSubItems ? 'cn-row--grouped' : ''}`}>
+                      {/* Основной элемент слева с drag-and-drop */}
+                      <div className="cn-row__item">
+                        <SortableContextItem
+                          id={item.id}
+                          title={item.title}
+                          chars={itemChars}
+                          onDelete={(e) => handleDeleteItem(item.id, e)}
+                          onClick={(e) => handleItemClick(item.id, e)}
+                        />
                       </div>
-                      <div className="cn-tile__actions">
-                        <button
-                          className="cn-tile__action cn-tile__action--delete"
-                          onClick={(e) => handleDeleteItem(item.id, e)}
-                          title={t('context.deleteItem')}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+
+                      {/* Подэлементы справа с drag-and-drop */}
+                      <div className="cn-row__subitems">
+                        {hasSubItems && (
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={(event) => handleSubItemDragEnd(item.id, event)}
+                          >
+                            <SortableContext
+                              items={item.subItems.map((sub) => `${item.id}-${sub.id}`)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {item.subItems.map((subItem) => (
+                                <SortableSubItem
+                                  key={subItem.id}
+                                  id={subItem.id}
+                                  parentId={item.id}
+                                  title={subItem.title}
+                                  chars={subItem.chars || 0}
+                                  onDelete={(e) => handleDeleteSubItem(item.id, subItem.id, e)}
+                                  onClick={(e) => handleSubItemClick(item.id, subItem.id, e)}
+                                />
+                              ))}
+                            </SortableContext>
+                          </DndContext>
+                        )}
+                        {/* Кнопка добавления подэлемента справа */}
+                        <button className="cn-add-btn cn-add-btn--subitem" onClick={(e) => handleAddSubItem(item.id, e)} title={t('context.addSubItem')}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                           </svg>
                         </button>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Подэлементы справа */}
-                  <div className="cn-row__subitems">
-                    {hasSubItems &&
-                      item.subItems.map((subItem) => (
-                        <div key={subItem.id} className="cn-tile cn-tile--subitem" onClick={(e) => handleSubItemClick(item.id, subItem.id, e)}>
-                          <div className="cn-tile__content">
-                            <span className="cn-tile__title" title={subItem.title}>
-                              {subItem.title.length > 20 ? subItem.title.substring(0, 17) + '...' : subItem.title}
-                            </span>
-                            <span className="cn-tile__chars">{formatChars(subItem.chars || 0)}</span>
-                          </div>
-                          <div className="cn-tile__actions">
-                            <button
-                              className="cn-tile__action cn-tile__action--delete"
-                              onClick={(e) => handleDeleteSubItem(item.id, subItem.id, e)}
-                              title={t('context.deleteSubItem')}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    {/* Кнопка добавления подэлемента справа */}
-                    <button className="cn-add-btn cn-add-btn--subitem" onClick={(e) => handleAddSubItem(item.id, e)} title={t('context.addSubItem')}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
 
         {/* Кнопка добавления нового элемента */}

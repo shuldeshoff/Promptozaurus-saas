@@ -65,6 +65,7 @@ export interface PromptBlock {
   templateFilename?: string | null;
   selectedContexts: SelectedContext[];
   selectionOrder?: string[];
+  wrapWithTags?: boolean;
 }
 
 export interface SelectedContext {
