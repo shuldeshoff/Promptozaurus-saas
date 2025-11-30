@@ -48,7 +48,7 @@ const PROVIDERS: Array<{
 ];
 
 export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
-  const { t } = useTranslation(['common', 'aiConfig']);
+  const { t } = useTranslation('aiConfig');
   const { openConfirmation } = useConfirmation();
   
   // State for tabs
@@ -131,11 +131,11 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'active':
-        return t('aiConfig:providers.active', 'Active');
+        return t('providers.active', 'Active');
       case 'error':
-        return t('aiConfig:providers.error', 'Error');
+        return t('providers.error', 'Error');
       default:
-        return t('aiConfig:providers.notConfigured', 'Not Configured');
+        return t('providers.notConfigured', 'Not Configured');
     }
   };
 
@@ -180,14 +180,14 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                       disabled={testMutation.isPending}
                       className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors disabled:opacity-50"
                     >
-                      {t('aiConfig:providers.test', 'Test')}
+                      {t('providers.test', 'Test')}
                     </button>
                     <button
                       onClick={() => handleDelete(provider.id)}
                       disabled={deleteMutation.isPending}
                       className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50"
                     >
-                      {t('aiConfig:providers.delete', 'Delete')}
+                      {t('providers.delete', 'Delete')}
                     </button>
                   </>
                 )}
@@ -221,7 +221,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   </button>
                 </div>
                 <div className="text-xs text-gray-500">
-                  {t(`aiConfig:providers.getKeyHints.${provider.id}`, `Get key on ${provider.name} console`)}
+                  {t(`providers.getKeyHints.${provider.id}`, `Get key on ${provider.name} console`)}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -230,8 +230,8 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                     className="flex-1 py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     {upsertMutation.isPending 
-                      ? t('aiConfig:providers.checkingKey', 'Checking...') 
-                      : t('aiConfig:providers.saveAndCheck', 'Save and check')
+                      ? t('providers.checkingKey', 'Checking...') 
+                      : t('providers.saveAndCheck', 'Save and check')
                     }
                   </button>
                   {isEditing && (
@@ -239,14 +239,14 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                       onClick={cancelEdit}
                       className="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                     >
-                      {t('aiConfig:providers.cancel', 'Cancel')}
+                      {t('providers.cancel', 'Cancel')}
                     </button>
                   )}
                 </div>
               </div>
             ) : (
               <div className="text-sm text-gray-400">
-                {t('aiConfig:providers.keyConfigured')}
+                {t('providers.keyConfigured')}
               </div>
             )}
           </div>
@@ -268,28 +268,28 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <p>{t('aiConfig:models.noProvidersTitle')}</p>
+            <p>{t('models.noProvidersTitle')}</p>
           </div>
         ) : (
           <>
             {/* Форма добавления новой конфигурации */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <h3 className="text-lg font-semibold text-white mb-4">
-                {t('aiConfig:models.addConfigTitle')}
+                {t('models.addConfigTitle')}
               </h3>
               <div className="text-center py-8 text-gray-400">
-                <p>{t('aiConfig:models.comingSoon')}</p>
+                <p>{t('models.comingSoon')}</p>
               </div>
             </div>
             
             {/* Список настроенных моделей */}
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-white">
-                {t('aiConfig:models.configuredModels')}
+                {t('models.configuredModels')}
               </h3>
               
               <div className="text-center py-6 text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
-                {t('aiConfig:models.noConfiguredModels')}
+                {t('models.noConfiguredModels')}
               </div>
             </div>
           </>
@@ -303,13 +303,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     <div className="space-y-6">
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h3 className="text-lg font-semibold text-white mb-4">
-          {t('aiConfig:settings.globalTitle', 'Global Settings')}
+          {t('settings.globalTitle', 'Global Settings')}
         </h3>
         
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-400 mb-2">
-              {t('aiConfig:settings.requestTimeout', 'Request Timeout (ms)')}
+              {t('settings.requestTimeout', 'Request Timeout (ms)')}
             </label>
             <input
               type="number"
@@ -320,13 +320,13 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
             />
             <div className="text-xs text-gray-500 mt-1">
-              {t('aiConfig:settings.timeoutHint', 'Maximum time to wait for AI response (10-600 seconds)')}
+              {t('settings.timeoutHint', 'Maximum time to wait for AI response (10-600 seconds)')}
             </div>
           </div>
           
           <div>
             <label className="block text-sm text-gray-400 mb-2">
-              {t('aiConfig:settings.retryCount', 'Retry Count on Error')}
+              {t('settings.retryCount', 'Retry Count on Error')}
             </label>
             <input
               type="number"
@@ -346,10 +346,10 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               />
               <div>
                 <div className="text-sm text-white">
-                  {t('aiConfig:settings.streamingEnabled', 'Streaming Response')}
+                  {t('settings.streamingEnabled', 'Streaming Response')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {t('aiConfig:settings.streamingHint', 'Show AI response as it is generated (if supported by model)')}
+                  {t('settings.streamingHint', 'Show AI response as it is generated (if supported by model)')}
                 </div>
               </div>
             </label>
@@ -362,10 +362,10 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               />
               <div>
                 <div className="text-sm text-white">
-                  {t('aiConfig:settings.autoSave', 'Auto-save Responses')}
+                  {t('settings.autoSave', 'Auto-save Responses')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {t('aiConfig:settings.autoSaveHint', 'Automatically save AI responses to context')}
+                  {t('settings.autoSaveHint', 'Automatically save AI responses to context')}
                 </div>
               </div>
             </label>
@@ -374,20 +374,20 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
           <button
             className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
           >
-            {t('aiConfig:settings.saveSettings', 'Save Settings')}
+            {t('settings.saveSettings', 'Save Settings')}
           </button>
         </div>
       </div>
       
       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h3 className="text-lg font-semibold text-white mb-4">
-          {t('aiConfig:settings.statsTitle', 'Usage Statistics')}
+          {t('settings.statsTitle', 'Usage Statistics')}
         </h3>
         
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <div className="text-gray-400">
-              {t('aiConfig:settings.configuredProviders', 'Configured Providers')}
+              {t('settings.configuredProviders', 'Configured Providers')}
             </div>
             <div className="text-xl font-semibold text-white">
               {apiKeys?.filter(k => k.status === 'active').length || 0} / {PROVIDERS.length}
@@ -396,7 +396,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
           
           <div>
             <div className="text-gray-400">
-              {t('aiConfig:settings.configuredModels', 'Configured Models')}
+              {t('settings.configuredModels', 'Configured Models')}
             </div>
             <div className="text-xl font-semibold text-white">
               0
@@ -419,7 +419,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-white">
-              {t('aiConfig:title', 'AI Parameters')}
+              {t('title', 'AI Parameters')}
             </h2>
           </div>
           <button
@@ -435,9 +435,9 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
         {/* Tabs */}
         <div className="flex border-b border-gray-700 px-6">
           {[
-            { id: 'providers' as const, label: t('aiConfig:tabs.providers', 'Providers'), icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
-            { id: 'models' as const, label: t('aiConfig:tabs.models', 'Models'), icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z' },
-            { id: 'settings' as const, label: t('aiConfig:tabs.settings', 'Settings'), icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
+            { id: 'providers' as const, label: t('tabs.providers', 'Providers'), icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+            { id: 'models' as const, label: t('tabs.models', 'Models'), icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z' },
+            { id: 'settings' as const, label: t('tabs.settings', 'Settings'), icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -480,7 +480,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
             onClick={onClose}
             className="px-4 py-2 bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
           >
-            {t('aiConfig:close', 'Close')}
+            {t('close', 'Close')}
           </button>
         </div>
       </div>
