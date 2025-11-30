@@ -86,14 +86,22 @@ const BlocksPanel = () => {
       {/* Блок контекста */}
       {activeTab === 'context' && (
         <div className="h-full">
-          {currentContextBlock ? <ContextBlockItem block={currentContextBlock} isActive={true} /> : <EmptyContextState />}
+          {currentContextBlock ? (
+            <ContextBlockItem key={currentContextBlock.id} block={currentContextBlock} isActive={true} />
+          ) : (
+            <EmptyContextState />
+          )}
         </div>
       )}
 
       {/* Блок промпта */}
       {activeTab === 'prompt' && (
         <div className="h-full">
-          {currentPromptBlock ? <PromptBlockItem block={currentPromptBlock} isActive={true} /> : <EmptyPromptState />}
+          {currentPromptBlock ? (
+            <PromptBlockItem key={currentPromptBlock.id} block={currentPromptBlock} isActive={true} />
+          ) : (
+            <EmptyPromptState />
+          )}
         </div>
       )}
     </div>
