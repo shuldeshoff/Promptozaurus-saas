@@ -131,11 +131,11 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'active':
-        return t('common:labels.active', 'Active');
+        return t('aiConfig:providers.active', 'Active');
       case 'error':
-        return t('common:labels.error', 'Error');
+        return t('aiConfig:providers.error', 'Error');
       default:
-        return t('common:labels.notConfigured', 'Not Configured');
+        return t('aiConfig:providers.notConfigured', 'Not Configured');
     }
   };
 
@@ -180,14 +180,14 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                       disabled={testMutation.isPending}
                       className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors disabled:opacity-50"
                     >
-                      {t('common:buttons.test', 'Test')}
+                      {t('aiConfig:providers.test', 'Test')}
                     </button>
                     <button
                       onClick={() => handleDelete(provider.id)}
                       disabled={deleteMutation.isPending}
                       className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors disabled:opacity-50"
                     >
-                      {t('common:buttons.delete')}
+                      {t('aiConfig:providers.delete', 'Delete')}
                     </button>
                   </>
                 )}
@@ -229,21 +229,24 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                     disabled={upsertMutation.isPending}
                     className="flex-1 py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {t('common:buttons.save')}
+                    {upsertMutation.isPending 
+                      ? t('aiConfig:providers.checkingKey', 'Checking...') 
+                      : t('aiConfig:providers.saveAndCheck', 'Save and check')
+                    }
                   </button>
                   {isEditing && (
                     <button
                       onClick={cancelEdit}
                       className="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                     >
-                      {t('common:buttons.cancel')}
+                      {t('aiConfig:providers.cancel', 'Cancel')}
                     </button>
                   )}
                 </div>
               </div>
             ) : (
               <div className="text-sm text-gray-400">
-                {t('aiConfig:providers.keyConfigured', 'API key configured and ready to use')}
+                {t('aiConfig:providers.keyConfigured')}
               </div>
             )}
           </div>
@@ -253,18 +256,47 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   );
 
   // Render Models Tab
-  const renderModelsTab = () => (
-    <div className="space-y-6">
-      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h3 className="text-lg font-semibold text-white mb-4">
-          {t('aiConfig:models.addConfigTitle', 'Add Model Configuration')}
-        </h3>
-        <div className="text-center py-8 text-gray-400">
-          <p>{t('aiConfig:models.comingSoon', 'Model configuration coming soon')}</p>
-        </div>
+  const renderModelsTab = () => {
+    const configuredProviders = PROVIDERS.filter(
+      p => getKeyStatus(p.id) === 'active'
+    );
+    
+    return (
+      <div className="space-y-6">
+        {configuredProviders.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p>{t('aiConfig:models.noProvidersTitle')}</p>
+          </div>
+        ) : (
+          <>
+            {/* Форма добавления новой конфигурации */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-4">
+                {t('aiConfig:models.addConfigTitle')}
+              </h3>
+              <div className="text-center py-8 text-gray-400">
+                <p>{t('aiConfig:models.comingSoon')}</p>
+              </div>
+            </div>
+            
+            {/* Список настроенных моделей */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-white">
+                {t('aiConfig:models.configuredModels')}
+              </h3>
+              
+              <div className="text-center py-6 text-gray-400 bg-gray-800 rounded-lg border border-gray-700">
+                {t('aiConfig:models.noConfiguredModels')}
+              </div>
+            </div>
+          </>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   // Render Settings Tab
   const renderSettingsTab = () => (
