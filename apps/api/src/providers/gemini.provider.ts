@@ -38,7 +38,7 @@ interface GeminiResponse {
 
 export class GeminiProvider extends BaseAIProvider {
   protected getDefaultBaseUrl(): string {
-    return 'https://generativelanguage.googleapis.com/v1beta';
+    return 'https://generativelanguage.googleapis.com/v1';
   }
 
   getProviderName(): string {
@@ -118,8 +118,8 @@ export class GeminiProvider extends BaseAIProvider {
 
   async testConnection(): Promise<boolean> {
     try {
-      // Use gemini-1.5-flash-latest which is available in v1beta
-      const url = `${this.baseUrl}/models/gemini-1.5-flash-latest:generateContent?key=${this.apiKey}`;
+      // Use gemini-1.5-flash which is available in v1
+      const url = `${this.baseUrl}/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
       
       const response = await fetch(url, {
         method: 'POST',
