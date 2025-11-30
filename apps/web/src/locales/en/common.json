@@ -85,7 +85,8 @@
     "temperature": "Temperature",
     "yourPrompt": "Your Prompt",
     "enterPrompt": "Enter your prompt here...",
-    "response": "Response"
+    "response": "Response",
+    "maxTokens": "Max Tokens"
   },
   "messages": {
     "loading": "Loading...",
@@ -143,6 +144,7 @@
     "thinking": "Thinking...",
     "noResponse": "No response yet",
     "sendPromptHint": "Select a model and send a prompt",
+    "configureModelsFirst": "Configure models in AI Settings first",
     "createContextBlock": "Create Context Block",
     "createPromptBlock": "Create Prompt Block",
     "leaveEmptyForDefault": "Leave empty for default name",

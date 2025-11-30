@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useAIModels, useSendMessage, AIResponse } from '../hooks/useAI';
+import { useAIConfig } from '../hooks/useAIConfig';
 import { AiProvider } from '@promptozaurus/shared';
 
 interface AIResponseModalProps {
@@ -16,36 +17,68 @@ export default function AIResponseModal({
   initialPrompt = '',
 }: AIResponseModalProps) {
   const { t } = useTranslation('common');
-  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedConfigId, setSelectedConfigId] = useState<string>('');
   const [prompt, setPrompt] = useState(initialPrompt);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [temperature, setTemperature] = useState(0.7);
+  const [maxTokens, setMaxTokens] = useState(4000);
   const [response, setResponse] = useState<AIResponse | null>(null);
 
   const { data: models, isLoading: modelsLoading } = useAIModels();
+  const { data: aiConfig } = useAIConfig();
   const sendMutation = useSendMessage();
 
+  // Auto-select default model config on open
+  useEffect(() => {
+    if (isOpen && aiConfig?.models && aiConfig.models.length > 0) {
+      const defaultModel = aiConfig.models.find(m => m.isDefault);
+      const modelToSelect = defaultModel || aiConfig.models[0];
+      
+      if (modelToSelect && !selectedConfigId) {
+        setSelectedConfigId(modelToSelect.id);
+        setTemperature(modelToSelect.temperature);
+        setMaxTokens(modelToSelect.maxTokens);
+      }
+    }
+  }, [isOpen, aiConfig, selectedConfigId]);
+
+  // Get selected model config
+  const selectedModelConfig = aiConfig?.models?.find(m => m.id === selectedConfigId);
+
   const handleSend = async () => {
-    if (!selectedModel || !prompt.trim()) {
+    if (!selectedModelConfig || !prompt.trim()) {
       toast.error(t('messages.selectModelAndPrompt', 'Please select a model and enter a prompt'));
       return;
     }
 
-    // Parse model string (format: "provider:modelId")
-    const [provider, modelId] = selectedModel.split(':') as [AiProvider, string];
-
     try {
+      const timeout = aiConfig?.settings?.timeout || 60000;
+      
       const result = await sendMutation.mutateAsync({
-        provider,
-        model: modelId,
+        provider: selectedModelConfig.provider,
+        model: selectedModelConfig.modelId,
         prompt,
         systemPrompt: systemPrompt || undefined,
         temperature,
+        maxTokens,
+        timeout,
       });
 
       setResponse(result);
+      
+      // Save last used model config to localStorage
+      localStorage.setItem('lastUsedAIModelConfig', selectedConfigId);
     } catch {
       toast.error(t('messages.failedToSend', 'Failed to send message'));
+    }
+  };
+  
+  const handleConfigChange = (configId: string) => {
+    setSelectedConfigId(configId);
+    const config = aiConfig?.models?.find(m => m.id === configId);
+    if (config) {
+      setTemperature(config.temperature);
+      setMaxTokens(config.maxTokens);
     }
   };
 
@@ -95,18 +128,24 @@ export default function AIResponseModal({
                 {t('labels.model', 'Model')}
               </label>
               <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
+                value={selectedConfigId}
+                onChange={(e) => handleConfigChange(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                disabled={modelsLoading}
+                disabled={!aiConfig?.models || aiConfig.models.length === 0}
               >
                 <option value="">{t('labels.selectModel', 'Select a model...')}</option>
-                {models?.map((model) => (
-                  <option key={`${model.provider}:${model.id}`} value={`${model.provider}:${model.id}`}>
-                    {model.provider.toUpperCase()} - {model.name}
+                {aiConfig?.models?.map((config) => (
+                  <option key={config.id} value={config.id}>
+                    {config.customName} ({config.provider.toUpperCase()} - {config.modelName})
+                    {config.isDefault ? ' ★' : ''}
                   </option>
                 ))}
               </select>
+              {(!aiConfig?.models || aiConfig.models.length === 0) && (
+                <p className="text-xs text-yellow-400 mt-1">
+                  {t('messages.configureModelsFirst', 'Configure models in AI Settings first')}
+                </p>
+              )}
             </div>
 
             {/* System Prompt */}
@@ -138,6 +177,21 @@ export default function AIResponseModal({
               />
             </div>
 
+            {/* Max Tokens */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                {t('labels.maxTokens', 'Max Tokens')}
+              </label>
+              <input
+                type="number"
+                value={maxTokens}
+                onChange={(e) => setMaxTokens(parseInt(e.target.value) || 0)}
+                min="100"
+                max="128000"
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
             {/* Prompt Input */}
             <div className="flex-1 flex flex-col mb-4">
               <div className="flex items-center justify-between mb-2">
@@ -162,7 +216,7 @@ export default function AIResponseModal({
             {/* Send Button */}
             <button
               onClick={handleSend}
-              disabled={sendMutation.isPending || !selectedModel || !prompt}
+              disabled={sendMutation.isPending || !selectedConfigId || !prompt}
               className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-semibold"
             >
               {sendMutation.isPending

@@ -85,7 +85,8 @@
     "temperature": "Температура",
     "yourPrompt": "Ваш промпт",
     "enterPrompt": "Введите ваш промпт...",
-    "response": "Ответ"
+    "response": "Ответ",
+    "maxTokens": "Макс. токенов"
   },
   "messages": {
     "loading": "Загрузка...",
@@ -143,6 +144,7 @@
     "thinking": "Думаю...",
     "noResponse": "Пока нет ответа",
     "sendPromptHint": "Выберите модель и отправьте промпт",
+    "configureModelsFirst": "Сначала настройте модели в настройках AI",
     "createContextBlock": "Создать блок контекста",
     "createPromptBlock": "Создать блок промпта",
     "leaveEmptyForDefault": "Оставьте пустым для названия по умолчанию",

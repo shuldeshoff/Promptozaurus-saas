@@ -76,10 +76,13 @@ export function useRefreshModels() {
 // Send message to AI
 export function useSendMessage() {
   return useMutation({
-    mutationFn: async (options: SendMessageOptions) => {
+    mutationFn: async (options: SendMessageOptions & { timeout?: number }) => {
+      const { timeout, ...requestOptions } = options;
+      
       const response = await apiClient.post<{ success: boolean; data: AIResponse }>(
         '/ai/send',
-        options
+        requestOptions,
+        timeout ? { timeout } : undefined
       );
       return response.data.data;
     },
