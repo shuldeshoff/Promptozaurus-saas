@@ -56,9 +56,9 @@
     "backToSettings": "Back to settings"
   },
   "errors": {
-    "splitFailed": "Failed to split text with current settings.",
-    "noSelection": "You must select at least one text part.",
-    "regexError": "Regular expression error"
+    "splitFailed": "Failed to split text. Check: text must contain punctuation marks (. ! ?) for sentence splitting, or change the split method.",
+    "noSelection": "Please select at least one text part.",
+    "regexError": "Invalid regular expression"
   },
   "previewList": {
     "selectAll": "Select all",

@@ -20,6 +20,13 @@ export const splitIntoEqualParts = (text: string, partsCount: number, endingType
 
       if (possibleEndings.length > 0) {
         endPos = Math.min(...possibleEndings) + 1;
+      } else {
+        // Если знаков препинания не найдено, разделяем по пробелу или просто по позиции
+        const nextSpace = text.indexOf(' ', endPos);
+        if (nextSpace !== -1 && nextSpace < text.length) {
+          endPos = nextSpace + 1;
+        }
+        // Если пробелов тоже нет или мы в конце текста, оставляем текущую позицию
       }
     } else if (endingType === 'paragraph') {
       const nextParagraph = text.indexOf('\n\n', endPos);
@@ -40,13 +47,24 @@ export const splitIntoEqualParts = (text: string, partsCount: number, endingType
         endPos = endPos + match.index;
       }
     }
+    
+    // Проверка: если endPos не изменился или равен startPos, принудительно сдвигаем
+    if (endPos <= startPos) {
+      endPos = startPos + avgPartSize;
+    }
 
-    parts.push(text.substring(startPos, endPos));
+    parts.push(text.substring(startPos, endPos).trim());
     startPos = endPos;
   }
 
-  parts.push(text.substring(startPos));
-  return parts;
+  // Добавляем оставшуюся часть
+  const lastPart = text.substring(startPos).trim();
+  if (lastPart) {
+    parts.push(lastPart);
+  }
+  
+  // Фильтруем пустые части
+  return parts.filter(part => part.length > 0);
 };
 
 // Разделение по разделителю
