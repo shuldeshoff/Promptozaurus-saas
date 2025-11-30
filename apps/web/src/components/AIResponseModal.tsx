@@ -13,6 +13,8 @@ interface AIResponseModalProps {
   initialPrompt?: string;
 }
 
+type ModalPhase = 'INITIAL' | 'SENDING' | 'RECEIVED';
+
 export default function AIResponseModal({
   isOpen,
   onClose,
@@ -22,9 +24,8 @@ export default function AIResponseModal({
   const { currentProject, setActiveTab, setActiveContextBlock } = useEditor();
   const { updateProjectAndRefresh } = useProjectUpdate();
   
+  const [phase, setPhase] = useState<ModalPhase>('INITIAL');
   const [selectedConfigId, setSelectedConfigId] = useState<string>('');
-  const [prompt, setPrompt] = useState(initialPrompt);
-  const [systemPrompt, setSystemPrompt] = useState('');
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(4000);
   const [response, setResponse] = useState<AIResponse | null>(null);
@@ -36,6 +37,15 @@ export default function AIResponseModal({
   const sendMutation = useSendMessage();
   
   const contextBlocks = currentProject?.data?.contextBlocks || [];
+
+  // Reset phase when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setPhase('INITIAL');
+      setResponse(null);
+      setShowSaveOptions(false);
+    }
+  }, [isOpen]);
 
   // Auto-select default model config on open
   useEffect(() => {
@@ -55,10 +65,12 @@ export default function AIResponseModal({
   const selectedModelConfig = aiConfig?.models?.find(m => m.id === selectedConfigId);
 
   const handleSend = async () => {
-    if (!selectedModelConfig || !prompt.trim()) {
-      toast.error(t('messages.selectModelAndPrompt', 'Please select a model and enter a prompt'));
+    if (!selectedModelConfig || !initialPrompt.trim()) {
+      toast.error(t('messages.selectModelAndPrompt', 'Please select a model'));
       return;
     }
+
+    setPhase('SENDING');
 
     try {
       const timeout = aiConfig?.settings?.timeout || 60000;
@@ -66,19 +78,21 @@ export default function AIResponseModal({
       const result = await sendMutation.mutateAsync({
         provider: selectedModelConfig.provider,
         model: selectedModelConfig.modelId,
-        prompt,
-        systemPrompt: systemPrompt || undefined,
+        prompt: initialPrompt,
+        systemPrompt: undefined,
         temperature,
         maxTokens,
         timeout,
       });
 
       setResponse(result);
+      setPhase('RECEIVED');
       
       // Save last used model config to localStorage
       localStorage.setItem('lastUsedAIModelConfig', selectedConfigId);
-    } catch {
+    } catch (error) {
       toast.error(t('messages.failedToSend', 'Failed to send message'));
+      setPhase('INITIAL');
     }
   };
   
@@ -98,18 +112,17 @@ export default function AIResponseModal({
     }
   };
 
-  const handleCopyPrompt = async () => {
-    if (prompt) {
-      await navigator.clipboard.writeText(prompt);
-      toast.success(t('messages.copiedToClipboard', 'Copied to clipboard!'));
-    }
+  const handleRegenerate = () => {
+    setPhase('INITIAL');
+    setResponse(null);
+    setShowSaveOptions(false);
   };
 
   // Save response to new context block
   const handleSaveAsNewBlock = async () => {
     if (!response?.content || !currentProject) return;
     
-    const blockTitle = newBlockTitle.trim() || `AI Response - ${new Date().toLocaleString()}`;
+    const blockTitle = newBlockTitle.trim() || `Ответ ИИ: Prompt1`;
     
     try {
       const newBlockId = Math.max(0, ...contextBlocks.map(b => b.id)) + 1;
@@ -149,21 +162,18 @@ export default function AIResponseModal({
 
   // Save response to existing context block
   const handleSaveToExistingBlock = async () => {
-    if (!response?.content || !currentProject || !selectedBlockId) {
-      toast.error('Выберите блок для сохранения');
+    if (!response?.content || !currentProject || !selectedBlockId) return;
+    
+    const targetBlock = contextBlocks.find(b => b.id === selectedBlockId);
+    if (!targetBlock) {
+      toast.error('Блок не найден');
       return;
     }
 
     try {
-      const targetBlock = contextBlocks.find((b) => b.id === selectedBlockId);
-      if (!targetBlock) {
-        toast.error('Блок не найден');
-        return;
-      }
+      const newItemId = Math.max(0, ...targetBlock.items.map(item => item.id)) + 1;
 
-      const newItemId = Math.max(0, ...targetBlock.items.map(i => i.id)) + 1;
-
-      const updatedContextBlocks = contextBlocks.map((block) => {
+      const updatedContextBlocks = contextBlocks.map(block => {
         if (block.id === selectedBlockId) {
           return {
             ...block,
@@ -201,14 +211,186 @@ export default function AIResponseModal({
 
   if (!isOpen) return null;
 
+  // PHASE 1: INITIAL - Model selection
+  if (phase === 'INITIAL') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="bg-gray-900 rounded-lg w-full max-w-2xl flex flex-col border border-gray-800">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-800">
+            <h2 className="text-xl font-bold text-white">
+              Взаимодействие с ИИ
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white transition-colors text-2xl"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Выберите модель для генерации
+            </h3>
+
+            {(!aiConfig?.models || aiConfig.models.length === 0) ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400 mb-4">
+                  Нет настроенных моделей ИИ
+                </p>
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                >
+                  Закрыть и настроить
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Model Selection Cards */}
+                <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                  {aiConfig.models.map((config) => (
+                    <div
+                      key={config.id}
+                      onClick={() => handleConfigChange(config.id)}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedConfigId === config.id
+                          ? 'border-blue-500 bg-blue-900/20'
+                          : 'border-gray-700 bg-gray-800 hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-white">
+                              {config.customName}
+                            </h4>
+                            {config.isDefault && (
+                              <span className="text-xs bg-green-700 text-white px-2 py-0.5 rounded">
+                                По умолчанию
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-400 mb-2">
+                            {config.provider.toUpperCase()} • {config.modelName}
+                          </p>
+                          <div className="flex gap-4 text-xs text-gray-500">
+                            <span>Температура: {config.temperature}</span>
+                            <span>Макс. токенов: {config.maxTokens}</span>
+                          </div>
+                        </div>
+                        <div>
+                          {selectedConfigId === config.id && (
+                            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Temperature & Max Tokens Override */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-700">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Температура: {temperature}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Макс. токенов
+                    </label>
+                    <input
+                      type="number"
+                      value={maxTokens}
+                      onChange={(e) => setMaxTokens(parseInt(e.target.value) || 0)}
+                      min="100"
+                      max="128000"
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleSend}
+                    disabled={!selectedConfigId}
+                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                  >
+                    Сгенерировать ответ
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // PHASE 2: SENDING - Loading state
+  if (phase === 'SENDING') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="bg-gray-900 rounded-lg w-full max-w-2xl flex flex-col border border-gray-800 p-8">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-blue-500 border-r-2 border-blue-500 border-b-2 border-transparent mb-4"></div>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              Генерация ответа...
+            </h3>
+            <p className="text-gray-400">
+              {selectedModelConfig?.customName} ({selectedModelConfig?.provider})
+            </p>
+            <p className="text-sm text-gray-500 mt-4">
+              {initialPrompt.length} символов • {maxTokens} макс. токенов
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // PHASE 3: RECEIVED - Show response
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2 md:p-4">
-      <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-[95vh] md:h-[90vh] flex flex-col border border-gray-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-gray-900 rounded-lg w-full max-w-4xl h-[90vh] flex flex-col border border-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-800">
-          <h2 className="text-xl md:text-2xl font-bold text-white">
-            🤖 {t('labels.aiAssistant', 'AI Assistant')}
-          </h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className="flex items-center gap-3">
+            <span className="text-green-500">●</span>
+            <span className="font-semibold text-white">
+              {selectedModelConfig?.customName || 'openai/gpt-4.1-nano'}
+            </span>
+            <span className="text-xs text-gray-400">
+              {response?.usage?.totalTokens?.toLocaleString()} токенов • 3 сек
+            </span>
+            <span className="text-xs bg-green-700 text-white px-2 py-0.5 rounded">
+              ✓ Завершено
+            </span>
+          </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors text-2xl"
@@ -217,256 +399,145 @@ export default function AIResponseModal({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          {/* Left: Prompt Input */}
-          <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col p-3 md:p-4">
-            <h3 className="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">
-              {t('labels.prompt', 'Prompt')}
-            </h3>
+        {/* Response Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {response?.error ? (
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-4">
+              <p className="text-red-400">{response.error}</p>
+            </div>
+          ) : (
+            <div className="bg-gray-800 rounded-lg p-4">
+              <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans">
+                {response?.content}
+              </pre>
+            </div>
+          )}
+        </div>
 
-            {/* Model Selection */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                {t('labels.model', 'Model')}
-              </label>
-              <select
-                value={selectedConfigId}
-                onChange={(e) => handleConfigChange(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                disabled={!aiConfig?.models || aiConfig.models.length === 0}
+        {/* Footer Actions */}
+        <div className="border-t border-gray-800 p-4">
+          {!showSaveOptions ? (
+            <div className="flex gap-3">
+              <button
+                onClick={handleCopyResponse}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
               >
-                <option value="">{t('labels.selectModel', 'Select a model...')}</option>
-                {aiConfig?.models?.map((config) => (
-                  <option key={config.id} value={config.id}>
-                    {config.customName} ({config.provider.toUpperCase()} - {config.modelName})
-                    {config.isDefault ? ' ★' : ''}
-                  </option>
-                ))}
-              </select>
-              {(!aiConfig?.models || aiConfig.models.length === 0) && (
-                <p className="text-xs text-yellow-400 mt-1">
-                  {t('messages.configureModelsFirst', 'Configure models in AI Settings first')}
-                </p>
-              )}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Копировать
+              </button>
+              <button
+                onClick={handleRegenerate}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Перегенерировать
+              </button>
+              <button
+                onClick={onClose}
+                className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              >
+                Закрыть
+              </button>
+              <button
+                onClick={() => setShowSaveOptions(true)}
+                className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-semibold"
+              >
+                ✓ Сохранить
+              </button>
             </div>
-
-            {/* System Prompt */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                {t('labels.systemPrompt', 'System Prompt')} ({t('labels.optional', 'optional')})
-              </label>
-              <textarea
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                className="w-full h-20 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 resize-none"
-                placeholder={t('labels.systemPromptPlaceholder', 'You are a helpful assistant...')}
-              />
-            </div>
-
-            {/* Temperature */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                {t('labels.temperature', 'Temperature')}: {temperature}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="2"
-                step="0.1"
-                value={temperature}
-                onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                className="w-full"
-              />
-            </div>
-
-            {/* Max Tokens */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                {t('labels.maxTokens', 'Max Tokens')}
-              </label>
-              <input
-                type="number"
-                value={maxTokens}
-                onChange={(e) => setMaxTokens(parseInt(e.target.value) || 0)}
-                min="100"
-                max="128000"
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-              />
-            </div>
-
-            {/* Prompt Input */}
-            <div className="flex-1 flex flex-col mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-300">
-                  {t('labels.yourPrompt', 'Your Prompt')}
-                </label>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-semibold text-white">Сохранить ответ как:</h4>
                 <button
-                  onClick={handleCopyPrompt}
-                  className="text-xs text-gray-400 hover:text-white transition-colors"
+                  onClick={() => setShowSaveOptions(false)}
+                  className="text-gray-400 hover:text-white"
                 >
-                  📋 {t('buttons.copy')}
+                  ×
                 </button>
               </div>
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 resize-none font-mono text-sm"
-                placeholder={t('labels.enterPrompt', 'Enter your prompt here...')}
-              />
-            </div>
 
-            {/* Send Button */}
-            <button
-              onClick={handleSend}
-              disabled={sendMutation.isPending || !selectedConfigId || !prompt}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 font-semibold"
-            >
-              {sendMutation.isPending
-                ? t('buttons.sending', 'Sending...')
-                : t('buttons.send', 'Send')}
-            </button>
-          </div>
+              {/* Radio: New block */}
+              <div className="flex items-start gap-3 p-3 bg-gray-800 rounded-lg">
+                <input
+                  type="radio"
+                  name="saveOption"
+                  id="newBlock"
+                  checked={!selectedBlockId}
+                  onChange={() => setSelectedBlockId(null)}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <label htmlFor="newBlock" className="block text-white mb-2 cursor-pointer">
+                    Новый блок контекста:
+                  </label>
+                  <input
+                    type="text"
+                    value={newBlockTitle}
+                    onChange={(e) => setNewBlockTitle(e.target.value)}
+                    placeholder="Ответ ИИ: Prompt1"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
 
-          {/* Right: Response */}
-          <div className="w-full md:w-1/2 flex flex-col p-3 md:p-4">
-            <div className="flex items-center justify-between mb-3 md:mb-4">
-              <h3 className="text-base md:text-lg font-semibold text-white">
-                {t('labels.response', 'Response')}
-              </h3>
-              {response && (
+              {/* Radio: Existing block */}
+              <div className="flex items-start gap-3 p-3 bg-gray-800 rounded-lg">
+                <input
+                  type="radio"
+                  name="saveOption"
+                  id="existingBlock"
+                  checked={!!selectedBlockId}
+                  onChange={() => {
+                    if (contextBlocks.length > 0) {
+                      setSelectedBlockId(contextBlocks[0].id);
+                    }
+                  }}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <label htmlFor="existingBlock" className="block text-white mb-2 cursor-pointer">
+                    В существующий блок:
+                  </label>
+                  <select
+                    value={selectedBlockId || ''}
+                    onChange={(e) => setSelectedBlockId(Number(e.target.value))}
+                    disabled={!selectedBlockId && contextBlocks.length === 0}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                  >
+                    <option value="">Выберите блок контекста</option>
+                    {contextBlocks.map((block) => (
+                      <option key={block.id} value={block.id}>
+                        {block.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Save buttons */}
+              <div className="flex gap-3 pt-2">
                 <button
-                  onClick={handleCopyResponse}
-                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                  onClick={() => setShowSaveOptions(false)}
+                  className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                 >
-                  📋 {t('buttons.copy')}
+                  Закрыть
                 </button>
-              )}
+                <button
+                  onClick={selectedBlockId ? handleSaveToExistingBlock : handleSaveAsNewBlock}
+                  className="flex-1 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-semibold"
+                >
+                  ✓ Сохранить
+                </button>
+              </div>
             </div>
-
-            <div className="flex-1 overflow-y-auto">
-              {sendMutation.isPending ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <div className="text-4xl mb-4 animate-pulse">🤔</div>
-                    <p className="text-gray-400">{t('messages.thinking', 'Thinking...')}</p>
-                  </div>
-                </div>
-              ) : response ? (
-                <div>
-                  {response.error ? (
-                    <div className="bg-red-900/20 border border-red-700 rounded-lg p-4">
-                      <p className="text-red-400">{response.error}</p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                        <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans">
-                          {response.content}
-                        </pre>
-                      </div>
-
-                      {/* Usage Stats */}
-                      {response.usage && (
-                        <div className="text-xs text-gray-400 space-y-1 mb-4">
-                          <div>Model: {response.model}</div>
-                          <div>Provider: {response.provider}</div>
-                          <div>
-                            Tokens: {response.usage.promptTokens?.toLocaleString()} prompt +{' '}
-                            {response.usage.completionTokens?.toLocaleString()} completion ={' '}
-                            {response.usage.totalTokens?.toLocaleString()} total
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Save Options */}
-                      {!showSaveOptions ? (
-                        <button
-                          onClick={() => setShowSaveOptions(true)}
-                          className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
-                        >
-                          Сохранить ответ
-                        </button>
-                      ) : (
-                        <div className="space-y-3 bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold text-white">Опции сохранения</h4>
-                            <button
-                              onClick={() => setShowSaveOptions(false)}
-                              className="text-gray-400 hover:text-white"
-                            >
-                              ×
-                            </button>
-                          </div>
-
-                          {/* Save as new block */}
-                          <div className="space-y-2">
-                            <label className="block text-sm text-gray-300">
-                              Создать новый блок контекста:
-                            </label>
-                            <input
-                              type="text"
-                              value={newBlockTitle}
-                              onChange={(e) => setNewBlockTitle(e.target.value)}
-                              placeholder="Название блока (необязательно)"
-                              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                            />
-                            <button
-                              onClick={handleSaveAsNewBlock}
-                              className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                            >
-                              Сохранить в новый блок
-                            </button>
-                          </div>
-
-                          {/* Save to existing block */}
-                          {contextBlocks.length > 0 && (
-                            <div className="space-y-2 pt-3 border-t border-gray-600">
-                              <label className="block text-sm text-gray-300">
-                                Добавить в существующий блок:
-                              </label>
-                              <select
-                                value={selectedBlockId || ''}
-                                onChange={(e) => setSelectedBlockId(Number(e.target.value))}
-                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                              >
-                                <option value="">Выберите блок...</option>
-                                {contextBlocks.map((block) => (
-                                  <option key={block.id} value={block.id}>
-                                    {block.title}
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                onClick={handleSaveToExistingBlock}
-                                disabled={!selectedBlockId}
-                                className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                Добавить в выбранный блок
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center text-gray-400">
-                    <div className="text-6xl mb-4">💬</div>
-                    <p>{t('messages.noResponse', 'No response yet')}</p>
-                    <p className="text-sm mt-2">
-                      {t('messages.sendPromptHint', 'Select a model and send a prompt')}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
