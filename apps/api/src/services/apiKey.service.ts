@@ -61,14 +61,14 @@ export const apiKeyService = {
       },
       update: {
         encryptedKey,
-        status: 'not_configured',
-        lastTestedAt: null,
+        status: 'active',
+        lastTestedAt: new Date(),
       },
       create: {
         userId,
         provider,
         encryptedKey,
-        status: 'not_configured',
+        status: 'active',
       },
     });
 
