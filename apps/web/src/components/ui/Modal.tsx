@@ -101,13 +101,13 @@ const Modal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={handleOverlayClick}>
-      <div className="bg-gray-800 rounded-lg max-w-md w-full shadow-lg">
-        <div className="border-b border-gray-700 px-4 py-3">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto" onClick={handleOverlayClick}>
+      <div className="bg-gray-800 rounded-lg max-w-3xl w-full shadow-lg my-8 max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="border-b border-gray-700 px-4 py-3 flex-shrink-0">
           <h3 className="text-lg font-medium text-white">{title}</h3>
         </div>
 
-        <div className="px-4 py-4">
+        <div className="px-4 py-4 overflow-y-auto flex-1">
           {children}
 
           {/* Если есть options, отображаем выпадающий список */}
@@ -144,7 +144,7 @@ const Modal = ({
           )}
         </div>
 
-        <div className="flex justify-end gap-2 px-4 py-3 border-t border-gray-700">
+        <div className="flex justify-end gap-2 px-4 py-3 border-t border-gray-700 flex-shrink-0">
           <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors" onClick={onClose}>
             {secondaryBtnText}
           </button>

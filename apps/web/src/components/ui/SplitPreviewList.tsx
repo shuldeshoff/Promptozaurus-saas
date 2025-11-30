@@ -18,14 +18,14 @@ const SplitPreviewList = ({ parts = [], selected = [], onTogglePart, onToggleAll
   };
 
   return (
-    <div className="max-h-96 overflow-y-auto border border-gray-700 rounded">
-      <div className="sticky top-0 bg-gray-800 border-b border-gray-700 p-2 flex justify-between items-center">
+    <div className="max-h-[60vh] overflow-y-auto border border-gray-700 rounded">
+      <div className="sticky top-0 bg-gray-800 border-b border-gray-700 p-2 flex justify-between items-center z-10">
         <div className="flex items-center">
           <input type="checkbox" className="mr-2" checked={selected.every(Boolean)} onChange={(e) => onToggleAll(e.target.checked)} />
           <span className="text-sm font-medium">{t('previewList.selectAll')}</span>
         </div>
-        <div>
-          <button className="text-xs px-2 py-1 bg-blue-800 text-blue-200 rounded hover:bg-blue-700 mr-2" onClick={() => onToggleAll(true)}>
+        <div className="flex gap-2">
+          <button className="text-xs px-2 py-1 bg-blue-800 text-blue-200 rounded hover:bg-blue-700" onClick={() => onToggleAll(true)}>
             {t('previewList.selectAll')}
           </button>
           <button className="text-xs px-2 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600" onClick={() => onToggleAll(false)}>

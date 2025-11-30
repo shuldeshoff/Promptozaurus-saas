@@ -319,20 +319,20 @@ const SplitContentModal = ({ isOpen, onClose, onApply, content = '', title = '' 
   };
 
   const modalContent = (
-    <div>
+    <div className="space-y-4">
       <p className="text-gray-300 mb-2">{previewMode ? `${t('previewSection.resultsTitle')} "${title}"` : `${t('previewSection.settingsTitle')} "${title}"`}</p>
 
       {previewMode ? (
-        <div className="mt-2">
+        <div className="space-y-4">
           <SplitPreviewList parts={splitParts} selected={selectedParts} onTogglePart={handleTogglePart} onToggleAll={handleToggleAll} />
-          <div className="mt-2 text-right text-sm text-gray-400">
+          <div className="text-right text-sm text-gray-400">
             {t('previewSection.selected')}: {getSelectedCount()} {t('previewSection.of')} {splitParts.length}
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between gap-2 pt-2">
             <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" onClick={() => setPreviewMode(false)}>
               {t('previewSection.backToSettings')}
             </button>
-            <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600" onClick={handleApply} disabled={getSelectedCount() === 0}>
+            <button className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleApply} disabled={getSelectedCount() === 0}>
               {t('apply')}
             </button>
           </div>
