@@ -18,37 +18,31 @@ interface AIConfigModalProps {
 const PROVIDERS: Array<{
   id: AiProvider;
   name: string;
-  icon: string;
   placeholder: string;
 }> = [
   {
     id: 'openai',
     name: 'OpenAI',
-    icon: '🤖',
     placeholder: 'sk-...',
   },
   {
     id: 'anthropic',
-    name: 'Anthropic (Claude)',
-    icon: '🧠',
+    name: 'Anthropic',
     placeholder: 'sk-ant-...',
   },
   {
     id: 'gemini',
     name: 'Google Gemini',
-    icon: '✨',
     placeholder: 'AI...',
   },
   {
     id: 'grok',
-    name: 'Grok (X.AI)',
-    icon: '🚀',
+    name: 'X.AI Grok',
     placeholder: 'xai-...',
   },
   {
     id: 'openrouter',
     name: 'OpenRouter',
-    icon: '🔀',
     placeholder: 'sk-or-...',
   },
 ];
@@ -152,7 +146,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-800">
           <h2 className="text-xl md:text-2xl font-bold text-white">
-            🔑 {t('labels.aiApiKeys', 'AI API Keys')}
+            {t('labels.aiApiKeys', 'AI API Keys')}
           </h2>
           <button
             onClick={onClose}
@@ -179,7 +173,6 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">{provider.icon}</span>
                         <div>
                           <h3 className="text-lg font-semibold text-white">
                             {provider.name}
