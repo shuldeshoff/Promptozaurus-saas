@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useSendMessage, AIResponse } from '../hooks/useAI';
 import { useAIConfig } from '../hooks/useAIConfig';
+import { useEditor } from '../context/EditorContext';
+import { useProjectUpdate } from '../hooks/useProjectUpdate';
+import type { ContextBlock } from '@promptozaurus/shared';
 
 interface AIResponseModalProps {
   isOpen: boolean;
@@ -16,15 +19,23 @@ export default function AIResponseModal({
   initialPrompt = '',
 }: AIResponseModalProps) {
   const { t } = useTranslation('common');
+  const { currentProject, setActiveTab, setActiveContextBlockId } = useEditor();
+  const { updateProjectAndRefresh } = useProjectUpdate();
+  
   const [selectedConfigId, setSelectedConfigId] = useState<string>('');
   const [prompt, setPrompt] = useState(initialPrompt);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(4000);
   const [response, setResponse] = useState<AIResponse | null>(null);
+  const [showSaveOptions, setShowSaveOptions] = useState(false);
+  const [newBlockTitle, setNewBlockTitle] = useState('');
+  const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
 
   const { data: aiConfig } = useAIConfig();
   const sendMutation = useSendMessage();
+  
+  const contextBlocks = currentProject?.data?.contextBlocks || [];
 
   // Auto-select default model config on open
   useEffect(() => {
@@ -91,6 +102,100 @@ export default function AIResponseModal({
     if (prompt) {
       await navigator.clipboard.writeText(prompt);
       toast.success(t('messages.copiedToClipboard', 'Copied to clipboard!'));
+    }
+  };
+
+  // Save response to new context block
+  const handleSaveAsNewBlock = async () => {
+    if (!response?.content || !currentProject) return;
+    
+    const blockTitle = newBlockTitle.trim() || `AI Response - ${new Date().toLocaleString()}`;
+    
+    try {
+      const newBlockId = Math.max(0, ...contextBlocks.map(b => b.id)) + 1;
+      
+      const newBlock: ContextBlock = {
+        id: newBlockId,
+        title: blockTitle,
+        items: [
+          {
+            id: 1,
+            title: 'AI Response',
+            content: response.content,
+            chars: response.content.length,
+            subItems: [],
+          },
+        ],
+      };
+
+      const updatedContextBlocks = [...contextBlocks, newBlock];
+
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        contextBlocks: updatedContextBlocks,
+      });
+
+      toast.success(`Ответ сохранён в новый блок "${blockTitle}"`);
+      setActiveTab('context');
+      setTimeout(() => setActiveContextBlockId(newBlockId), 200);
+      onClose();
+      setShowSaveOptions(false);
+      setNewBlockTitle('');
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error('Ошибка сохранения');
+    }
+  };
+
+  // Save response to existing context block
+  const handleSaveToExistingBlock = async () => {
+    if (!response?.content || !currentProject || !selectedBlockId) {
+      toast.error('Выберите блок для сохранения');
+      return;
+    }
+
+    try {
+      const targetBlock = contextBlocks.find((b) => b.id === selectedBlockId);
+      if (!targetBlock) {
+        toast.error('Блок не найден');
+        return;
+      }
+
+      const newItemId = Math.max(0, ...targetBlock.items.map(i => i.id)) + 1;
+
+      const updatedContextBlocks = contextBlocks.map((block) => {
+        if (block.id === selectedBlockId) {
+          return {
+            ...block,
+            items: [
+              ...block.items,
+              {
+                id: newItemId,
+                title: 'AI Response',
+                content: response.content,
+                chars: response.content.length,
+                subItems: [],
+              },
+            ],
+          };
+        }
+        return block;
+      });
+
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        contextBlocks: updatedContextBlocks,
+      });
+
+      toast.success(`Ответ добавлен в блок "${targetBlock.title}"`);
+      setActiveTab('context');
+      setTimeout(() => setActiveContextBlockId(selectedBlockId), 200);
+      onClose();
+      setShowSaveOptions(false);
+      setSelectedBlockId(null);
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error('Ошибка сохранения');
     }
   };
 
@@ -263,7 +368,7 @@ export default function AIResponseModal({
 
                       {/* Usage Stats */}
                       {response.usage && (
-                        <div className="text-xs text-gray-400 space-y-1">
+                        <div className="text-xs text-gray-400 space-y-1 mb-4">
                           <div>Model: {response.model}</div>
                           <div>Provider: {response.provider}</div>
                           <div>
@@ -271,6 +376,76 @@ export default function AIResponseModal({
                             {response.usage.completionTokens?.toLocaleString()} completion ={' '}
                             {response.usage.totalTokens?.toLocaleString()} total
                           </div>
+                        </div>
+                      )}
+
+                      {/* Save Options */}
+                      {!showSaveOptions ? (
+                        <button
+                          onClick={() => setShowSaveOptions(true)}
+                          className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+                        >
+                          Сохранить ответ
+                        </button>
+                      ) : (
+                        <div className="space-y-3 bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold text-white">Опции сохранения</h4>
+                            <button
+                              onClick={() => setShowSaveOptions(false)}
+                              className="text-gray-400 hover:text-white"
+                            >
+                              ×
+                            </button>
+                          </div>
+
+                          {/* Save as new block */}
+                          <div className="space-y-2">
+                            <label className="block text-sm text-gray-300">
+                              Создать новый блок контекста:
+                            </label>
+                            <input
+                              type="text"
+                              value={newBlockTitle}
+                              onChange={(e) => setNewBlockTitle(e.target.value)}
+                              placeholder="Название блока (необязательно)"
+                              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                            />
+                            <button
+                              onClick={handleSaveAsNewBlock}
+                              className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                            >
+                              Сохранить в новый блок
+                            </button>
+                          </div>
+
+                          {/* Save to existing block */}
+                          {contextBlocks.length > 0 && (
+                            <div className="space-y-2 pt-3 border-t border-gray-600">
+                              <label className="block text-sm text-gray-300">
+                                Добавить в существующий блок:
+                              </label>
+                              <select
+                                value={selectedBlockId || ''}
+                                onChange={(e) => setSelectedBlockId(Number(e.target.value))}
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                              >
+                                <option value="">Выберите блок...</option>
+                                {contextBlocks.map((block) => (
+                                  <option key={block.id} value={block.id}>
+                                    {block.title}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={handleSaveToExistingBlock}
+                                disabled={!selectedBlockId}
+                                className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Добавить в выбранный блок
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </>
