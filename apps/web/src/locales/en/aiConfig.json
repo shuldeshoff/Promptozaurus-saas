@@ -42,7 +42,8 @@
     "configuredModels": "Configured Models",
     "noConfiguredModels": "No configured models",
     "default": "Default",
-    "deleteConfig": "Delete configuration"
+    "deleteConfig": "Delete configuration",
+    "comingSoon": "Model configuration coming soon"
   },
   "settings": {
     "globalTitle": "Global Settings",
