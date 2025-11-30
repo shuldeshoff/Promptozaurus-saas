@@ -19,7 +19,6 @@ interface SelectedContext {
 }
 
 interface ContextSelectionPanelProps {
-  promptId: number;
   contextBlocks: ContextBlock[];
   selectedContexts: SelectedContext[];
   selectionOrder?: string[];
@@ -53,8 +52,7 @@ const parseItemKey = (key: string) => {
  * Convert internal selection state to selectedContexts format
  */
 const convertToSelectedContexts = (
-  selectionOrder: string[],
-  contextBlocks: ContextBlock[]
+  selectionOrder: string[]
 ): SelectedContext[] => {
   const blocksMap = new Map<
     number,
@@ -89,8 +87,7 @@ const convertToSelectedContexts = (
  * Initialize selectionOrder from existing selectedContexts
  */
 const initSelectionOrderFromContexts = (
-  selectedContexts: SelectedContext[],
-  contextBlocks: ContextBlock[]
+  selectedContexts: SelectedContext[]
 ): string[] => {
   const order: string[] = [];
 
@@ -127,7 +124,6 @@ const ContextSelectionPanel = forwardRef<
 >(
   (
     {
-      promptId,
       contextBlocks,
       selectedContexts,
       selectionOrder: initialSelectionOrder,
@@ -140,7 +136,7 @@ const ContextSelectionPanel = forwardRef<
     const [selectionOrder, setSelectionOrder] = useState<string[]>(() =>
       Array.isArray(initialSelectionOrder) && initialSelectionOrder.length > 0
         ? initialSelectionOrder
-        : initSelectionOrderFromContexts(selectedContexts, contextBlocks)
+        : initSelectionOrderFromContexts(selectedContexts)
     );
     const [copySuccess, setCopySuccess] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -154,12 +150,11 @@ const ContextSelectionPanel = forwardRef<
         setSelectionOrder(initialSelectionOrder);
       } else {
         const newOrder = initSelectionOrderFromContexts(
-          selectedContexts,
-          contextBlocks
+          selectedContexts
         );
         setSelectionOrder(newOrder);
       }
-    }, [initialSelectionOrder, selectedContexts, contextBlocks]);
+    }, [initialSelectionOrder, selectedContexts]);
 
     // Selection change handler
     const handleSelectionChange = useCallback(
@@ -179,8 +174,7 @@ const ContextSelectionPanel = forwardRef<
 
           // Call callback with new state and selection order
           const newSelectedContexts = convertToSelectedContexts(
-            newOrder,
-            contextBlocks
+            newOrder
           );
           onSelectionChange(newSelectedContexts, newOrder);
 
@@ -249,8 +243,7 @@ const ContextSelectionPanel = forwardRef<
           });
 
           const newSelectedContexts = convertToSelectedContexts(
-            newOrder,
-            contextBlocks
+            newOrder
           );
           onSelectionChange(newSelectedContexts, newOrder);
 
@@ -270,8 +263,7 @@ const ContextSelectionPanel = forwardRef<
           });
 
           const newSelectedContexts = convertToSelectedContexts(
-            newOrder,
-            contextBlocks
+            newOrder
           );
           onSelectionChange(newSelectedContexts, newOrder);
 
@@ -301,8 +293,7 @@ const ContextSelectionPanel = forwardRef<
           });
 
           const newSelectedContexts = convertToSelectedContexts(
-            newOrder,
-            contextBlocks
+            newOrder
           );
           onSelectionChange(newSelectedContexts, newOrder);
 
@@ -331,8 +322,7 @@ const ContextSelectionPanel = forwardRef<
           });
 
           const newSelectedContexts = convertToSelectedContexts(
-            newOrder,
-            contextBlocks
+            newOrder
           );
           onSelectionChange(newSelectedContexts, newOrder);
 
@@ -375,8 +365,7 @@ const ContextSelectionPanel = forwardRef<
 
       setSelectionOrder(newOrder);
       const newSelectedContexts = convertToSelectedContexts(
-        newOrder,
-        contextBlocks
+        newOrder
       );
       onSelectionChange(newSelectedContexts, newOrder);
     }, [contextBlocks, onSelectionChange]);
