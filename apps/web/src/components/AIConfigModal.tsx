@@ -119,7 +119,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   
   // State for providers
   const [editingProvider, setEditingProvider] = useState<AiProvider | null>(null);
-  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [apiKeyInputs, setApiKeyInputs] = useState<Record<AiProvider, string>>({} as any);
   const [showPassword, setShowPassword] = useState<Record<AiProvider, boolean>>({} as any);
 
   const { data: apiKeys, isLoading } = useApiKeys();
@@ -172,20 +172,22 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     });
   };
 
-  const handleSave = async () => {
-    if (!editingProvider || !apiKeyInput.trim()) {
+  const handleSave = async (provider: AiProvider) => {
+    const apiKeyInput = apiKeyInputs[provider] || '';
+    
+    if (!apiKeyInput.trim()) {
       toast.error(t('providers.enterApiKey'));
       return;
     }
 
     try {
       await upsertMutation.mutateAsync({
-        provider: editingProvider,
+        provider,
         apiKey: apiKeyInput,
       });
       setEditingProvider(null);
-      setApiKeyInput('');
-      toast.success(t('notifications.keySaved', { provider: PROVIDERS.find(p => p.id === editingProvider)?.name }));
+      setApiKeyInputs(prev => ({ ...prev, [provider]: '' }));
+      toast.success(t('notifications.keySaved', { provider: PROVIDERS.find(p => p.id === provider)?.name }));
     } catch {
       toast.error(t('notifications.keySaveError'));
     }
@@ -215,9 +217,9 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     }
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = (provider: AiProvider) => {
     setEditingProvider(null);
-    setApiKeyInput('');
+    setApiKeyInputs(prev => ({ ...prev, [provider]: '' }));
   };
 
   const getKeyStatus = (provider: AiProvider) => {
@@ -391,8 +393,8 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                 <div className="flex items-center gap-2">
                   <input
                     type={showPassword[provider.id] ? 'text' : 'password'}
-                    value={apiKeyInput}
-                    onChange={(e) => setApiKeyInput(e.target.value)}
+                    value={apiKeyInputs[provider.id] || ''}
+                    onChange={(e) => setApiKeyInputs(prev => ({ ...prev, [provider.id]: e.target.value }))}
                     placeholder={provider.placeholder}
                     className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 font-mono text-sm"
                   />
@@ -417,7 +419,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                 </div>
                 <div className="flex gap-2 justify-end">
                   <button
-                    onClick={handleSave}
+                    onClick={() => handleSave(provider.id)}
                     disabled={upsertMutation.isPending}
                     className="py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
@@ -428,7 +430,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   </button>
                   {isEditing && (
                     <button
-                      onClick={cancelEdit}
+                      onClick={() => cancelEdit(provider.id)}
                       className="py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors whitespace-nowrap"
                     >
                       {t('providers.cancel')}
