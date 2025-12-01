@@ -41,7 +41,7 @@ interface OpenAIChatResponse {
 // New /v1/responses endpoint format (for GPT-5.1 models)
 interface OpenAIResponsesRequest {
   model: string;
-  messages: OpenAIMessage[];
+  input: string;  // Not 'messages', but 'input' with text prompt
   temperature?: number;
   max_completion_tokens?: number;
 }
@@ -239,9 +239,20 @@ export class OpenAIProvider extends BaseAIProvider {
     messages: OpenAIMessage[],
     temperature: number
   ): Promise<AIResponse> {
+    // Convert messages to single text input
+    let inputText = '';
+    
+    for (const msg of messages) {
+      if (msg.role === 'system') {
+        inputText += `System: ${msg.content}\n\n`;
+      } else if (msg.role === 'user') {
+        inputText += msg.content;
+      }
+    }
+    
     const requestBody: OpenAIResponsesRequest = {
       model: options.model,
-      messages,
+      input: inputText,
       temperature,
       max_completion_tokens: options.maxTokens,
     };
