@@ -38,6 +38,34 @@ interface OpenAIChatResponse {
   };
 }
 
+// New /v1/responses endpoint format (for GPT-5.1 models)
+interface OpenAIResponsesRequest {
+  model: string;
+  messages: OpenAIMessage[];
+  temperature?: number;
+  max_completion_tokens?: number;
+}
+
+interface OpenAIResponsesResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string;
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
 interface OpenAIModelsResponse {
   data: Array<{
     id: string;
@@ -118,6 +146,10 @@ export class OpenAIProvider extends BaseAIProvider {
       content: options.prompt,
     });
 
+    // GPT-5.1 models with "codex" or "chat" in name use new /v1/responses endpoint
+    const isResponsesAPI = options.model.includes('gpt-5.1') && 
+                          (options.model.includes('codex') || options.model.includes('chat'));
+    
     // GPT-5 and later models use max_completion_tokens instead of max_tokens
     const isGpt5OrLater = options.model.includes('gpt-5') || options.model.includes('gpt-6');
     
@@ -125,7 +157,13 @@ export class OpenAIProvider extends BaseAIProvider {
     const temperature = isGpt5OrLater && options.model.includes('mini') 
       ? 1 
       : (options.temperature ?? 0.7);
-    
+
+    if (isResponsesAPI) {
+      // New /v1/responses endpoint format
+      return this.sendMessageResponsesAPI(options, messages, temperature);
+    }
+
+    // Standard /v1/chat/completions endpoint
     const requestBody: OpenAIChatRequest = {
       model: options.model,
       messages,
@@ -186,6 +224,73 @@ export class OpenAIProvider extends BaseAIProvider {
       };
     } catch (error) {
       console.error(`OpenAI sendMessage error for ${options.model}:`, error);
+      return {
+        content: '',
+        model: options.model,
+        provider: this.getProviderName(),
+        error: this.formatError(error),
+      };
+    }
+  }
+
+  // New method for /v1/responses endpoint (GPT-5.1 models)
+  private async sendMessageResponsesAPI(
+    options: SendMessageOptions,
+    messages: OpenAIMessage[],
+    temperature: number
+  ): Promise<AIResponse> {
+    const requestBody: OpenAIResponsesRequest = {
+      model: options.model,
+      messages,
+      temperature,
+      max_completion_tokens: options.maxTokens,
+    };
+
+    try {
+      const response = await fetch(`${this.baseUrl}/responses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string; type?: string; code?: string } };
+        console.error(`OpenAI Responses API Error (${options.model}):`, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData.error,
+        });
+        throw new Error(
+          errorData.error?.message || `OpenAI Responses API error: ${response.statusText}`
+        );
+      }
+
+      const data = await response.json() as OpenAIResponsesResponse;
+      
+      // Log if content is empty
+      if (!data.choices[0]?.message.content) {
+        console.warn(`OpenAI Responses API returned empty content for model ${options.model}:`, {
+          choices: data.choices,
+          finishReason: data.choices[0]?.finish_reason,
+        });
+      }
+
+      return {
+        content: data.choices[0]?.message.content || '',
+        model: data.model,
+        provider: this.getProviderName(),
+        usage: {
+          promptTokens: data.usage.prompt_tokens,
+          completionTokens: data.usage.completion_tokens,
+          totalTokens: data.usage.total_tokens,
+        },
+        finishReason: data.choices[0]?.finish_reason,
+      };
+    } catch (error) {
+      console.error(`OpenAI Responses API sendMessage error for ${options.model}:`, error);
       return {
         content: '',
         model: options.model,
