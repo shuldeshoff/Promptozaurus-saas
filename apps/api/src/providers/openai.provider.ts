@@ -281,24 +281,33 @@ export class OpenAIProvider extends BaseAIProvider {
 
       const data = await response.json() as OpenAIResponsesResponse;
       
+      // Log response structure for debugging
+      console.log(`OpenAI Responses API response for ${options.model}:`, {
+        id: data.id,
+        object: data.object,
+        hasChoices: !!data.choices,
+        choicesLength: data.choices?.length,
+        firstChoice: data.choices?.[0],
+      });
+      
       // Log if content is empty
-      if (!data.choices[0]?.message.content) {
+      if (!data.choices?.[0]?.message?.content) {
         console.warn(`OpenAI Responses API returned empty content for model ${options.model}:`, {
           choices: data.choices,
-          finishReason: data.choices[0]?.finish_reason,
+          finishReason: data.choices?.[0]?.finish_reason,
         });
       }
 
       return {
-        content: data.choices[0]?.message.content || '',
+        content: data.choices?.[0]?.message?.content || '',
         model: data.model,
         provider: this.getProviderName(),
         usage: {
-          promptTokens: data.usage.prompt_tokens,
-          completionTokens: data.usage.completion_tokens,
-          totalTokens: data.usage.total_tokens,
+          promptTokens: data.usage?.prompt_tokens || 0,
+          completionTokens: data.usage?.completion_tokens || 0,
+          totalTokens: data.usage?.total_tokens || 0,
         },
-        finishReason: data.choices[0]?.finish_reason,
+        finishReason: data.choices?.[0]?.finish_reason,
       };
     } catch (error) {
       console.error(`OpenAI Responses API sendMessage error for ${options.model}:`, error);
