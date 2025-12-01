@@ -281,14 +281,8 @@ export class OpenAIProvider extends BaseAIProvider {
 
       const data = await response.json() as OpenAIResponsesResponse;
       
-      // Log response structure for debugging
-      console.log(`OpenAI Responses API response for ${options.model}:`, {
-        id: data.id,
-        object: data.object,
-        hasChoices: !!data.choices,
-        choicesLength: data.choices?.length,
-        firstChoice: data.choices?.[0],
-      });
+      // Log FULL response structure for debugging
+      console.log(`OpenAI Responses API FULL response for ${options.model}:`, JSON.stringify(data, null, 2));
       
       // Log if content is empty
       if (!data.choices?.[0]?.message?.content) {
