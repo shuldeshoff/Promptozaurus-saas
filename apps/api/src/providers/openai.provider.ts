@@ -49,20 +49,22 @@ interface OpenAIResponsesRequest {
 interface OpenAIResponsesResponse {
   id: string;
   object: string;
-  created: number;
+  created_at: number;
   model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
+  status: string;
+  output: Array<{
+    id: string;
+    type: string;
+    content?: Array<{
+      type: string;
+      text: string;
+    }>;
+    role?: string;
   }>;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
   };
 }
 
@@ -281,19 +283,21 @@ export class OpenAIProvider extends BaseAIProvider {
 
       const data = await response.json() as OpenAIResponsesResponse;
       
-      // Log FULL response structure for debugging
-      console.log(`OpenAI Responses API FULL response for ${options.model}:`, JSON.stringify(data, null, 2));
+      // Find message in output array (type: "message")
+      const messageOutput = data.output?.find(item => item.type === 'message');
+      const textContent = messageOutput?.content?.find(c => c.type === 'output_text')?.text || '';
       
       // Log if content is empty
-      if (!data.choices?.[0]?.message?.content) {
+      if (!textContent) {
         console.warn(`OpenAI Responses API returned empty content for model ${options.model}:`, {
-          choices: data.choices,
-          finishReason: data.choices?.[0]?.finish_reason,
+          status: data.status,
+          outputLength: data.output?.length,
+          messageOutput,
         });
       }
 
       return {
-        content: data.choices?.[0]?.message?.content || '',
+        content: textContent,
         model: data.model,
         provider: this.getProviderName(),
         usage: {
@@ -301,7 +305,7 @@ export class OpenAIProvider extends BaseAIProvider {
           completionTokens: data.usage?.completion_tokens || 0,
           totalTokens: data.usage?.total_tokens || 0,
         },
-        finishReason: data.choices?.[0]?.finish_reason,
+        finishReason: data.status,
       };
     } catch (error) {
       console.error(`OpenAI Responses API sendMessage error for ${options.model}:`, error);
