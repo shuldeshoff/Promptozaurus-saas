@@ -43,7 +43,7 @@ interface OpenAIResponsesRequest {
   model: string;
   input: string;  // Not 'messages', but 'input' with text prompt
   temperature?: number;
-  max_completion_tokens?: number;
+  max_output_tokens?: number;  // Not 'max_completion_tokens', but 'max_output_tokens'
 }
 
 interface OpenAIResponsesResponse {
@@ -254,7 +254,7 @@ export class OpenAIProvider extends BaseAIProvider {
       model: options.model,
       input: inputText,
       temperature,
-      max_completion_tokens: options.maxTokens,
+      max_output_tokens: options.maxTokens,
     };
 
     try {
