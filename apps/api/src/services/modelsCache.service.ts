@@ -82,8 +82,19 @@ export const modelsCacheService = {
         .filter((key) => key.status === 'active')
         .map((key) => key.provider);
 
+      // If no active providers, return all fallback models
       if (activeProviders.length === 0) {
-        return [];
+        const allProviders: AiProvider[] = ['openai', 'anthropic', 'gemini', 'grok', 'openrouter'];
+        const fallbackModels: AIModel[] = [];
+        
+        for (const provider of allProviders) {
+          const models = await this.getCachedModels(provider);
+          if (models) {
+            fallbackModels.push(...models);
+          }
+        }
+        
+        return fallbackModels;
       }
 
       // Get models for each active provider
