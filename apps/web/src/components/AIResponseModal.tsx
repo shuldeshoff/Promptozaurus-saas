@@ -21,7 +21,7 @@ export default function AIResponseModal({
   initialPrompt = '',
 }: AIResponseModalProps) {
   const { t } = useTranslation('common');
-  const { currentProject, setActiveTab, setActiveContextBlock } = useEditor();
+  const { currentProject, setActiveTab, setActiveContextBlock, activePromptBlockId } = useEditor();
   const { updateProjectAndRefresh } = useProjectUpdate();
   
   const [phase, setPhase] = useState<ModalPhase>('INITIAL');
@@ -30,20 +30,44 @@ export default function AIResponseModal({
   const [showSaveOptions, setShowSaveOptions] = useState(false);
   const [newBlockTitle, setNewBlockTitle] = useState('');
   const [selectedBlockId, setSelectedBlockId] = useState<number | null>(null);
+  const [itemTitle, setItemTitle] = useState(''); // Название для item при сохранении
 
   const { data: aiConfig } = useAIConfig();
   const sendMutation = useSendMessage();
   
   const contextBlocks = currentProject?.data?.contextBlocks || [];
 
-  // Reset phase when modal opens/closes
+  // Generate AI response context name
+  const generateAIResponseName = () => {
+    if (!selectedModelConfig) return 'AI Response';
+    
+    const now = new Date();
+    const date = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const time = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    
+    // AI Response + название промпта + название модели + дата + время
+    const promptName = currentProject?.data?.promptBlocks?.find(b => b.id === activePromptBlockId)?.title || 'Prompt';
+    const modelName = selectedModelConfig.customName;
+    
+    return `AI Response: ${promptName} - ${modelName} (${date} ${time})`;
+  };
+
+  // Reset phase when modal opens/closes and generate default name
   useEffect(() => {
     if (isOpen) {
       setPhase('INITIAL');
       setResponse(null);
       setShowSaveOptions(false);
+      setItemTitle(generateAIResponseName());
     }
   }, [isOpen]);
+  
+  // Update item title when model changes
+  useEffect(() => {
+    if (isOpen && selectedModelConfig) {
+      setItemTitle(generateAIResponseName());
+    }
+  }, [selectedConfigId, isOpen]);
 
   // Auto-select default model config on open
   useEffect(() => {
@@ -113,7 +137,8 @@ export default function AIResponseModal({
   const handleSaveAsNewBlock = async () => {
     if (!response?.content || !currentProject) return;
     
-    const blockTitle = newBlockTitle.trim() || `Ответ ИИ: Prompt1`;
+    const blockTitle = newBlockTitle.trim() || `Context: ${new Date().toLocaleString('ru-RU')}`;
+    const responseTitle = itemTitle.trim() || generateAIResponseName();
     
     try {
       const newBlockId = Math.max(0, ...contextBlocks.map(b => b.id)) + 1;
@@ -124,7 +149,7 @@ export default function AIResponseModal({
         items: [
           {
             id: 1,
-            title: 'AI Response',
+            title: responseTitle,
             content: response.content,
             chars: response.content.length,
             subItems: [],
@@ -145,6 +170,7 @@ export default function AIResponseModal({
       onClose();
       setShowSaveOptions(false);
       setNewBlockTitle('');
+      setItemTitle('');
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Ошибка сохранения');
@@ -161,6 +187,8 @@ export default function AIResponseModal({
       return;
     }
 
+    const responseTitle = itemTitle.trim() || generateAIResponseName();
+
     try {
       const newItemId = Math.max(0, ...targetBlock.items.map(item => item.id)) + 1;
 
@@ -172,7 +200,7 @@ export default function AIResponseModal({
               ...block.items,
               {
                 id: newItemId,
-                title: 'AI Response',
+                title: responseTitle,
                 content: response.content,
                 chars: response.content.length,
                 subItems: [],
@@ -194,6 +222,7 @@ export default function AIResponseModal({
       onClose();
       setShowSaveOptions(false);
       setSelectedBlockId(null);
+      setItemTitle('');
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Ошибка сохранения');
@@ -418,6 +447,23 @@ export default function AIResponseModal({
                 >
                   ×
                 </button>
+              </div>
+
+              {/* Item title input */}
+              <div className="p-3 bg-gray-800 rounded-lg">
+                <label className="block text-white mb-2 text-sm">
+                  Название элемента контекста:
+                </label>
+                <input
+                  type="text"
+                  value={itemTitle}
+                  onChange={(e) => setItemTitle(e.target.value)}
+                  placeholder={generateAIResponseName()}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Формат: AI Response + название промпта + модель + дата/время
+                </p>
               </div>
 
               {/* Radio: New block */}
