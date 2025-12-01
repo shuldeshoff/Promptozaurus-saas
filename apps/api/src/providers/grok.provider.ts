@@ -39,6 +39,18 @@ interface GrokChatResponse {
   };
 }
 
+interface GrokModel {
+  id: string;
+  object: string;
+  created: number;
+  owned_by: string;
+}
+
+interface GrokModelsResponse {
+  object: string;
+  data: GrokModel[];
+}
+
 export class GrokProvider extends BaseAIProvider {
   protected getDefaultBaseUrl(): string {
     return 'https://api.x.ai/v1';
@@ -49,8 +61,62 @@ export class GrokProvider extends BaseAIProvider {
   }
 
   async getModels(): Promise<AIModel[]> {
-    // X.AI не предоставляет endpoint для списка моделей, используем хардкод
-    return this.getDefaultModels();
+    try {
+      const response = await fetch(`${this.baseUrl}/models`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.warn(`Grok models API error: ${response.statusText}, using fallback`);
+        return this.getDefaultModels();
+      }
+
+      const data = await response.json() as GrokModelsResponse;
+
+      const models = data.data
+        .filter((model) => !model.id.includes('beta')) // Filter out beta models
+        .map((model) => this.formatModel(model.id))
+        .sort((a, b) => {
+          // Sort by version: grok-4 > grok-3 > grok-2
+          const getVersion = (id: string) => {
+            if (id.includes('grok-4')) return 4;
+            if (id.includes('grok-3')) return 3;
+            if (id.includes('grok-2')) return 2;
+            return 1;
+          };
+          
+          const versionDiff = getVersion(b.id) - getVersion(a.id);
+          if (versionDiff !== 0) return versionDiff;
+          
+          return a.name.localeCompare(b.name);
+        });
+
+      return models.length > 0 ? models : this.getDefaultModels();
+    } catch (error) {
+      console.error('Failed to fetch Grok models:', error);
+      return this.getDefaultModels();
+    }
+  }
+
+  private formatModel(modelId: string): AIModel {
+    // Map model IDs to human-readable names
+    const nameMap: Record<string, string> = {
+      'grok-4-1-fast-non-reasoning': 'Grok 4.1 Fast (Non-Reasoning)',
+      'grok-3-mini': 'Grok 3 Mini',
+      'grok': 'Grok',
+    };
+
+    return {
+      id: modelId,
+      name: nameMap[modelId] || modelId.replace('grok-', 'Grok ').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      provider: this.getProviderName(),
+      contextWindow: 131072, // 128K context for all Grok models
+      maxOutputTokens: 4096,
+    };
   }
 
   async sendMessage(options: SendMessageOptions): Promise<AIResponse> {

@@ -133,6 +133,24 @@ export class AnthropicProvider extends BaseAIProvider {
 
   private getDefaultModels(): AIModel[] {
     return [
+      // Claude 3.5 models (latest generation)
+      {
+        id: 'claude-3-5-sonnet-20241022',
+        name: 'Claude 3.5 Sonnet',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 8192,
+        supportsVision: true,
+      },
+      {
+        id: 'claude-3-5-haiku-20241022',
+        name: 'Claude 3.5 Haiku',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 8192,
+        supportsVision: true,
+      },
+      // Claude 3 models (previous generation)
       {
         id: 'claude-3-opus-20240229',
         name: 'Claude 3 Opus',
@@ -156,20 +174,6 @@ export class AnthropicProvider extends BaseAIProvider {
         contextWindow: 200000,
         maxOutputTokens: 4096,
         supportsVision: true,
-      },
-      {
-        id: 'claude-2.1',
-        name: 'Claude 2.1',
-        provider: this.getProviderName(),
-        contextWindow: 200000,
-        maxOutputTokens: 4096,
-      },
-      {
-        id: 'claude-2.0',
-        name: 'Claude 2.0',
-        provider: this.getProviderName(),
-        contextWindow: 100000,
-        maxOutputTokens: 4096,
       },
     ];
   }

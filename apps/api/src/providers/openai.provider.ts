@@ -71,12 +71,32 @@ export class OpenAIProvider extends BaseAIProvider {
 
       const data = await response.json() as OpenAIModelsResponse;
 
-      // Filter and format models
+      // Filter and format chat models (GPT models only)
       const chatModels = data.data
-        .filter((model) => model.id.includes('gpt'))
-        .map((model) => this.formatModel(model.id));
+        .filter((model) => {
+          const id = model.id;
+          // Include GPT-3.5, GPT-4, GPT-4o, GPT-5, GPT-6, etc.
+          return id.includes('gpt') && !id.includes('instruct') && !id.includes('vision');
+        })
+        .map((model) => this.formatModel(model.id))
+        .sort((a, b) => {
+          // Sort: GPT-6 > GPT-5 > GPT-4 > GPT-3.5
+          const getVersion = (id: string) => {
+            if (id.includes('gpt-6')) return 6;
+            if (id.includes('gpt-5')) return 5;
+            if (id.includes('gpt-4')) return 4;
+            if (id.includes('gpt-3.5')) return 3.5;
+            return 0;
+          };
+          
+          const versionDiff = getVersion(b.id) - getVersion(a.id);
+          if (versionDiff !== 0) return versionDiff;
+          
+          // Within same version, sort by name
+          return a.name.localeCompare(b.name);
+        });
 
-      return chatModels;
+      return chatModels.length > 0 ? chatModels : this.getDefaultModels();
     } catch (error) {
       console.error('Failed to fetch OpenAI models:', error);
       return this.getDefaultModels();

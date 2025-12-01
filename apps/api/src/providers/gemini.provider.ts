@@ -36,6 +36,19 @@ interface GeminiResponse {
   };
 }
 
+interface GeminiModelInfo {
+  name: string; // Format: "models/gemini-pro"
+  displayName: string;
+  description: string;
+  inputTokenLimit: number;
+  outputTokenLimit: number;
+  supportedGenerationMethods: string[];
+}
+
+interface GeminiModelsResponse {
+  models: GeminiModelInfo[];
+}
+
 export class GeminiProvider extends BaseAIProvider {
   protected getDefaultBaseUrl(): string {
     return 'https://generativelanguage.googleapis.com/v1';
@@ -46,8 +59,76 @@ export class GeminiProvider extends BaseAIProvider {
   }
 
   async getModels(): Promise<AIModel[]> {
-    // Gemini doesn't have a models endpoint easily accessible, return hardcoded list
-    return this.getDefaultModels();
+    try {
+      // Gemini uses v1 API for models list
+      const url = `${this.baseUrl}/models?key=${this.apiKey}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        console.warn(`Gemini models API error: ${response.statusText}, using fallback`);
+        return this.getDefaultModels();
+      }
+
+      const data = await response.json() as GeminiModelsResponse;
+
+      // Filter generative models that support generateContent
+      const models = data.models
+        .filter((model) => 
+          model.supportedGenerationMethods?.includes('generateContent') &&
+          model.name.includes('gemini')
+        )
+        .map((model) => {
+          // Extract model ID from full name (e.g., "models/gemini-pro" -> "gemini-pro")
+          const modelId = model.name.split('/').pop() || model.name;
+          
+          return {
+            id: modelId,
+            name: model.displayName || this.formatModelName(modelId),
+            provider: this.getProviderName(),
+            contextWindow: model.inputTokenLimit || 1000000,
+            maxOutputTokens: model.outputTokenLimit || 8192,
+            supportsVision: modelId.includes('vision') || modelId.includes('pro'),
+          };
+        })
+        .sort((a, b) => {
+          // Sort: gemini-2.5 > gemini-2.0 > gemini-1.5
+          const getVersion = (id: string) => {
+            if (id.includes('2.5')) return 2.5;
+            if (id.includes('2.0')) return 2.0;
+            if (id.includes('1.5')) return 1.5;
+            if (id.includes('1.0')) return 1.0;
+            return 0;
+          };
+          
+          const versionDiff = getVersion(b.id) - getVersion(a.id);
+          if (versionDiff !== 0) return versionDiff;
+          
+          // Flash models before Pro
+          if (a.id.includes('flash') && !b.id.includes('flash')) return -1;
+          if (!a.id.includes('flash') && b.id.includes('flash')) return 1;
+          
+          return a.name.localeCompare(b.name);
+        });
+
+      return models.length > 0 ? models : this.getDefaultModels();
+    } catch (error) {
+      console.error('Failed to fetch Gemini models:', error);
+      return this.getDefaultModels();
+    }
+  }
+
+  private formatModelName(modelId: string): string {
+    // Convert "gemini-2.5-flash" to "Gemini 2.5 Flash"
+    return modelId
+      .split('-')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 
   async sendMessage(options: SendMessageOptions): Promise<AIResponse> {
