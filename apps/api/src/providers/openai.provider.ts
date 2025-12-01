@@ -147,13 +147,31 @@ export class OpenAIProvider extends BaseAIProvider {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string; type?: string; code?: string } };
+        console.error(`OpenAI API Error (${options.model}):`, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData.error,
+          requestBody: {
+            model: requestBody.model,
+            temperature: requestBody.temperature,
+            maxTokensField: isGpt5OrLater ? 'max_completion_tokens' : 'max_tokens',
+          }
+        });
         throw new Error(
           errorData.error?.message || `OpenAI API error: ${response.statusText}`
         );
       }
 
       const data = await response.json() as OpenAIChatResponse;
+      
+      // Log if content is empty
+      if (!data.choices[0]?.message.content) {
+        console.warn(`OpenAI returned empty content for model ${options.model}:`, {
+          choices: data.choices,
+          finishReason: data.choices[0]?.finish_reason,
+        });
+      }
 
       return {
         content: data.choices[0]?.message.content || '',
@@ -167,6 +185,7 @@ export class OpenAIProvider extends BaseAIProvider {
         finishReason: data.choices[0]?.finish_reason,
       };
     } catch (error) {
+      console.error(`OpenAI sendMessage error for ${options.model}:`, error);
       return {
         content: '',
         model: options.model,
