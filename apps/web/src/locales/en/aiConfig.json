@@ -35,6 +35,8 @@
     "model": "Model",
     "refreshList": "Refresh list",
     "loading": "Loading...",
+    "loadingModels": "Loading models...",
+    "refreshModels": "Refresh models list",
     "selectModel": "Select model",
     "tokens": "tokens",
     "configName": "Configuration name",
@@ -69,6 +71,7 @@
   "notifications": {
     "modelsUpdated": "{{provider}} models updated",
     "modelsUpdateError": "Error updating models",
+    "modelsRefreshing": "Refreshing models list...",
     "providerCheckError": "Error checking provider status",
     "enterApiKey": "Enter API key",
     "invalidKeyFormat": "Invalid API key format",

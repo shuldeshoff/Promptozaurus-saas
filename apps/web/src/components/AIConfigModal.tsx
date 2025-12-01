@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { AiProvider } from '@promptozaurus/shared';
@@ -13,6 +13,7 @@ import {
   useSaveAIConfig,
   UserAISettings,
 } from '../hooks/useAIConfig';
+import { useAIModels, useRefreshModels } from '../hooks/useAI';
 import { useConfirmation } from '../context/ConfirmationContext';
 
 interface AIConfigModalProps {
@@ -63,53 +64,6 @@ const PROVIDERS: Array<{
   },
 ];
 
-// Hardcoded models for providers (обновлено на основе реальных тестов 30.11.2025)
-const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; name: string; contextLength: number }>> = {
-  openai: [
-    // GPT-5 модели (новые, протестированы)
-    { id: 'gpt-5-mini', name: 'GPT-5 Mini', contextLength: 128000 },
-    { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', contextLength: 128000 },
-    // GPT-4 модели (legacy, могут работать)
-    { id: 'gpt-4o', name: 'GPT-4o', contextLength: 128000 },
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', contextLength: 128000 },
-    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', contextLength: 128000 },
-    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', contextLength: 16385 },
-  ],
-  anthropic: [
-    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', contextLength: 200000 },
-    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', contextLength: 200000 },
-    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', contextLength: 200000 },
-    { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', contextLength: 200000 },
-    { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', contextLength: 200000 },
-  ],
-  gemini: [
-    // Gemini 2.5 модели (упомянуты в документации, региональные ограничения!)
-    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash ⚠️ ', contextLength: 1000000 },
-    { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite ⚠️', contextLength: 1000000 },
-    // Gemini 2.0 и 1.5 модели
-    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', contextLength: 1000000 },
-    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', contextLength: 2000000 },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', contextLength: 1000000 },
-  ],
-  grok: [
-    // Новые модели Grok (протестированы, работают отлично)
-    { id: 'grok-3-mini', name: 'Grok 3 Mini', contextLength: 131072 },
-    { id: 'grok-4-1-fast-non-reasoning', name: 'Grok 4.1 Fast', contextLength: 131072 },
-    // Legacy модели (могут не работать)
-    { id: 'grok-beta', name: 'Grok Beta (deprecated)', contextLength: 131072 },
-    { id: 'grok-vision-beta', name: 'Grok Vision Beta', contextLength: 8192 },
-  ],
-  openrouter: [
-    // Бесплатные модели (протестированы)
-    { id: 'meta-llama/llama-3.2-3b-instruct:free', name: 'Llama 3.2 3B (Free)', contextLength: 131072 },
-    // Платные модели
-    { id: 'openai/gpt-4o', name: 'GPT-4o', contextLength: 128000 },
-    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', contextLength: 200000 },
-    { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', contextLength: 1000000 },
-    { id: 'meta-llama/llama-3.1-70b-instruct', name: 'Llama 3.1 70B', contextLength: 131072 },
-  ],
-};
-
 export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const { t } = useTranslation('aiConfig');
   const { openConfirmation } = useConfirmation();
@@ -126,6 +80,34 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
   const upsertMutation = useUpsertApiKey();
   const deleteMutation = useDeleteApiKey();
   const testMutation = useTestApiKey();
+
+  // Fetch available models from API
+  const { data: availableModels = [], isLoading: modelsLoading } = useAIModels();
+  const refreshModelsMutation = useRefreshModels();
+  
+  // Group models by provider
+  const modelsByProvider = useMemo(() => {
+    const grouped: Record<AiProvider, Array<{ id: string; name: string; contextLength: number }>> = {
+      openai: [],
+      anthropic: [],
+      gemini: [],
+      grok: [],
+      openrouter: [],
+    };
+    
+    availableModels.forEach((model) => {
+      const provider = model.provider as AiProvider;
+      if (grouped[provider]) {
+        grouped[provider].push({
+          id: model.id,
+          name: model.name,
+          contextLength: model.contextWindow || 0,
+        });
+      }
+    });
+    
+    return grouped;
+  }, [availableModels]);
 
   // State for model configurations
   const [modelConfigs, setModelConfigs] = useState<ModelConfig[]>([]);
@@ -263,7 +245,7 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
       return;
     }
 
-    const selectedModel = PROVIDER_MODELS[newModelConfig.provider as AiProvider]?.find(m => m.id === newModelConfig.modelId);
+    const selectedModel = modelsByProvider[newModelConfig.provider as AiProvider]?.find(m => m.id === newModelConfig.modelId);
     if (!selectedModel) {
       toast.error(t('notifications.selectProviderAndModel'));
       return;
@@ -495,19 +477,36 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                 
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">{t('models.model')}</label>
-                  <select
-                    value={newModelConfig.modelId}
-                    onChange={(e) => setNewModelConfig(prev => ({ ...prev, modelId: e.target.value }))}
-                    disabled={!newModelConfig.provider}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500 disabled:opacity-50"
-                  >
-                    <option value="">{t('models.selectModel')}</option>
-                    {newModelConfig.provider && PROVIDER_MODELS[newModelConfig.provider as AiProvider]?.map(model => (
-                      <option key={model.id} value={model.id}>
-                        {model.name} ({model.contextLength} {t('models.tokens')})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex gap-2">
+                    <select
+                      value={newModelConfig.modelId}
+                      onChange={(e) => setNewModelConfig(prev => ({ ...prev, modelId: e.target.value }))}
+                      disabled={!newModelConfig.provider || modelsLoading}
+                      className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                    >
+                      <option value="">{modelsLoading ? t('models.loadingModels') : t('models.selectModel')}</option>
+                      {newModelConfig.provider && modelsByProvider[newModelConfig.provider as AiProvider]?.map(model => (
+                        <option key={model.id} value={model.id}>
+                          {model.name} ({model.contextLength.toLocaleString()} {t('models.tokens')})
+                        </option>
+                      ))}
+                    </select>
+                    {newModelConfig.provider && (
+                      <button
+                        onClick={() => {
+                          refreshModelsMutation.mutate(newModelConfig.provider as AiProvider);
+                          toast.success(t('notifications.modelsRefreshing'));
+                        }}
+                        disabled={refreshModelsMutation.isPending}
+                        className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50"
+                        title={t('models.refreshModels')}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 <div>

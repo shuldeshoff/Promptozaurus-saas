@@ -35,6 +35,8 @@
     "model": "Модель",
     "refreshList": "Обновить список",
     "loading": "Загрузка...",
+    "loadingModels": "Загрузка моделей...",
+    "refreshModels": "Обновить список моделей",
     "selectModel": "Выберите модель",
     "tokens": "токенов",
     "configName": "Название конфигурации",
@@ -69,6 +71,7 @@
   "notifications": {
     "modelsUpdated": "Модели {{provider}} обновлены",
     "modelsUpdateError": "Ошибка обновления моделей",
+    "modelsRefreshing": "Обновление списка моделей...",
     "providerCheckError": "Ошибка проверки статуса провайдеров",
     "enterApiKey": "Введите API ключ",
     "invalidKeyFormat": "Неверный формат API ключа",
