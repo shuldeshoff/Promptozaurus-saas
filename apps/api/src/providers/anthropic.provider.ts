@@ -133,7 +133,32 @@ export class AnthropicProvider extends BaseAIProvider {
 
   private getDefaultModels(): AIModel[] {
     return [
-      // Claude 3.5 models (latest generation)
+      // Claude 4.5 models (latest generation - Dec 2025)
+      {
+        id: 'claude-4.5-opus-20251201',
+        name: 'Claude 4.5 Opus',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 16384,
+        supportsVision: true,
+      },
+      {
+        id: 'claude-4.5-sonnet-20251201',
+        name: 'Claude 4.5 Sonnet',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 16384,
+        supportsVision: true,
+      },
+      {
+        id: 'claude-4.5-haiku-20251201',
+        name: 'Claude 4.5 Haiku',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 8192,
+        supportsVision: true,
+      },
+      // Claude 3.5 models (previous generation - fallback)
       {
         id: 'claude-3-5-sonnet-20241022',
         name: 'Claude 3.5 Sonnet',
@@ -150,7 +175,7 @@ export class AnthropicProvider extends BaseAIProvider {
         maxOutputTokens: 8192,
         supportsVision: true,
       },
-      // Claude 3 models (previous generation)
+      // Claude 3 models (legacy)
       {
         id: 'claude-3-opus-20240229',
         name: 'Claude 3 Opus',

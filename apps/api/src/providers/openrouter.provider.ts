@@ -74,11 +74,14 @@ export class OpenRouterProvider extends BaseAIProvider {
 
       const data = await response.json() as OpenRouterModelsResponse;
 
-      // Filter and format models
-      const models = data.data
+      console.log(`OpenRouter API returned ${data.data?.length || 0} total models`);
+
+      // Filter and format models (no limit - return all models)
+      const models = (data.data || [])
         .filter((model) => !model.id.includes('moderated') && !model.id.includes('deprecated'))
-        .map((model) => this.formatModel(model))
-        .slice(0, 50); // Limit to 50 models for UI performance
+        .map((model) => this.formatModel(model));
+
+      console.log(`Filtered to ${models.length} OpenRouter models (removed moderated/deprecated)`);
 
       return models.length > 0 ? models : this.getDefaultModels();
     } catch (error) {

@@ -60,8 +60,8 @@ export class GeminiProvider extends BaseAIProvider {
 
   async getModels(): Promise<AIModel[]> {
     try {
-      // Gemini uses v1 API for models list
-      const url = `${this.baseUrl}/models?key=${this.apiKey}`;
+      // Gemini uses v1beta API for models list (v1 is more restrictive)
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`;
       
       const response = await fetch(url, {
         method: 'GET',
@@ -71,14 +71,18 @@ export class GeminiProvider extends BaseAIProvider {
       });
 
       if (!response.ok) {
-        console.warn(`Gemini models API error: ${response.statusText}, using fallback`);
+        const errorText = await response.text();
+        console.warn(`Gemini models API error: ${response.status} ${response.statusText}`, errorText);
+        console.warn('Using fallback models for Gemini');
         return this.getDefaultModels();
       }
 
       const data = await response.json() as GeminiModelsResponse;
+      
+      console.log(`Gemini API returned ${data.models?.length || 0} models`);
 
       // Filter generative models that support generateContent
-      const models = data.models
+      const models = (data.models || [])
         .filter((model) => 
           model.supportedGenerationMethods?.includes('generateContent') &&
           model.name.includes('gemini')
@@ -93,7 +97,7 @@ export class GeminiProvider extends BaseAIProvider {
             provider: this.getProviderName(),
             contextWindow: model.inputTokenLimit || 1000000,
             maxOutputTokens: model.outputTokenLimit || 8192,
-            supportsVision: modelId.includes('vision') || modelId.includes('pro'),
+            supportsVision: modelId.includes('vision') || modelId.includes('pro') || modelId.includes('flash'),
           };
         })
         .sort((a, b) => {
@@ -115,6 +119,8 @@ export class GeminiProvider extends BaseAIProvider {
           
           return a.name.localeCompare(b.name);
         });
+
+      console.log(`Filtered to ${models.length} Gemini generative models`);
 
       return models.length > 0 ? models : this.getDefaultModels();
     } catch (error) {
