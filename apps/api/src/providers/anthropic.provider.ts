@@ -133,7 +133,41 @@ export class AnthropicProvider extends BaseAIProvider {
 
   private getDefaultModels(): AIModel[] {
     return [
-      // Claude 3.5 models (latest generation - October 2024)
+      // Claude Sonnet 4.5 (latest - September 2024)
+      // Multiple variants as Anthropic doesn't document exact API name yet
+      {
+        id: 'claude-sonnet-4.5-20240929',
+        name: 'Claude Sonnet 4.5 (v1)',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 16384,
+        supportsVision: true,
+      },
+      {
+        id: 'claude-sonnet-4-20240929',
+        name: 'Claude Sonnet 4.5 (v2)',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 16384,
+        supportsVision: true,
+      },
+      {
+        id: 'claude-4-sonnet-20240929',
+        name: 'Claude Sonnet 4.5 (v3)',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 16384,
+        supportsVision: true,
+      },
+      {
+        id: 'claude-sonnet-4.5',
+        name: 'Claude Sonnet 4.5 (simple)',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 16384,
+        supportsVision: true,
+      },
+      // Claude 3.5 models (October 2024)
       {
         id: 'claude-3-5-sonnet-20241022',
         name: 'Claude 3.5 Sonnet (New)',
@@ -150,7 +184,7 @@ export class AnthropicProvider extends BaseAIProvider {
         maxOutputTokens: 8192,
         supportsVision: true,
       },
-      // Claude 3.5 models (previous releases)
+      // Claude 3.5 models (June 2024)
       {
         id: 'claude-3-5-sonnet-20240620',
         name: 'Claude 3.5 Sonnet',
