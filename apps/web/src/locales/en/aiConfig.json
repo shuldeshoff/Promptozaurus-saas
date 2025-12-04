@@ -28,6 +28,7 @@
     }
   },
   "models": {
+    "title": "Models",
     "noProvidersTitle": "Please configure at least one provider in the \"Providers\" tab first",
     "addConfigTitle": "Add Model Configuration",
     "provider": "Provider",
