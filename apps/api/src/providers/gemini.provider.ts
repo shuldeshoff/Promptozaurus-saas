@@ -205,8 +205,8 @@ export class GeminiProvider extends BaseAIProvider {
 
   async testConnection(): Promise<boolean> {
     try {
-      // Use gemini-1.5-flash which is available in v1
-      const url = `${this.baseUrl}/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+      // Use v1beta API (same as getModels) with gemini-2.5-flash
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`;
       
       const response = await fetch(url, {
         method: 'POST',
@@ -232,6 +232,7 @@ export class GeminiProvider extends BaseAIProvider {
         return false;
       }
 
+      console.log('✅ Gemini connection test successful');
       return true;
     } catch (error) {
       console.error('Gemini test connection error:', error);

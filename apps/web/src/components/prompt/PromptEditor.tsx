@@ -25,6 +25,12 @@ const PromptEditor = () => {
   // Get active prompt block
   const block = currentProject?.data?.promptBlocks?.find((b) => b.id === activePromptBlockId);
 
+  // Local state for title to prevent cursor jump
+  const [localTitle, setLocalTitle] = useState(block?.title || '');
+  const [localTemplate, setLocalTemplate] = useState(block?.template || '');
+  const titleUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const templateUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const [wrapWithTags, setWrapWithTags] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
   const [copyTemplateSuccess, setCopyTemplateSuccess] = useState(false);
@@ -140,29 +146,73 @@ const PromptEditor = () => {
   };
 
   // Обработчик изменения template (строки 163-167)
-  const handleTemplateChange = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (!currentProject || !block) return;
-    const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
-      b.id === block.id ? { ...b, template: e.target.value } : b
-    );
+  const handleTemplateChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newTemplate = e.target.value;
+    setLocalTemplate(newTemplate);
 
-    await updateProjectAndRefresh({
-      ...currentProject.data,
-      promptBlocks: updatedBlocks,
-    });
+    // Clear previous timeout
+    if (templateUpdateTimeoutRef.current) {
+      clearTimeout(templateUpdateTimeoutRef.current);
+    }
+
+    // Set new timeout to update backend
+    templateUpdateTimeoutRef.current = setTimeout(async () => {
+      if (!currentProject || !block) return;
+      const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
+        b.id === block.id ? { ...b, template: newTemplate } : b
+      );
+
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: updatedBlocks,
+      });
+    }, 500); // 500ms debounce
   };
 
-  // Обработчик изменения заголовка (строки 169-171)
-  const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!currentProject || !block) return;
-    const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
-      b.id === block.id ? { ...b, title: e.target.value } : b
-    );
+  // Sync local title when block changes
+  useEffect(() => {
+    if (block?.title !== undefined) {
+      setLocalTitle(block.title || '');
+    }
+    if (block?.template !== undefined) {
+      setLocalTemplate(block.template || '');
+    }
+  }, [block?.id, block?.title, block?.template]);
 
-    await updateProjectAndRefresh({
-      ...currentProject.data,
-      promptBlocks: updatedBlocks,
-    });
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (titleUpdateTimeoutRef.current) {
+        clearTimeout(titleUpdateTimeoutRef.current);
+      }
+      if (templateUpdateTimeoutRef.current) {
+        clearTimeout(templateUpdateTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Обработчик изменения заголовка с debounce
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setLocalTitle(newTitle);
+
+    // Clear previous timeout
+    if (titleUpdateTimeoutRef.current) {
+      clearTimeout(titleUpdateTimeoutRef.current);
+    }
+
+    // Set new timeout to update backend
+    titleUpdateTimeoutRef.current = setTimeout(async () => {
+      if (!currentProject || !block) return;
+      const updatedBlocks = currentProject.data.promptBlocks.map((b) =>
+        b.id === block.id ? { ...b, title: newTitle } : b
+      );
+
+      await updateProjectAndRefresh({
+        ...currentProject.data,
+        promptBlocks: updatedBlocks,
+      });
+    }, 500); // 500ms debounce
   };
 
   // Сохранить текущий шаблон через API (строки 173-181)
@@ -376,7 +426,7 @@ const PromptEditor = () => {
         </div>
         <input
           type="text"
-          value={block.title || ''}
+          value={localTitle}
           onChange={handleTitleChange}
           className="w-full mb-3 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
         />
@@ -553,7 +603,7 @@ const PromptEditor = () => {
         <textarea
           className="w-full h-[40vh] mb-3 px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white resize-y"
           placeholder={t('prompt.template.placeholder')}
-          value={block.template || ''}
+          value={localTemplate}
           onChange={handleTemplateChange}
           onFocus={() => setActiveTextarea('template')}
         />
