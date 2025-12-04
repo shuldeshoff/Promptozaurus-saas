@@ -68,6 +68,8 @@ export class AnthropicProvider extends BaseAIProvider {
     }
 
     try {
+      console.log(`📤 Anthropic API request: model=${options.model}, tokens=${options.maxTokens}`);
+      
       const response = await fetch(`${this.baseUrl}/messages`, {
         method: 'POST',
         headers: {
@@ -79,13 +81,23 @@ export class AnthropicProvider extends BaseAIProvider {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        const errorText = await response.text();
+        console.error(`❌ Anthropic API error (${response.status}):`, errorText);
+        
+        let errorData: { error?: { message?: string; type?: string } } = {};
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          // ignore parse errors
+        }
+        
         throw new Error(
-          errorData.error?.message || `Anthropic API error: ${response.statusText}`
+          errorData.error?.message || `Anthropic API error: ${response.status} ${response.statusText}`
         );
       }
 
       const data = await response.json() as AnthropicResponse;
+      console.log(`✅ Anthropic response: ${data.content[0]?.text?.substring(0, 100)}...`);
 
       return {
         content: data.content[0]?.text || '',
@@ -99,6 +111,7 @@ export class AnthropicProvider extends BaseAIProvider {
         finishReason: data.stop_reason,
       };
     } catch (error) {
+      console.error('❌ Anthropic sendMessage failed:', error);
       return {
         content: '',
         model: options.model,
