@@ -145,36 +145,46 @@ export class AnthropicProvider extends BaseAIProvider {
   }
 
   private getDefaultModels(): AIModel[] {
+    // Source: https://platform.claude.com/docs/en/about-claude/models/migrating-to-claude-4
     return [
-      // Claude Sonnet 4.5 (latest - September 2024)
-      // Multiple variants as Anthropic doesn't document exact API name yet
+      // Claude 4.5 models (latest generation - September-November 2025)
       {
-        id: 'claude-sonnet-4.5-20240929',
-        name: 'Claude Sonnet 4.5 (v1)',
+        id: 'claude-sonnet-4-5-20250929',
+        name: 'Claude Sonnet 4.5 (Latest)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 16384,
         supportsVision: true,
       },
       {
-        id: 'claude-sonnet-4-20240929',
-        name: 'Claude Sonnet 4.5 (v2)',
+        id: 'claude-opus-4-5-20251101',
+        name: 'Claude Opus 4.5 (Latest)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 16384,
         supportsVision: true,
       },
       {
-        id: 'claude-4-sonnet-20240929',
-        name: 'Claude Sonnet 4.5 (v3)',
+        id: 'claude-haiku-4-5-20251001',
+        name: 'Claude Haiku 4.5 (Latest)',
+        provider: this.getProviderName(),
+        contextWindow: 200000,
+        maxOutputTokens: 64000,
+        supportsVision: true,
+      },
+      // Claude 4.1 models (August 2025)
+      {
+        id: 'claude-opus-4-1-20250805',
+        name: 'Claude Opus 4.1',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 16384,
         supportsVision: true,
       },
+      // Claude 4 models (May 2025)
       {
-        id: 'claude-sonnet-4.5',
-        name: 'Claude Sonnet 4.5 (simple)',
+        id: 'claude-sonnet-4-20250514',
+        name: 'Claude Sonnet 4',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 16384,
@@ -183,7 +193,7 @@ export class AnthropicProvider extends BaseAIProvider {
       // Claude 3.5 models (October 2024)
       {
         id: 'claude-3-5-sonnet-20241022',
-        name: 'Claude 3.5 Sonnet (New)',
+        name: 'Claude 3.5 Sonnet (Oct 2024)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 8192,
@@ -191,7 +201,7 @@ export class AnthropicProvider extends BaseAIProvider {
       },
       {
         id: 'claude-3-5-haiku-20241022',
-        name: 'Claude 3.5 Haiku (New)',
+        name: 'Claude 3.5 Haiku (Oct 2024)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 8192,
@@ -200,7 +210,7 @@ export class AnthropicProvider extends BaseAIProvider {
       // Claude 3.5 models (June 2024)
       {
         id: 'claude-3-5-sonnet-20240620',
-        name: 'Claude 3.5 Sonnet',
+        name: 'Claude 3.5 Sonnet (Jun 2024)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 8192,
