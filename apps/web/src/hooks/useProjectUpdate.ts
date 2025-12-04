@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEditor } from '../context/EditorContext';
 import { useUpdateProject } from './useProjects';
 import type { ProjectData } from '@promptozaurus/shared';
+import { toast } from 'react-hot-toast';
 
 /**
  * Хук для обновления проекта с автоматической инвалидацией кеша
@@ -35,8 +36,26 @@ export function useProjectUpdate() {
       queryClient.invalidateQueries({ queryKey: ['compile-prompt'] });
 
       return updatedProject;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Ошибка обновления проекта:', error);
+      
+      // Проверяем, является ли это ошибкой превышения лимита
+      const isLimitError = error?.response?.data?.isLimitError || 
+                          error?.response?.status === 413 ||
+                          error?.response?.data?.error?.includes('exceeds limit');
+      
+      if (isLimitError) {
+        const errorMessage = error?.response?.data?.error || 'Превышен лимит размера проекта';
+        toast.error(`⚠️ ${errorMessage}`, {
+          duration: 8000,
+          style: {
+            background: '#dc2626',
+            color: '#fff',
+            maxWidth: '600px',
+          },
+        });
+      }
+      
       throw error;
     }
   };

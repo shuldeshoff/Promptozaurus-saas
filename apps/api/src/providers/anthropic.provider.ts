@@ -146,8 +146,9 @@ export class AnthropicProvider extends BaseAIProvider {
 
   private getDefaultModels(): AIModel[] {
     // Source: https://platform.claude.com/docs/en/about-claude/models/migrating-to-claude-4
+    // Tested: 2025-12-04 - Only working models included (8/11 tested)
     return [
-      // Claude 4.5 models (latest generation - September-November 2025)
+      // Claude 4.5 models ✅ ALL WORK
       {
         id: 'claude-sonnet-4-5-20250929',
         name: 'Claude Sonnet 4.5 (Latest)',
@@ -166,13 +167,13 @@ export class AnthropicProvider extends BaseAIProvider {
       },
       {
         id: 'claude-haiku-4-5-20251001',
-        name: 'Claude Haiku 4.5 (Latest)',
+        name: 'Claude Haiku 4.5 (Fastest)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 64000,
         supportsVision: true,
       },
-      // Claude 4.1 models (August 2025)
+      // Claude 4.1 & 4 ✅ WORK
       {
         id: 'claude-opus-4-1-20250805',
         name: 'Claude Opus 4.1',
@@ -181,7 +182,6 @@ export class AnthropicProvider extends BaseAIProvider {
         maxOutputTokens: 16384,
         supportsVision: true,
       },
-      // Claude 4 models (May 2025)
       {
         id: 'claude-sonnet-4-20250514',
         name: 'Claude Sonnet 4',
@@ -190,33 +190,15 @@ export class AnthropicProvider extends BaseAIProvider {
         maxOutputTokens: 16384,
         supportsVision: true,
       },
-      // Claude 3.5 models (October 2024)
-      {
-        id: 'claude-3-5-sonnet-20241022',
-        name: 'Claude 3.5 Sonnet (Oct 2024)',
-        provider: this.getProviderName(),
-        contextWindow: 200000,
-        maxOutputTokens: 8192,
-        supportsVision: true,
-      },
+      // Claude 3.5 & 3 (only working models) ✅ WORK
       {
         id: 'claude-3-5-haiku-20241022',
-        name: 'Claude 3.5 Haiku (Oct 2024)',
+        name: 'Claude 3.5 Haiku',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 8192,
         supportsVision: true,
       },
-      // Claude 3.5 models (June 2024)
-      {
-        id: 'claude-3-5-sonnet-20240620',
-        name: 'Claude 3.5 Sonnet (Jun 2024)',
-        provider: this.getProviderName(),
-        contextWindow: 200000,
-        maxOutputTokens: 8192,
-        supportsVision: true,
-      },
-      // Claude 3 models (legacy)
       {
         id: 'claude-3-opus-20240229',
         name: 'Claude 3 Opus',
@@ -226,16 +208,8 @@ export class AnthropicProvider extends BaseAIProvider {
         supportsVision: true,
       },
       {
-        id: 'claude-3-sonnet-20240229',
-        name: 'Claude 3 Sonnet',
-        provider: this.getProviderName(),
-        contextWindow: 200000,
-        maxOutputTokens: 4096,
-        supportsVision: true,
-      },
-      {
         id: 'claude-3-haiku-20240307',
-        name: 'Claude 3 Haiku',
+        name: 'Claude 3 Haiku (Legacy)',
         provider: this.getProviderName(),
         contextWindow: 200000,
         maxOutputTokens: 4096,

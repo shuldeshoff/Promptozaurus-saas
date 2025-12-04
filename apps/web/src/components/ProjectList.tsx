@@ -32,6 +32,7 @@ interface ProjectCardProps {
   newShareEmail: string;
   contextBlocksCount: number;
   promptBlocksCount: number;
+  projectSizeChars: number;
   onSelect: () => void;
   onStartRename: (e: React.MouseEvent) => void;
   onRename: () => void;
@@ -56,6 +57,7 @@ function ProjectCard({
   newShareEmail,
   contextBlocksCount,
   promptBlocksCount,
+  projectSizeChars,
   onSelect,
   onStartRename,
   onRename,
@@ -71,6 +73,13 @@ function ProjectCard({
   t,
 }: ProjectCardProps) {
   const { data: shares = [], isLoading: sharesLoading } = useProjectShares(isSharing ? project.id : '');
+  
+  // Форматируем размер проекта
+  const formatSize = (chars: number) => {
+    if (chars < 1000) return `${chars} chars`;
+    if (chars < 1000000) return `${(chars / 1000).toFixed(1)}K`;
+    return `${(chars / 1000000).toFixed(1)}M`;
+  };
 
   return (
     <div
@@ -110,9 +119,11 @@ function ProjectCard({
             <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
               <span>{new Date(project.updatedAt).toLocaleDateString()}</span>
               <span>•</span>
-              <span>{contextBlocksCount} ctx</span>
+              <span title="Contexts">{contextBlocksCount} ctx</span>
+              <span>×</span>
+              <span title="Prompts">{promptBlocksCount} prm</span>
               <span>•</span>
-              <span>{promptBlocksCount} prm</span>
+              <span title="Project size">{formatSize(projectSizeChars)}</span>
             </div>
           </div>
           
@@ -537,6 +548,18 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
               const promptBlocks = project.data?.promptBlocks || [];
               const isSharing = sharingProjectId === project.id;
               
+              // Подсчитываем размер проекта
+              const projectSizeChars = contextBlocks.reduce((total, block) => {
+                const blockChars = (block.items || []).reduce((itemTotal, item) => {
+                  let chars = item.chars || 0;
+                  if (item.subItems) {
+                    chars += item.subItems.reduce((subTotal, sub) => subTotal + (sub.chars || 0), 0);
+                  }
+                  return itemTotal + chars;
+                }, 0);
+                return total + blockChars;
+              }, 0);
+              
               return (
                 <ProjectCard
                 key={project.id}
@@ -548,6 +571,7 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
                   newShareEmail={newShareEmail}
                   contextBlocksCount={contextBlocks.length}
                   promptBlocksCount={promptBlocks.length}
+                  projectSizeChars={projectSizeChars}
                   onSelect={() => onSelectProject(project)}
                   onStartRename={(e) => handleStartRename(project, e)}
                   onRename={() => handleRenameProject(project.id)}

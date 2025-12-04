@@ -16,6 +16,21 @@ interface UpdateProjectInput {
   data?: ProjectData;
 }
 
+interface ProjectSizeInfo {
+  totalChars: number;
+  contextBlocksCount: number;
+  promptBlocksCount: number;
+  maxContextBlockChars: number;
+  isOverLimit: boolean;
+  limitChars: number;
+}
+
+// Лимиты
+const PROJECT_LIMITS = {
+  MAX_PROJECT_CHARS: 10_000_000, // 10 млн символов на проект
+  MAX_CONTEXT_BLOCK_CHARS: 5_000_000, // 5 млн символов на блок контекста
+};
+
 class ProjectService {
   /**
    * Get all projects for a user
@@ -69,6 +84,14 @@ class ProjectService {
     const project = await this.getProjectById(projectId, userId);
     if (!project) {
       throw new Error('Project not found');
+    }
+
+    // Validate project size if data is being updated
+    if (input.data) {
+      const validation = this.validateProjectSize(input.data);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
     }
 
     return await prisma.project.update({
@@ -156,6 +179,72 @@ class ProjectService {
     const count = await this.getProjectCount(userId);
     const limit = 10; // Free plan
     return count < limit;
+  }
+
+  /**
+   * Calculate project size
+   */
+  calculateProjectSize(data: ProjectData): ProjectSizeInfo {
+    let totalChars = 0;
+    let maxContextBlockChars = 0;
+    
+    const contextBlocks = (data.contextBlocks || []) as any[];
+    const promptBlocks = (data.promptBlocks || []) as any[];
+    
+    // Подсчитываем размер каждого блока контекста
+    contextBlocks.forEach((block) => {
+      let blockChars = 0;
+      const items = block.items || [];
+      
+      items.forEach((item: any) => {
+        blockChars += item.chars || 0;
+        
+        if (item.subItems) {
+          item.subItems.forEach((sub: any) => {
+            blockChars += sub.chars || 0;
+          });
+        }
+      });
+      
+      totalChars += blockChars;
+      maxContextBlockChars = Math.max(maxContextBlockChars, blockChars);
+    });
+    
+    return {
+      totalChars,
+      contextBlocksCount: contextBlocks.length,
+      promptBlocksCount: promptBlocks.length,
+      maxContextBlockChars,
+      isOverLimit: 
+        totalChars > PROJECT_LIMITS.MAX_PROJECT_CHARS || 
+        maxContextBlockChars > PROJECT_LIMITS.MAX_CONTEXT_BLOCK_CHARS,
+      limitChars: PROJECT_LIMITS.MAX_PROJECT_CHARS,
+    };
+  }
+
+  /**
+   * Validate project size before update
+   */
+  validateProjectSize(data: ProjectData): { valid: boolean; error?: string; sizeInfo: ProjectSizeInfo } {
+    const sizeInfo = this.calculateProjectSize(data);
+    
+    if (sizeInfo.totalChars > PROJECT_LIMITS.MAX_PROJECT_CHARS) {
+      return {
+        valid: false,
+        error: `Project size exceeds limit: ${sizeInfo.totalChars.toLocaleString()} / ${PROJECT_LIMITS.MAX_PROJECT_CHARS.toLocaleString()} characters`,
+        sizeInfo,
+      };
+    }
+    
+    if (sizeInfo.maxContextBlockChars > PROJECT_LIMITS.MAX_CONTEXT_BLOCK_CHARS) {
+      return {
+        valid: false,
+        error: `Context block size exceeds limit: ${sizeInfo.maxContextBlockChars.toLocaleString()} / ${PROJECT_LIMITS.MAX_CONTEXT_BLOCK_CHARS.toLocaleString()} characters`,
+        sizeInfo,
+      };
+    }
+    
+    return { valid: true, sizeInfo };
   }
 }
 

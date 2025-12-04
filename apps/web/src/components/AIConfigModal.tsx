@@ -111,6 +111,12 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
 
   // State for model configurations
   const [modelConfigs, setModelConfigs] = useState<ModelConfig[]>([]);
+  const [editingModelId, setEditingModelId] = useState<string | null>(null);
+  const [editingModelData, setEditingModelData] = useState<{
+    customName: string;
+    temperature: number;
+    maxTokens: number;
+  } | null>(null);
   const [newModelConfig, setNewModelConfig] = useState({
     provider: '' as AiProvider | '',
     modelId: '',
@@ -303,6 +309,35 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
     }));
     saveModelConfigs(updated);
     toast.success(t('notifications.defaultModelSet'));
+  };
+
+  const handleEditModel = (configId: string) => {
+    const model = modelConfigs.find(c => c.id === configId);
+    if (!model) return;
+    
+    setEditingModelId(configId);
+    setEditingModelData({
+      customName: model.customName,
+      temperature: model.temperature,
+      maxTokens: model.maxTokens,
+    });
+  };
+
+  const handleSaveEditedModel = () => {
+    if (!editingModelId || !editingModelData) return;
+    
+    const updated = modelConfigs.map((c) => 
+      c.id === editingModelId ? { ...c, ...editingModelData } : c
+    );
+    saveModelConfigs(updated);
+    setEditingModelId(null);
+    setEditingModelData(null);
+    toast.success(t('notifications.configUpdated'));
+  };
+
+  const handleCancelEdit = () => {
+    setEditingModelId(null);
+    setEditingModelData(null);
   };
 
   const handleSaveSettings = () => {
@@ -524,11 +559,11 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                       value={newModelConfig.modelId}
                       onChange={(e) => setNewModelConfig(prev => ({ ...prev, modelId: e.target.value }))}
                       disabled={!newModelConfig.provider || modelsLoading}
-                      className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                      className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500 disabled:opacity-50 max-h-[400px] overflow-y-auto"
                     >
                       <option value="">{modelsLoading ? t('models.loadingModels') : t('models.selectModel')}</option>
                       {newModelConfig.provider && modelsByProvider[newModelConfig.provider as AiProvider]?.map(model => (
-                        <option key={model.id} value={model.id}>
+                        <option key={model.id} value={model.id} className="truncate">
                           {model.name} ({model.contextLength.toLocaleString()} {t('models.tokens')})
                         </option>
                       ))}
@@ -631,47 +666,126 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   {t('models.noConfiguredModels')}
                 </div>
               ) : (
-                modelConfigs.map(model => (
-                  <div key={model.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex items-center justify-between">
-                    <div>
+                modelConfigs.map(model => {
+                  const isEditing = editingModelId === model.id;
+                  
+                  if (isEditing && editingModelData) {
+                    // Edit mode
+                    return (
+                      <div key={model.id} className="bg-gray-800 rounded-lg p-4 border-2 border-purple-500">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-1">Название конфигурации</label>
+                            <input
+                              type="text"
+                              value={editingModelData.customName}
+                              onChange={(e) => setEditingModelData(prev => prev ? { ...prev, customName: e.target.value } : null)}
+                              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
+                            />
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-sm text-gray-400 mb-1">Температура</label>
+                              <input
+                                type="number"
+                                value={editingModelData.temperature}
+                                onChange={(e) => setEditingModelData(prev => prev ? { ...prev, temperature: parseFloat(e.target.value) || 0 } : null)}
+                                step="0.1"
+                                min="0"
+                                max="2"
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm text-gray-400 mb-1">Макс. токены</label>
+                              <input
+                                type="number"
+                                value={editingModelData.maxTokens}
+                                onChange={(e) => setEditingModelData(prev => prev ? { ...prev, maxTokens: parseInt(e.target.value) || 0 } : null)}
+                                min="100"
+                                max="128000"
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="text-xs text-gray-500">
+                            {PROVIDERS.find(p => p.id === model.provider)?.name} • {model.modelName}
+                          </div>
+                          
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={handleCancelEdit}
+                              className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                            >
+                              Отмена
+                            </button>
+                            <button
+                              onClick={handleSaveEditedModel}
+                              disabled={!editingModelData.customName.trim()}
+                              className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                            >
+                              Сохранить
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // View mode
+                  return (
+                    <div key={model.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-white">{model.customName}</h4>
+                          {model.isDefault && (
+                            <span className="px-2 py-0.5 text-xs bg-purple-900 text-purple-300 rounded-full">
+                              {t('models.default')}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-400 mt-1">
+                          {PROVIDERS.find(p => p.id === model.provider)?.name} • {model.modelName} • 
+                          {t('models.temperature')}: {model.temperature} • {t('models.maxTokens')}: {model.maxTokens}
+                        </div>
+                      </div>
+                      
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-white">{model.customName}</h4>
-                        {model.isDefault && (
-                          <span className="px-2 py-0.5 text-xs bg-purple-900 text-purple-300 rounded-full">
-                            {t('models.default')}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-400 mt-1">
-                        {PROVIDERS.find(p => p.id === model.provider)?.name} • {model.modelName} • 
-                        {t('models.temperature')}: {model.temperature} • {t('models.maxTokens')}: {model.maxTokens}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {!model.isDefault && (
                         <button
-                          onClick={() => handleSetDefaultModel(model.id)}
-                          className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
-                          title={t('models.setAsDefault')}
+                          onClick={() => handleEditModel(model.id)}
+                          className="p-2 text-gray-400 hover:text-blue-400 transition-colors"
+                          title="Редактировать"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
-                      )}
-                      <button
-                        onClick={() => handleRemoveModelConfig(model.id)}
-                        className="p-2 text-gray-400 hover:text-red-400 transition-colors"
-                        title={t('models.deleteConfig')}
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                        {!model.isDefault && (
+                          <button
+                            onClick={() => handleSetDefaultModel(model.id)}
+                            className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+                            title={t('models.setAsDefault')}
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleRemoveModelConfig(model.id)}
+                          className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                          title={t('models.deleteConfig')}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </>

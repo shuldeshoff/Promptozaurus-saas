@@ -107,8 +107,16 @@ export async function projectRoutes(fastify: FastifyInstance) {
       } catch (error) {
         fastify.log.error({ err: error }, 'Update project error');
         const message = error instanceof Error ? error.message : 'Failed to update project';
-        return reply.code(error instanceof Error && error.message === 'Project not found' ? 404 : 500)
-          .send({ error: message });
+        
+        // Проверяем, является ли ошибка связанной с превышением лимита
+        const isLimitError = message.includes('exceeds limit');
+        const statusCode = isLimitError ? 413 : 
+          (error instanceof Error && error.message === 'Project not found' ? 404 : 500);
+        
+        return reply.code(statusCode).send({ 
+          error: message,
+          isLimitError 
+        });
       }
     }
   );
