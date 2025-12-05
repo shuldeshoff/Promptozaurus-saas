@@ -1,390 +1,916 @@
-# 🚀 Deployment Guide
+# 🚀 Руководство по развертыванию
 
 ## Обзор
 
-Promptozaurus SaaS разворачивается на следующих сервисах:
-- **Frontend:** Vercel (бесплатный план)
-- **Backend:** Railway (бесплатный план для начала)
-- **Database:** Supabase PostgreSQL (бесплатный план)
-- **Redis:** Upstash Redis (бесплатный план)
+PromptyFlow SaaS разворачивается на Ubuntu сервере со следующим стеком:
+- **OS:** Ubuntu 22.04 LTS или выше
+- **Web Server:** Nginx (reverse proxy)
+- **Database:** PostgreSQL 14+
+- **Cache:** Redis 7+
+- **Process Manager:** PM2
+- **SSL:** Let's Encrypt (Certbot)
 
 ---
 
-## 📋 Предварительные требования
+## 📋 Системные требования
 
-1. Аккаунты на сервисах:
-   - [GitHub](https://github.com) (для репозитория и CI/CD)
-   - [Vercel](https://vercel.com) (для frontend)
-   - [Railway](https://railway.app) (для backend)
-   - [Supabase](https://supabase.com) (для PostgreSQL)
-   - [Upstash](https://upstash.com) (для Redis)
+### Минимальные требования:
+- **CPU:** 2 cores
+- **RAM:** 2 GB
+- **Disk:** 20 GB SSD
+- **Bandwidth:** 100 Mbps
 
-2. Инструменты:
-   - Node.js 18+
-   - Git
-   - Prisma CLI: `npm install -g prisma`
+### Рекомендуемые требования:
+- **CPU:** 4 cores
+- **RAM:** 4 GB
+- **Disk:** 40 GB SSD
+- **Bandwidth:** 1 Gbps
 
----
-
-## 🗄️ 1. Настройка PostgreSQL (Supabase)
-
-### 1.1. Создание проекта
-
-1. Зайдите на [Supabase](https://supabase.com) и создайте новый проект
-2. Выберите регион (ближайший к вашим пользователям)
-3. Задайте надежный пароль для базы данных
-4. Дождитесь создания проекта (~2 минуты)
-
-### 1.2. Получение Database URL
-
-1. Откройте Settings → Database
-2. Скопируйте Connection String в формате:
-   ```
-   postgresql://postgres:[YOUR-PASSWORD]@[PROJECT-REF].supabase.co:5432/postgres
-   ```
-
-### 1.3. Применение миграций
-
-```bash
-cd apps/api
-
-# Установите DATABASE_URL
-export DATABASE_URL="postgresql://postgres:[PASSWORD]@[PROJECT-REF].supabase.co:5432/postgres"
-
-# Примените миграции
-npx prisma migrate deploy
-
-# Проверьте подключение
-npx prisma db pull
-```
-
-### 1.4. Настройка backups
-
-1. В Supabase → Settings → Database
-2. Backups настроены автоматически (ежедневно)
-3. Для дополнительной безопасности: настройте Point-in-Time Recovery (PITR) в платном плане
+### Программное обеспечение:
+- Ubuntu 22.04 LTS
+- Права root или sudo
+- Домен с настроенными DNS записями
 
 ---
 
-## 🔴 2. Настройка Redis (Upstash)
+## 🛠️ 1. Подготовка сервера
 
-### 2.1. Создание Redis instance
+### 1.1. Обновление системы
 
-1. Зайдите на [Upstash](https://upstash.com)
-2. Создайте новую базу Redis
-3. Выберите регион (тот же, что и для БД)
-4. Выберите Free Plan (10,000 команд/день)
+\`\`\`bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y curl wget git build-essential
+\`\`\`
 
-### 2.2. Получение REDIS_URL
+### 1.2. Настройка firewall
 
-1. Откройте созданную базу
-2. Скопируйте Redis URL:
-   ```
-   redis://default:[PASSWORD]@[HOST]:6379
-   ```
+\`\`\`bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+sudo ufw status
+\`\`\`
+
+### 1.3. Создание пользователя для приложения
+
+\`\`\`bash
+sudo adduser --disabled-password --gecos "" promptyflow
+sudo usermod -aG sudo promptyflow
+\`\`\`
 
 ---
 
-## 🖥️ 3. Deployment Backend (Railway)
+## 📦 2. Установка зависимостей
 
-### 3.1. Подготовка
+### 2.1. Node.js 20.x
 
-1. Убедитесь, что код закоммичен в Git:
-   ```bash
-   git add .
-   git commit -m "feat: prepare for deployment"
-   git push origin main
-   ```
+\`\`\`bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
 
-2. Проверьте `railway.json` в `apps/api/`:
-   ```json
-   {
-     "build": {
-       "builder": "NIXPACKS",
-       "buildCommand": "npm install && npm run build"
-     },
-     "deploy": {
-       "startCommand": "node dist/index.js",
-       "restartPolicyType": "ON_FAILURE",
-       "restartPolicyMaxRetries": 10
-     },
-     "healthcheck": {
-       "path": "/health",
-       "interval": 30,
-       "timeout": 10
-     }
-   }
-   ```
+# Проверка версии
+node --version  # v20.x.x
+npm --version   # 10.x.x
+\`\`\`
 
-### 3.2. Deployment на Railway
+### 2.2. PostgreSQL 14+
 
-1. Зайдите на [Railway](https://railway.app)
-2. Нажмите "New Project" → "Deploy from GitHub repo"
-3. Выберите ваш репозиторий
-4. Railway автоматически определит Node.js проект
+\`\`\`bash
+# Добавление репозитория PostgreSQL
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null
 
-### 3.3. Настройка переменных окружения
+# Установка
+sudo apt update
+sudo apt install -y postgresql-14 postgresql-contrib-14
 
-В Railway → Settings → Variables добавьте:
+# Проверка статуса
+sudo systemctl status postgresql
+\`\`\`
 
-```bash
+### 2.3. Redis 7+
+
+\`\`\`bash
+# Установка из официального репозитория
+sudo apt install -y lsb-release
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+sudo apt update
+sudo apt install -y redis
+
+# Проверка статуса
+sudo systemctl status redis-server
+\`\`\`
+
+### 2.4. Nginx
+
+\`\`\`bash
+sudo apt install -y nginx
+
+# Проверка статуса
+sudo systemctl status nginx
+\`\`\`
+
+### 2.5. PM2 (Process Manager)
+
+\`\`\`bash
+sudo npm install -g pm2
+
+# Настройка автозапуска
+pm2 startup systemd -u promptyflow --hp /home/promptyflow
+\`\`\`
+
+### 2.6. Certbot (для SSL)
+
+\`\`\`bash
+sudo apt install -y certbot python3-certbot-nginx
+\`\`\`
+
+---
+
+## 🗄️ 3. Настройка PostgreSQL
+
+### 3.1. Создание базы данных и пользователя
+
+\`\`\`bash
+sudo -u postgres psql
+
+-- В psql консоли:
+CREATE USER promptyflow WITH PASSWORD 'your_secure_password';
+CREATE DATABASE promptyflow OWNER promptyflow;
+GRANT ALL PRIVILEGES ON DATABASE promptyflow TO promptyflow;
+
+-- Включение расширений
+\c promptyflow
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+-- Выход
+\q
+\`\`\`
+
+### 3.2. Настройка доступа
+
+Отредактируйте `/etc/postgresql/14/main/pg_hba.conf`:
+
+\`\`\`bash
+sudo nano /etc/postgresql/14/main/pg_hba.conf
+\`\`\`
+
+Добавьте/измените строку:
+
+\`\`\`
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   promptyflow     promptyflow                             md5
+host    promptyflow     promptyflow     127.0.0.1/32           md5
+\`\`\`
+
+Перезапустите PostgreSQL:
+
+\`\`\`bash
+sudo systemctl restart postgresql
+\`\`\`
+
+### 3.3. Проверка подключения
+
+\`\`\`bash
+psql -U promptyflow -d promptyflow -h 127.0.0.1
+
+# Если успешно подключились:
+\q
+\`\`\`
+
+---
+
+## 🔴 4. Настройка Redis
+
+### 4.1. Конфигурация Redis
+
+Отредактируйте `/etc/redis/redis.conf`:
+
+\`\`\`bash
+sudo nano /etc/redis/redis.conf
+\`\`\`
+
+Найдите и измените:
+
+\`\`\`conf
+# Bind на localhost
+bind 127.0.0.1
+
+# Установите пароль
+requirepass your_redis_password
+
+# Настройки памяти
+maxmemory 512mb
+maxmemory-policy allkeys-lru
+
+# Persistence
+save 900 1
+save 300 10
+save 60 10000
+\`\`\`
+
+### 4.2. Перезапуск Redis
+
+\`\`\`bash
+sudo systemctl restart redis-server
+\`\`\`
+
+### 4.3. Проверка подключения
+
+\`\`\`bash
+redis-cli -a your_redis_password ping
+# Ответ: PONG
+\`\`\`
+
+---
+
+## 📥 5. Клонирование репозитория
+
+### 5.1. Переключение на пользователя promptyflow
+
+\`\`\`bash
+sudo su - promptyflow
+\`\`\`
+
+### 5.2. Клонирование
+
+\`\`\`bash
+cd ~
+git clone https://github.com/your-username/Promptozaurus-saas.git
+cd Promptozaurus-saas
+\`\`\`
+
+### 5.3. Установка зависимостей
+
+\`\`\`bash
+npm install
+\`\`\`
+
+---
+
+## 🖥️ 6. Настройка Backend
+
+### 6.1. Создание .env файла
+
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/api
+nano .env.production
+\`\`\`
+
+Добавьте переменные окружения:
+
+\`\`\`bash
+# Environment
 NODE_ENV=production
-PORT=3000
+PORT=3001
 LOG_LEVEL=info
 
-# Database (из Supabase)
-DATABASE_URL=postgresql://postgres:[PASSWORD]@[PROJECT-REF].supabase.co:5432/postgres
+# Database
+DATABASE_URL="postgresql://promptyflow:your_secure_password@localhost:5432/promptyflow"
 
-# Redis (из Upstash)
-REDIS_URL=redis://default:[PASSWORD]@[HOST]:6379
+# Redis
+REDIS_URL="redis://:your_redis_password@localhost:6379"
 
-# JWT & Security (сгенерируйте новые!)
-JWT_SECRET=<generate-random-64-char-string>
-ENCRYPTION_KEY=<generate-random-32-byte-base64-string>
+# JWT & Security
+JWT_SECRET=<generate-64-char-random-string>
+ENCRYPTION_KEY=<generate-32-byte-base64-string>
+SESSION_SECRET=<generate-64-char-random-string>
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=https://[YOUR-RAILWAY-DOMAIN]/auth/google/callback
+GOOGLE_CALLBACK_URL=https://your-domain.com/auth/google/callback
 
-# CORS (будет URL Vercel)
-CORS_ORIGIN=https://[YOUR-VERCEL-DOMAIN]
+# CORS
+CORS_ORIGIN=https://your-domain.com
 
-# Session
-SESSION_SECRET=<generate-random-64-char-string>
+# Frontend URL
+FRONTEND_URL=https://your-domain.com
+\`\`\`
 
-# Frontend URL (будет URL Vercel)
-FRONTEND_URL=https://[YOUR-VERCEL-DOMAIN]
-```
+### 6.2. Генерация секретных ключей
 
-### 3.4. Генерация секретных ключей
-
-```bash
-# JWT_SECRET
+\`\`\`bash
+# JWT_SECRET (64 символа hex)
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
-# ENCRYPTION_KEY
+# ENCRYPTION_KEY (32 байта base64)
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
-# SESSION_SECRET
+# SESSION_SECRET (64 символа hex)
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
+\`\`\`
 
-### 3.5. Настройка Custom Domain (опционально)
+### 6.3. Применение миграций Prisma
 
-1. Railway → Settings → Domains
-2. Добавьте свой домен или используйте Railway subdomain
-3. Обновите `GOOGLE_CALLBACK_URL` и `CORS_ORIGIN`
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/api
 
-### 3.6. Проверка deployment
+# Загрузка переменных окружения
+export $(cat .env.production | xargs)
 
-```bash
-# Проверьте health endpoint
-curl https://[YOUR-RAILWAY-DOMAIN]/health
+# Применение миграций
+npx prisma migrate deploy
+
+# Генерация Prisma Client
+npx prisma generate
+\`\`\`
+
+### 6.4. Сборка Backend
+
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/api
+npm run build
+
+# Проверка сборки
+ls -la dist/
+\`\`\`
+
+### 6.5. Настройка PM2
+
+Создайте `ecosystem.config.js`:
+
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/api
+nano ecosystem.config.js
+\`\`\`
+
+Содержимое:
+
+\`\`\`javascript
+module.exports = {
+  apps: [{
+    name: 'promptyflow-api',
+    script: './dist/index.js',
+    instances: 2,
+    exec_mode: 'cluster',
+    env_production: {
+      NODE_ENV: 'production',
+      PORT: 3001
+    },
+    error_file: './logs/pm2-error.log',
+    out_file: './logs/pm2-out.log',
+    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    merge_logs: true,
+    autorestart: true,
+    max_restarts: 10,
+    min_uptime: '10s',
+    max_memory_restart: '500M',
+    watch: false
+  }]
+}
+\`\`\`
+
+### 6.6. Запуск Backend через PM2
+
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/api
+
+# Создание директории для логов
+mkdir -p logs
+
+# Загрузка переменных окружения
+export $(cat .env.production | xargs)
+
+# Запуск приложения
+pm2 start ecosystem.config.js --env production
+
+# Проверка статуса
+pm2 status
+
+# Просмотр логов
+pm2 logs promptyflow-api
+
+# Сохранение конфигурации PM2
+pm2 save
+\`\`\`
+
+### 6.7. Проверка работы Backend
+
+\`\`\`bash
+curl http://localhost:3001/health
 
 # Ожидаемый ответ:
 # {"status":"ok","timestamp":"...","redis":"connected"}
-```
+\`\`\`
 
 ---
 
-## 🌐 4. Deployment Frontend (Vercel)
+## 🌐 7. Настройка Frontend
 
-### 4.1. Подготовка
+### 7.1. Создание .env файла
 
-Проверьте `vercel.json` в `apps/web/`:
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/web
+nano .env.production
+\`\`\`
 
-```json
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "installCommand": "npm install",
-  "devCommand": "npm run dev",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+Добавьте:
+
+\`\`\`bash
+VITE_API_URL=https://your-domain.com
+\`\`\`
+
+### 7.2. Сборка Frontend
+
+\`\`\`bash
+cd ~/Promptozaurus-saas/apps/web
+
+# Установка зависимостей
+npm install
+
+# Сборка production bundle
+npm run build
+
+# Проверка сборки
+ls -la dist/
+\`\`\`
+
+### 7.3. Копирование статических файлов
+
+\`\`\`bash
+# Создание директории для frontend
+sudo mkdir -p /var/www/promptyflow
+sudo chown -R promptyflow:promptyflow /var/www/promptyflow
+
+# Копирование собранных файлов
+cp -r ~/Promptozaurus-saas/apps/web/dist/* /var/www/promptyflow/
+\`\`\`
+
+---
+
+## 🔧 8. Настройка Nginx
+
+### 8.1. Создание конфигурации Nginx
+
+\`\`\`bash
+sudo nano /etc/nginx/sites-available/promptyflow
+\`\`\`
+
+Базовая конфигурация (HTTP):
+
+\`\`\`nginx
+# HTTP конфигурация (временная, до установки SSL)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your-domain.com www.your-domain.com;
+
+    # Frontend
+    root /var/www/promptyflow;
+    index index.html;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/json;
+
+    # Frontend SPA routing
+    location / {
+        try_files $uri $uri/ /index.html;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
     }
-  ]
+
+    # Backend API proxy
+    location /api/ {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Auth endpoints
+    location /auth/ {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # AI endpoints
+    location /ai/ {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Увеличенные таймауты для AI запросов
+        proxy_connect_timeout 120s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+    }
+
+    # Health check
+    location /health {
+        proxy_pass http://localhost:3001/health;
+        access_log off;
+    }
 }
-```
+\`\`\`
 
-### 4.2. Deployment на Vercel
+### 8.2. Активация конфигурации
 
-1. Зайдите на [Vercel](https://vercel.com)
-2. Нажмите "Add New" → "Project"
-3. Импортируйте GitHub репозиторий
-4. Vercel автоматически определит Vite проект
+\`\`\`bash
+# Создание символической ссылки
+sudo ln -s /etc/nginx/sites-available/promptyflow /etc/nginx/sites-enabled/
 
-### 4.3. Настройка Build Settings
+# Удаление дефолтной конфигурации
+sudo rm /etc/nginx/sites-enabled/default
 
-- **Framework Preset:** Vite
-- **Root Directory:** `apps/web`
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Install Command:** `npm install`
+# Проверка конфигурации
+sudo nginx -t
 
-### 4.4. Настройка переменных окружения
-
-В Vercel → Settings → Environment Variables добавьте:
-
-```bash
-VITE_API_URL=https://[YOUR-RAILWAY-DOMAIN]
-```
-
-### 4.5. Deployment
-
-1. Нажмите "Deploy"
-2. Дождитесь завершения (1-2 минуты)
-3. Получите URL: `https://[YOUR-PROJECT].vercel.app`
-
-### 4.6. Обновление Backend CORS
-
-Вернитесь в Railway и обновите:
-```bash
-CORS_ORIGIN=https://[YOUR-VERCEL-DOMAIN]
-FRONTEND_URL=https://[YOUR-VERCEL-DOMAIN]
-```
-
-### 4.7. Настройка Custom Domain (опционально)
-
-1. Vercel → Settings → Domains
-2. Добавьте свой домен
-3. Настройте DNS записи (A/CNAME)
+# Перезапуск Nginx
+sudo systemctl restart nginx
+\`\`\`
 
 ---
 
-## 🔐 5. Настройка Google OAuth
+## 🔒 9. Установка SSL сертификата
 
-### 5.1. Обновление Authorized Redirect URIs
+### 9.1. Получение Let's Encrypt сертификата
+
+\`\`\`bash
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+\`\`\`
+
+Certbot автоматически:
+1. Получит сертификат
+2. Настроит Nginx для HTTPS
+3. Настроит автоматическое обновление
+
+### 9.2. Проверка автоматического обновления
+
+\`\`\`bash
+sudo certbot renew --dry-run
+\`\`\`
+
+### 9.3. Финальная конфигурация Nginx (после SSL)
+
+Certbot автоматически обновит конфигурацию, добавив:
+
+\`\`\`nginx
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name your-domain.com www.your-domain.com;
+
+    # SSL certificates (добавлены Certbot)
+    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # ... остальная конфигурация ...
+}
+
+# HTTP -> HTTPS redirect
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your-domain.com www.your-domain.com;
+    return 301 https://$server_name$request_uri;
+}
+\`\`\`
+
+---
+
+## 🔄 10. Обновление приложения
+
+### 10.1. Создание скрипта обновления
+
+\`\`\`bash
+nano ~/Promptozaurus-saas/deploy.sh
+\`\`\`
+
+Содержимое:
+
+\`\`\`bash
+#!/bin/bash
+
+set -e
+
+echo "🚀 Starting deployment..."
+
+# 1. Pull latest changes
+echo "📥 Pulling latest code..."
+cd ~/Promptozaurus-saas
+git pull origin main
+
+# 2. Install dependencies
+echo "📦 Installing dependencies..."
+npm install
+
+# 3. Build Backend
+echo "🔨 Building backend..."
+cd apps/api
+npm run build
+
+# 4. Apply migrations
+echo "🗄️ Applying database migrations..."
+export $(cat .env.production | xargs)
+npx prisma migrate deploy
+
+# 5. Build Frontend
+echo "🎨 Building frontend..."
+cd ../web
+npm run build
+
+# 6. Copy frontend files
+echo "📋 Copying frontend files..."
+sudo cp -r dist/* /var/www/promptyflow/
+
+# 7. Restart backend
+echo "♻️ Restarting backend..."
+pm2 restart promptyflow-api
+
+# 8. Reload Nginx
+echo "🔄 Reloading Nginx..."
+sudo systemctl reload nginx
+
+echo "✅ Deployment completed successfully!"
+\`\`\`
+
+Сделайте скрипт исполняемым:
+
+\`\`\`bash
+chmod +x ~/Promptozaurus-saas/deploy.sh
+\`\`\`
+
+### 10.2. Запуск обновления
+
+\`\`\`bash
+cd ~/Promptozaurus-saas
+./deploy.sh
+\`\`\`
+
+---
+
+## 📊 11. Мониторинг и логирование
+
+### 11.1. Просмотр логов PM2
+
+\`\`\`bash
+# Все логи
+pm2 logs promptyflow-api
+
+# Только ошибки
+pm2 logs promptyflow-api --err
+
+# Последние 100 строк
+pm2 logs promptyflow-api --lines 100
+
+# Очистка логов
+pm2 flush
+\`\`\`
+
+### 11.2. Просмотр логов Nginx
+
+\`\`\`bash
+# Access logs
+sudo tail -f /var/log/nginx/access.log
+
+# Error logs
+sudo tail -f /var/log/nginx/error.log
+\`\`\`
+
+### 11.3. Мониторинг системы
+
+\`\`\`bash
+# Мониторинг процессов PM2
+pm2 monit
+
+# Статус сервисов
+sudo systemctl status postgresql
+sudo systemctl status redis-server
+sudo systemctl status nginx
+
+# Использование ресурсов
+htop
+\`\`\`
+
+### 11.4. Настройка ротации логов
+
+Создайте `/etc/logrotate.d/promptyflow`:
+
+\`\`\`bash
+sudo nano /etc/logrotate.d/promptyflow
+\`\`\`
+
+Содержимое:
+
+\`\`\`
+/home/promptyflow/Promptozaurus-saas/apps/api/logs/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 0640 promptyflow promptyflow
+    sharedscripts
+    postrotate
+        pm2 reloadLogs
+    endscript
+}
+\`\`\`
+
+---
+
+## 🔐 12. Настройка Google OAuth
+
+### 12.1. Обновление Authorized Redirect URIs
 
 1. Зайдите в [Google Cloud Console](https://console.cloud.google.com)
 2. Перейдите в APIs & Services → Credentials
 3. Выберите ваш OAuth Client
 4. В "Authorized redirect URIs" добавьте:
-   ```
-   https://[YOUR-RAILWAY-DOMAIN]/auth/google/callback
-   ```
+   \`\`\`
+   https://your-domain.com/auth/google/callback
+   \`\`\`
 
-### 5.2. Обновление Authorized JavaScript origins
+### 12.2. Обновление Authorized JavaScript origins
 
-```
-https://[YOUR-VERCEL-DOMAIN]
-```
-
----
-
-## 🔄 6. CI/CD с GitHub Actions
-
-### 6.1. Frontend CI/CD (Vercel)
-
-Vercel автоматически настроит CI/CD для вашего репозитория:
-- Pull Request → Preview deployment
-- Push to main → Production deployment
-
-### 6.2. Backend CI/CD (Railway)
-
-Railway также автоматически настроит CI/CD:
-- Push to main → Automatic deployment
-- Health check → Rollback при ошибках
-
-### 6.3. Дополнительные GitHub Actions (опционально)
-
-Создайте `.github/workflows/test.yml`:
-
-```yaml
-name: Run Tests
-
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          
-      - name: Install dependencies
-        run: npm install
-        
-      - name: Run backend tests
-        run: |
-          cd apps/api
-          npm test
-          
-      - name: Run frontend tests (if any)
-        run: |
-          cd apps/web
-          npm test
-```
+\`\`\`
+https://your-domain.com
+\`\`\`
 
 ---
 
-## 📊 7. Мониторинг и логирование
+## 🛡️ 13. Безопасность
 
-### 7.1. Railway встроенный мониторинг
+### 13.1. Настройка fail2ban
 
-1. Railway → Metrics
-2. Отслеживайте: CPU, Memory, Network
-3. Настройте алерты при превышении лимитов
+\`\`\`bash
+sudo apt install -y fail2ban
 
-### 7.2. Vercel Analytics
+# Создание конфигурации для Nginx
+sudo nano /etc/fail2ban/jail.local
+\`\`\`
 
-1. Vercel → Analytics
-2. Бесплатный план: основные метрики
-3. Pro план: детальная аналитика посетителей
+Добавьте:
 
-### 7.3. Sentry (опционально, для продакшна)
+\`\`\`ini
+[nginx-http-auth]
+enabled = true
+port = http,https
+logpath = /var/log/nginx/error.log
 
-```bash
-# Backend
-npm install @sentry/node
+[nginx-noscript]
+enabled = true
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 6
+\`\`\`
 
-# Frontend
-npm install @sentry/react
-```
+Перезапустите fail2ban:
 
-Настройка в отдельном гайде (MONITORING.md)
+\`\`\`bash
+sudo systemctl restart fail2ban
+sudo fail2ban-client status
+\`\`\`
+
+### 13.2. Ограничение SSH доступа
+
+\`\`\`bash
+sudo nano /etc/ssh/sshd_config
+\`\`\`
+
+Измените:
+
+\`\`\`
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+\`\`\`
+
+Перезапустите SSH:
+
+\`\`\`bash
+sudo systemctl restart sshd
+\`\`\`
+
+### 13.3. Автоматические обновления безопасности
+
+\`\`\`bash
+sudo apt install -y unattended-upgrades
+sudo dpkg-reconfigure --priority=low unattended-upgrades
+\`\`\`
 
 ---
 
-## ✅ 8. Проверка deployment
+## 🔄 14. Резервное копирование
 
-### 8.1. Backend Health Check
+### 14.1. Создание скрипта бэкапа
 
-```bash
-curl https://[YOUR-RAILWAY-DOMAIN]/health
+\`\`\`bash
+sudo nano /usr/local/bin/backup-promptyflow.sh
+\`\`\`
 
-# Ожидаемый ответ:
-{
-  "status": "ok",
-  "timestamp": "2025-11-25T...",
-  "redis": "connected"
-}
-```
+Содержимое:
 
-### 8.2. Frontend
+\`\`\`bash
+#!/bin/bash
 
-1. Откройте `https://[YOUR-VERCEL-DOMAIN]`
-2. Проверьте, что загружается лендинг
-3. Нажмите "Login with Google"
-4. Авторизуйтесь и проверьте Dashboard
+BACKUP_DIR="/var/backups/promptyflow"
+DATE=$(date +%Y%m%d_%H%M%S)
 
-### 8.3. Полный flow
+# Создание директории
+mkdir -p $BACKUP_DIR
 
-1. Login → создание проекта → создание контекста → создание промпта
-2. Проверьте auto-save
-3. Проверьте работу с AI (если ключи настроены)
+# Backup PostgreSQL
+echo "Backing up PostgreSQL..."
+sudo -u postgres pg_dump promptyflow | gzip > $BACKUP_DIR/db_$DATE.sql.gz
+
+# Backup Redis
+echo "Backing up Redis..."
+sudo cp /var/lib/redis/dump.rdb $BACKUP_DIR/redis_$DATE.rdb
+
+# Backup приложения
+echo "Backing up application files..."
+tar -czf $BACKUP_DIR/app_$DATE.tar.gz -C /home/promptyflow Promptozaurus-saas
+
+# Удаление старых бэкапов (старше 7 дней)
+find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
+find $BACKUP_DIR -name "*.rdb" -mtime +7 -delete
+
+echo "Backup completed: $BACKUP_DIR"
+\`\`\`
+
+Сделайте исполняемым:
+
+\`\`\`bash
+sudo chmod +x /usr/local/bin/backup-promptyflow.sh
+\`\`\`
+
+### 14.2. Настройка cron для автоматических бэкапов
+
+\`\`\`bash
+sudo crontab -e
+\`\`\`
+
+Добавьте (ежедневно в 3:00 AM):
+
+\`\`\`
+0 3 * * * /usr/local/bin/backup-promptyflow.sh >> /var/log/promptyflow-backup.log 2>&1
+\`\`\`
+
+---
+
+## ✅ Checklist развертывания
+
+- [ ] Ubuntu сервер подготовлен и обновлен
+- [ ] Firewall настроен (UFW)
+- [ ] Node.js 20.x установлен
+- [ ] PostgreSQL 14+ установлен и настроен
+- [ ] Redis 7+ установлен и настроен
+- [ ] Nginx установлен
+- [ ] PM2 установлен
+- [ ] Репозиторий склонирован
+- [ ] Backend .env.production настроен
+- [ ] Frontend .env.production настроен
+- [ ] Миграции Prisma применены
+- [ ] Backend собран и запущен через PM2
+- [ ] Frontend собран и скопирован в /var/www
+- [ ] Nginx настроен
+- [ ] SSL сертификат установлен (Let's Encrypt)
+- [ ] Google OAuth redirect URIs обновлены
+- [ ] Health check возвращает 200
+- [ ] Login через Google работает
+- [ ] Dashboard загружается корректно
+- [ ] Скрипт обновления (deploy.sh) создан
+- [ ] fail2ban настроен
+- [ ] Резервное копирование настроено
 
 ---
 
@@ -392,63 +918,112 @@ curl https://[YOUR-RAILWAY-DOMAIN]/health
 
 ### Backend не запускается
 
-1. Проверьте логи в Railway → Deployments → View Logs
-2. Убедитесь, что `DATABASE_URL` и `REDIS_URL` правильные
-3. Проверьте, что миграции применены
+\`\`\`bash
+# Проверка логов PM2
+pm2 logs promptyflow-api --err
 
-### Frontend не подключается к Backend
+# Проверка переменных окружения
+pm2 env 0
 
-1. Проверьте `VITE_API_URL` в Vercel
-2. Проверьте `CORS_ORIGIN` в Railway
-3. Откройте DevTools → Network для проверки запросов
+# Перезапуск
+pm2 restart promptyflow-api
+\`\`\`
 
-### Google OAuth не работает
+### PostgreSQL connection failed
 
-1. Проверьте Redirect URI в Google Console
-2. Проверьте `GOOGLE_CALLBACK_URL` в Railway
-3. Проверьте `GOOGLE_CLIENT_ID` и `GOOGLE_CLIENT_SECRET`
+\`\`\`bash
+# Проверка статуса
+sudo systemctl status postgresql
+
+# Проверка подключения
+psql -U promptyflow -d promptyflow -h 127.0.0.1
+
+# Проверка логов
+sudo tail -f /var/log/postgresql/postgresql-14-main.log
+\`\`\`
 
 ### Redis connection failed
 
-1. Проверьте `REDIS_URL` формат
-2. Убедитесь, что Upstash instance активен
-3. Проверьте регион (должен быть близко к Railway)
+\`\`\`bash
+# Проверка статуса
+sudo systemctl status redis-server
+
+# Проверка подключения
+redis-cli -a your_redis_password ping
+
+# Проверка логов
+sudo tail -f /var/log/redis/redis-server.log
+\`\`\`
+
+### Nginx 502 Bad Gateway
+
+\`\`\`bash
+# Проверка backend
+curl http://localhost:3001/health
+
+# Проверка конфигурации Nginx
+sudo nginx -t
+
+# Проверка логов
+sudo tail -f /var/log/nginx/error.log
+\`\`\`
+
+### SSL сертификат не обновляется
+
+\`\`\`bash
+# Проверка статуса Certbot
+sudo certbot certificates
+
+# Принудительное обновление
+sudo certbot renew --force-renewal
+
+# Проверка cron задачи
+sudo systemctl status certbot.timer
+\`\`\`
 
 ---
 
-## 📝 Checklist финального deployment
+## 📝 Полезные команды
 
-- [ ] PostgreSQL создана на Supabase
-- [ ] Миграции Prisma применены
-- [ ] Redis создан на Upstash
-- [ ] Backend развернут на Railway
-- [ ] Все environment variables настроены в Railway
-- [ ] Frontend развернут на Vercel
-- [ ] `VITE_API_URL` настроен в Vercel
-- [ ] Google OAuth redirect URIs обновлены
-- [ ] CORS настроен правильно
-- [ ] Health check возвращает 200
-- [ ] Login through Google работает
-- [ ] Dashboard загружается
-- [ ] Создание проектов работает
-- [ ] Auto-save работает
-- [ ] AI integration работает (если ключи настроены)
+### PM2
+
+\`\`\`bash
+pm2 list                    # Список процессов
+pm2 restart promptyflow-api # Перезапуск
+pm2 stop promptyflow-api    # Остановка
+pm2 delete promptyflow-api  # Удаление
+pm2 monit                   # Мониторинг
+pm2 save                    # Сохранение конфигурации
+\`\`\`
+
+### Nginx
+
+\`\`\`bash
+sudo nginx -t               # Проверка конфигурации
+sudo systemctl restart nginx # Перезапуск
+sudo systemctl reload nginx  # Перезагрузка конфигурации
+sudo systemctl status nginx  # Статус
+\`\`\`
+
+### PostgreSQL
+
+\`\`\`bash
+sudo systemctl restart postgresql # Перезапуск
+sudo -u postgres psql            # Вход в psql
+pg_dump promptyflow > backup.sql # Бэкап
+psql promptyflow < backup.sql    # Восстановление
+\`\`\`
+
+### Redis
+
+\`\`\`bash
+sudo systemctl restart redis-server # Перезапуск
+redis-cli -a password              # Подключение
+redis-cli -a password FLUSHALL     # Очистка
+\`\`\`
 
 ---
 
-## 🚀 Next Steps
-
-После успешного deployment:
-
-1. Настройте мониторинг (Sentry)
-2. Настройте алерты (Railway, Vercel)
-3. Проведите нагрузочное тестирование
-4. Соберите feedback от первых пользователей
-5. Настройте backup стратегию
-
----
-
-**Дата создания:** 25 ноября 2025  
-**Версия:** 1.0  
-**Статус:** Ready for production 🚀
-
+**Дата создания:** 05.12.2025  
+**Версия:** 2.0 (Self-Hosted Ubuntu)  
+**Статус:** Production Ready 🚀
