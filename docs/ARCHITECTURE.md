@@ -2,75 +2,91 @@
 
 ## 📋 Содержание
 
-1. [Обзор архитектуры](#обзор-архитектуры)
-2. [Структура проекта](#структура-проекта)
-3. [Архитектура Frontend](#архитектура-frontend)
-4. [Архитектура Backend](#архитектура-backend)
-5. [Поток данных](#поток-данных)
-6. [Безопасность](#безопасность)
-7. [Производительность](#производительность)
-8. [Масштабируемость](#масштабируемость)
-9. [База данных](#база-данных)
-10. [AI интеграция](#ai-интеграция)
+1. [Обзор системы](#обзор-системы)
+2. [Технологический стек](#технологический-стек)
+3. [Структура проекта](#структура-проекта)
+4. [Frontend архитектура](#frontend-архитектура)
+5. [Backend архитектура](#backend-архитектура)
+6. [База данных](#база-данных)
+7. [AI интеграция](#ai-интеграция)
+8. [Безопасность](#безопасность)
+9. [Производительность](#производительность)
+10. [Масштабируемость](#масштабируемость)
 
 ---
 
-## Обзор архитектуры
+## Обзор системы
 
-PromptyFlow — это **монорепозиторий** на TypeScript, состоящий из трёх основных пакетов:
+PromptyFlow — это облачное SaaS-приложение для работы с AI-промптами. Приложение построено как **монорепозиторий** на TypeScript с использованием современного стека технологий.
+
+### Основные компоненты
 
 \`\`\`
-┌─────────────────────────────────────────────────────────────┐
-│                    PromptyFlow SaaS                          │
-├───────────────┬──────────────────────┬──────────────────────┤
-│   Frontend    │      Backend         │       Shared         │
-│  (apps/web)   │     (apps/api)       │   (packages/shared)  │
-│               │                      │                      │
-│  React + Vite │  Fastify + Prisma    │   Types + Schemas    │
-│  TypeScript   │    TypeScript        │     TypeScript       │
-│  TanStack     │    PostgreSQL        │        Zod           │
-│   Query       │      Redis           │                      │
-│               │                      │                      │
-└───────────────┴──────────────────────┴──────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      PromptyFlow SaaS                            │
+├──────────────────┬──────────────────────┬───────────────────────┤
+│    Frontend      │       Backend        │       Shared          │
+│   (apps/web)     │      (apps/api)      │  (packages/shared)    │
+│                  │                      │                       │
+│  React 18.3      │  Fastify 4.28        │  TypeScript Types     │
+│  Vite 5.4        │  TypeScript 5.6      │  Zod Schemas          │
+│  TanStack Query  │  PostgreSQL 14+      │  Validation           │
+│  Zustand         │  Prisma ORM 5.22     │                       │
+│  Tailwind CSS    │  Redis 7+            │                       │
+│  i18next         │  Winston Logger      │                       │
+│                  │                      │                       │
+└──────────────────┴──────────────────────┴───────────────────────┘
 \`\`\`
 
-### Технологический стек
+### Ключевые возможности
 
-**Frontend (apps/web):**
-- **Фреймворк:** React 18.3 + Vite 5.4
-- **Язык:** TypeScript 5.6
-- **Стилизация:** Tailwind CSS 3.4
-- **Управление состоянием:** 
-  - TanStack Query (server state) - кеширование и синхронизация серверного состояния
-  - Zustand (client state) - глобальное клиентское состояние
-- **i18n:** react-i18next 15+ (русский/английский)
-- **HTTP:** Axios 1.7
-- **Routing:** React Router 6
-- **UI Components:**
-  - @dnd-kit (drag-and-drop)
-  - react-syntax-highlighter (подсветка кода)
-  - react-hot-toast (уведомления)
+- **Управление промптами**: создание, редактирование, организация промптов в блоки
+- **Контекстные блоки**: структурирование больших объемов текста с поддержкой вложенности
+- **AI интеграция**: поддержка 5 провайдеров (OpenAI, Anthropic, Gemini, Grok, OpenRouter)
+- **Визуальный селектор**: drag-select для выбора контекста как в файловых менеджерах
+- **Разделение текста**: интеллектуальное разбиение на части по границам предложений
+- **Шаблоны**: библиотека переиспользуемых промптов с полнотекстовым поиском
+- **Мультиязычность**: русский и английский интерфейс
+- **OAuth аутентификация**: вход через Google
 
-**Backend (apps/api):**
-- **Фреймворк:** Fastify 4.28
-- **Язык:** TypeScript 5.6
-- **База данных:** PostgreSQL 14+ (Prisma ORM 5.22)
-- **Кеширование:** Redis 7+
-- **Аутентификация:** Google OAuth 2.0 + JWT
-- **Безопасность:** AES-256-GCM шифрование для API ключей
-- **Логирование:** Winston
-- **Валидация:** Zod schemas
+---
 
-**Shared (packages/shared):**
-- **Валидация:** Zod schemas для типобезопасности
-- **Типы:** TypeScript interfaces, используемые на frontend и backend
+## Технологический стек
 
-**AI провайдеры:**
-- OpenAI (GPT-4, GPT-4o, GPT-5.1)
-- Anthropic (Claude 3.5, Claude 4, Claude 4.5)
-- Google Gemini (1.5/2.5 Flash, Pro)
-- X.AI Grok (Grok Beta, Grok Vision)
-- OpenRouter (агрегатор моделей)
+### Frontend (apps/web)
+
+| Категория | Технологии | Назначение |
+|-----------|------------|------------|
+| **Основа** | React 18.3, TypeScript 5.6, Vite 5.4 | Фреймворк, типизация, сборщик |
+| **Стилизация** | Tailwind CSS 3.4 | Utility-first CSS фреймворк |
+| **State Management** | TanStack Query v5, Zustand | Server state и client state |
+| **HTTP** | Axios 1.7 | HTTP клиент с interceptors |
+| **Routing** | React Router 6 | Клиентская маршрутизация |
+| **i18n** | react-i18next 15+ | Интернационализация (ru/en) |
+| **UI Components** | @dnd-kit, react-syntax-highlighter | Drag-and-drop, подсветка кода |
+| **Notifications** | react-hot-toast | Toast уведомления |
+
+### Backend (apps/api)
+
+| Категория | Технологии | Назначение |
+|-----------|------------|------------|
+| **Основа** | Fastify 4.28, TypeScript 5.6 | Быстрый веб-фреймворк |
+| **База данных** | PostgreSQL 14+, Prisma ORM 5.22 | Реляционная БД и ORM |
+| **Кеширование** | Redis 7+ | In-memory кеш для моделей AI |
+| **Аутентификация** | Google OAuth 2.0, JWT | Вход через Google |
+| **Шифрование** | Node.js crypto (AES-256-GCM) | Шифрование API ключей |
+| **Логирование** | Winston | Структурированные логи |
+| **Валидация** | Zod | Runtime validation |
+
+### AI Провайдеры
+
+| Провайдер | Модели | Особенности |
+|-----------|--------|-------------|
+| **OpenAI** | GPT-4o, GPT-4o-mini, GPT-4-turbo, GPT-5.1 | Поддержка нового `/v1/responses` API |
+| **Anthropic** | Claude 4.5, Claude 4, Claude 3.5 (Sonnet/Opus/Haiku) | Все последние модели |
+| **Google Gemini** | Gemini 2.5/1.5 Flash, Pro | API v1beta |
+| **X.AI Grok** | Grok Beta, Grok Vision | Новый провайдер |
+| **OpenRouter** | 100+ моделей | Агрегатор AI моделей |
 
 ---
 
@@ -78,1698 +94,602 @@ PromptyFlow — это **монорепозиторий** на TypeScript, со�
 
 \`\`\`
 Promptozaurus-saas/
+│
 ├── apps/
-│   ├── web/                          # Frontend приложение
+│   │
+│   ├── web/                                 # Frontend приложение
 │   │   ├── src/
-│   │   │   ├── components/           # React компоненты
-│   │   │   │   ├── layout/           # Компоненты макета
-│   │   │   │   │   ├── Header.tsx              # Шапка с навигацией
-│   │   │   │   │   ├── MainLayout.tsx          # Основной layout
-│   │   │   │   │   └── NavigationPanel.tsx     # Панель проектов
-│   │   │   │   ├── context/          # UI для управления контекстом
-│   │   │   │   │   ├── ContextEditor.tsx       # Редактор контекста
-│   │   │   │   │   ├── ContextItem.tsx         # Элемент контекста
-│   │   │   │   │   └── SplitModal.tsx          # Модалка разделения текста
-│   │   │   │   ├── prompt/           # UI для управления промптами
-│   │   │   │   │   ├── PromptEditor.tsx        # Редактор промпта
-│   │   │   │   │   └── PromptItem.tsx          # Элемент промпта
-│   │   │   │   ├── context-selection/ # Визуальный селектор контекста
-│   │   │   │   │   └── ContextSelectionPanel.tsx  # Drag-select панель
-│   │   │   │   ├── ui/               # Переиспользуемые UI компоненты
-│   │   │   │   │   ├── Button.tsx
-│   │   │   │   │   ├── Modal.tsx
-│   │   │   │   │   └── Input.tsx
-│   │   │   │   ├── AIConfigModal.tsx           # Настройки AI
-│   │   │   │   ├── AIResponseModal.tsx         # Ответы AI
-│   │   │   │   ├── ProjectList.tsx             # Список проектов
-│   │   │   │   └── ConfirmationModal.tsx       # Модалка подтверждения
-│   │   │   ├── pages/                # Страницы приложения
-│   │   │   │   ├── LandingPage.tsx             # Лендинг для гостей
-│   │   │   │   ├── DashboardPage.tsx           # Дашборд пользователя
-│   │   │   │   ├── AuthCallbackPage.tsx        # OAuth callback
-│   │   │   │   └── ErrorPage.tsx               # Страница ошибки
-│   │   │   ├── hooks/                # Кастомные React хуки
-│   │   │   │   ├── useAuth.ts                  # Аутентификация
-│   │   │   │   ├── useProjects.ts              # CRUD проектов
-│   │   │   │   ├── useAI.ts                    # AI интеграция
-│   │   │   │   ├── useAIModels.ts              # Загрузка моделей
-│   │   │   │   ├── useProjectUpdate.ts         # Обновление проекта
-│   │   │   │   └── useTemplates.ts             # Библиотека шаблонов
-│   │   │   ├── context/              # React Context провайдеры
-│   │   │   │   ├── EditorContext.tsx           # Состояние редактора
-│   │   │   │   └── ConfirmationContext.tsx     # Модалки подтверждения
-│   │   │   ├── store/                # Zustand хранилища
-│   │   │   │   ├── auth.store.ts               # User, tokens, login/logout
-│   │   │   │   └── offline.store.ts            # Offline mode
-│   │   │   ├── lib/                  # Базовые утилиты
-│   │   │   │   ├── api.ts                      # Axios instance с interceptors
-│   │   │   │   ├── queryClient.ts              # TanStack Query конфигурация
-│   │   │   │   └── i18n.ts                     # i18next конфигурация
-│   │   │   ├── locales/              # Переводы (ru/en)
+│   │   │   ├── components/
+│   │   │   │   ├── layout/                 # Компоненты макета
+│   │   │   │   │   ├── Header.tsx          # Шапка с навигацией
+│   │   │   │   │   ├── MainLayout.tsx      # Основной layout
+│   │   │   │   │   └── NavigationPanel.tsx # Панель проектов
+│   │   │   │   │
+│   │   │   │   ├── context/                # Управление контекстом
+│   │   │   │   │   ├── ContextEditor.tsx
+│   │   │   │   │   ├── ContextItem.tsx
+│   │   │   │   │   └── SplitModal.tsx
+│   │   │   │   │
+│   │   │   │   ├── prompt/                 # Управление промптами
+│   │   │   │   │   ├── PromptEditor.tsx
+│   │   │   │   │   └── PromptItem.tsx
+│   │   │   │   │
+│   │   │   │   ├── context-selection/      # Визуальный селектор
+│   │   │   │   │   └── ContextSelectionPanel.tsx
+│   │   │   │   │
+│   │   │   │   ├── ui/                     # Переиспользуемые компоненты
+│   │   │   │   ├── AIConfigModal.tsx
+│   │   │   │   ├── AIResponseModal.tsx
+│   │   │   │   ├── ProjectList.tsx
+│   │   │   │   └── ConfirmationModal.tsx
+│   │   │   │
+│   │   │   ├── pages/
+│   │   │   │   ├── LandingPage.tsx
+│   │   │   │   ├── DashboardPage.tsx
+│   │   │   │   ├── AuthCallbackPage.tsx
+│   │   │   │   └── ErrorPage.tsx
+│   │   │   │
+│   │   │   ├── hooks/                      # Кастомные хуки
+│   │   │   │   ├── useAuth.ts
+│   │   │   │   ├── useProjects.ts
+│   │   │   │   ├── useAI.ts
+│   │   │   │   ├── useAIModels.ts
+│   │   │   │   ├── useProjectUpdate.ts
+│   │   │   │   └── useTemplates.ts
+│   │   │   │
+│   │   │   ├── context/                    # React Context
+│   │   │   │   ├── EditorContext.tsx
+│   │   │   │   └── ConfirmationContext.tsx
+│   │   │   │
+│   │   │   ├── store/                      # Zustand stores
+│   │   │   │   ├── auth.store.ts
+│   │   │   │   └── offline.store.ts
+│   │   │   │
+│   │   │   ├── lib/                        # Core утилиты
+│   │   │   │   ├── api.ts
+│   │   │   │   ├── queryClient.ts
+│   │   │   │   └── i18n.ts
+│   │   │   │
+│   │   │   ├── locales/                    # Переводы
 │   │   │   │   ├── ru/
-│   │   │   │   │   ├── common.json             # Общие строки
-│   │   │   │   │   ├── editor.json             # Редактор
-│   │   │   │   │   ├── aiConfig.json           # AI настройки
-│   │   │   │   │   └── providers.json          # Провайдеры
-│   │   │   │   └── en/
-│   │   │   │       └── (аналогичная структура)
-│   │   │   ├── utils/                # Вспомогательные функции
-│   │   │   │   ├── nameGenerators.ts           # Генерация названий
-│   │   │   │   ├── contextCalculations.ts      # Подсчет символов
-│   │   │   │   └── textProcessing.ts           # Обработка текста
-│   │   │   └── data/                 # Статические данные
-│   │   │       └── quickHelp.ts                # Быстрая справка
+│   │   │   │   │   ├── common.json
+│   │   │   │   │   ├── editor.json
+│   │   │   │   │   ├── aiConfig.json
+│   │   │   │   │   └── providers.json
+│   │   │   │   └── en/ (аналогично)
+│   │   │   │
+│   │   │   ├── utils/                      # Хелперы
+│   │   │   └── data/                       # Статические данные
+│   │   │
 │   │   ├── index.html
-│   │   ├── vite.config.ts                      # Vite конфигурация
-│   │   ├── tailwind.config.js                  # Tailwind настройки
+│   │   ├── vite.config.ts
+│   │   ├── tailwind.config.js
 │   │   └── package.json
 │   │
-│   └── api/                          # Backend приложение
+│   └── api/                                # Backend приложение
 │       ├── src/
-│       │   ├── index.ts                        # Точка входа Fastify
-│       │   ├── routes/               # API endpoints
-│       │   │   ├── auth.routes.ts              # /auth/* - OAuth, JWT
-│       │   │   ├── project.routes.ts           # /api/projects/* - CRUD проектов
-│       │   │   ├── context.routes.ts           # /api/projects/:id/context-blocks
-│       │   │   ├── prompt.routes.ts            # /api/projects/:id/prompt-blocks
-│       │   │   ├── template.routes.ts          # /api/templates/* - библиотека
-│       │   │   ├── ai.routes.ts                # /ai/* - AI интеграция
-│       │   │   └── user.routes.ts              # /api/user/* - профиль, API ключи
-│       │   ├── services/             # Бизнес-логика
-│       │   │   ├── project.service.ts          # Управление проектами
-│       │   │   ├── template.service.ts         # Библиотека шаблонов
-│       │   │   ├── user.service.ts             # Управление пользователями
-│       │   │   ├── modelsCache.service.ts      # Кеш моделей AI
-│       │   │   └── encryption.service.ts       # Шифрование API ключей
-│       │   ├── providers/            # AI провайдеры
-│       │   │   ├── base.provider.ts            # Абстрактный базовый класс
-│       │   │   ├── openai.provider.ts          # OpenAI интеграция
-│       │   │   ├── anthropic.provider.ts       # Anthropic Claude
-│       │   │   ├── gemini.provider.ts          # Google Gemini
-│       │   │   ├── grok.provider.ts            # X.AI Grok
-│       │   │   └── openrouter.provider.ts      # OpenRouter
-│       │   ├── middleware/           # Fastify middleware
-│       │   │   ├── auth.middleware.ts          # JWT проверка
-│       │   │   ├── errorHandler.ts             # Обработка ошибок
-│       │   │   └── cors.ts                     # CORS политики
-│       │   ├── lib/                  # Базовые утилиты
-│       │   │   ├── prisma.ts                   # Prisma client singleton
-│       │   │   ├── redis.ts                    # Redis client
-│       │   │   └── logger.ts                   # Winston logger
-│       │   └── utils/                # Вспомогательные функции
-│       │       └── prompt.utils.ts             # Компиляция промптов
+│       │   ├── index.ts                    # Точка входа
+│       │   │
+│       │   ├── routes/                     # API endpoints
+│       │   │   ├── auth.routes.ts          # OAuth, JWT refresh
+│       │   │   ├── project.routes.ts       # CRUD проектов
+│       │   │   ├── context.routes.ts       # Контекстные блоки
+│       │   │   ├── prompt.routes.ts        # Блоки промптов
+│       │   │   ├── template.routes.ts      # Библиотека шаблонов
+│       │   │   ├── ai.routes.ts            # AI интеграция
+│       │   │   └── user.routes.ts          # Профиль, API ключи
+│       │   │
+│       │   ├── services/                   # Бизнес-логика
+│       │   │   ├── project.service.ts
+│       │   │   ├── template.service.ts
+│       │   │   ├── user.service.ts
+│       │   │   ├── modelsCache.service.ts
+│       │   │   └── encryption.service.ts
+│       │   │
+│       │   ├── providers/                  # AI провайдеры
+│       │   │   ├── base.provider.ts
+│       │   │   ├── openai.provider.ts
+│       │   │   ├── anthropic.provider.ts
+│       │   │   ├── gemini.provider.ts
+│       │   │   ├── grok.provider.ts
+│       │   │   └── openrouter.provider.ts
+│       │   │
+│       │   ├── middleware/                 # Middleware
+│       │   │   ├── auth.middleware.ts
+│       │   │   ├── errorHandler.ts
+│       │   │   └── cors.ts
+│       │   │
+│       │   ├── lib/                        # Core утилиты
+│       │   │   ├── prisma.ts
+│       │   │   ├── redis.ts
+│       │   │   └── logger.ts
+│       │   │
+│       │   └── utils/
+│       │       └── prompt.utils.ts
+│       │
 │       ├── prisma/
-│       │   ├── schema.prisma                   # Схема БД
-│       │   └── migrations/                     # SQL миграции
-│       │       └── YYYYMMDDHHMMSS_description/
-│       │           └── migration.sql
-│       ├── scripts/                  # Утилитарные скрипты
-│       │   └── generate-encryption-key.ts      # Генерация ключа шифрования
+│       │   ├── schema.prisma
+│       │   └── migrations/
+│       │
+│       ├── scripts/
 │       └── package.json
 │
 └── packages/
-    └── shared/                       # Общие типы и схемы
+    └── shared/                             # Общие типы
         ├── src/
-        │   ├── types.ts                        # TypeScript interfaces
-        │   ├── schemas.ts                      # Zod validation schemas
+        │   ├── types.ts
+        │   ├── schemas.ts
         │   └── index.ts
         └── package.json
 \`\`\`
 
 ---
 
-## Архитектура Frontend
+## Frontend архитектура
 
 ### Иерархия компонентов
 
 \`\`\`
 App.tsx
-├── ErrorBoundary                     # Перехват ошибок React
-│   └── QueryClientProvider           # TanStack Query provider
-│       └── ConfirmationProvider      # Глобальные модалки подтверждения
-│           ├── LandingPage           # Для незалогиненных пользователей
-│           │   ├── Header (guest mode)
-│           │   ├── Hero section
-│           │   ├── Features
-│           │   └── Footer
-│           │
-│           └── DashboardPage         # Для авторизованных пользователей
-│               └── EditorProvider    # Контекст состояния редактора
-│                   └── MainLayout
-│                       ├── Header (authorized mode)
-│                       │   ├── Project selector
-│                       │   ├── AI config button
-│                       │   ├── Language switcher
-│                       │   └── User menu
-│                       │
-│                       ├── NavigationPanel (left sidebar)
-│                       │   ├── ProjectList
-│                       │   ├── "Create project" button
-│                       │   └── Project cards with stats
-│                       │
-│                       ├── BlocksPanel (middle panel)
-│                       │   ├── Tabs: Context | Prompts
-│                       │   ├── Context blocks list
-│                       │   ├── Prompt blocks list
-│                       │   └── "Create block" button
-│                       │
-│                       └── EditorPanel (right panel)
-│                           ├── ContextEditor
-│                           │   ├── Block title
-│                           │   ├── Items list (drag-and-drop)
-│                           │   ├── SubItems (nested)
-│                           │   ├── Split modal
-│                           │   └── Export button
-│                           │
-│                           └── PromptEditor
-│                               ├── Template textarea
-│                               ├── ContextSelectionPanel
-│                               ├── Compiled prompt preview
-│                               └── AI send button
+│
+├─ ErrorBoundary                            # Перехват ошибок React
+│  └─ QueryClientProvider                   # TanStack Query
+│     └─ ConfirmationProvider               # Модалки подтверждения
+│        │
+│        ├─ LandingPage                     # Для гостей
+│        │  ├─ Header (guest)
+│        │  ├─ Hero
+│        │  ├─ Features
+│        │  └─ Footer
+│        │
+│        └─ DashboardPage                   # Для пользователей
+│           └─ EditorProvider               # Состояние редактора
+│              └─ MainLayout
+│                 │
+│                 ├─ Header (authorized)
+│                 │  ├─ Project selector
+│                 │  ├─ AI config
+│                 │  ├─ Language switcher
+│                 │  └─ User menu
+│                 │
+│                 ├─ NavigationPanel         # Левая панель
+│                 │  ├─ ProjectList
+│                 │  └─ "Create project"
+│                 │
+│                 ├─ BlocksPanel             # Центральная панель
+│                 │  ├─ Tabs: Context | Prompts
+│                 │  ├─ Blocks list
+│                 │  └─ "Create block"
+│                 │
+│                 └─ EditorPanel             # Правая панель
+│                    ├─ ContextEditor
+│                    │  ├─ Title
+│                    │  ├─ Items (drag-drop)
+│                    │  ├─ SubItems
+│                    │  ├─ Split modal
+│                    │  └─ Export
+│                    │
+│                    └─ PromptEditor
+│                       ├─ Template
+│                       ├─ Context selector
+│                       ├─ Preview
+│                       └─ AI send
 \`\`\`
 
-### Стратегия управления состоянием
+### Управление состоянием
 
 **1. Server State (TanStack Query)**
 
-Используется для всех данных, которые хранятся на сервере:
+Автоматическая синхронизация с сервером:
 
 \`\`\`typescript
-// apps/web/src/hooks/useProjects.ts
-export const useProjects = () => {
-  return useQuery({
-    queryKey: ['projects'],
-    queryFn: async () => {
-      const response = await api.get('/api/projects')
-      return response.data.data as Project[]
-    },
-    staleTime: 5 * 60 * 1000, // 5 минут
-    cacheTime: 10 * 60 * 1000, // 10 минут
-  })
-}
+// GET запросы
+useProjects()          // Список проектов
+useProject(id)         // Один проект
+useTemplates()         // Шаблоны
+useAIModels()          // AI модели
 
-export const useProject = (id: string) => {
-  return useQuery({
-    queryKey: ['projects', id],
-    queryFn: async () => {
-      const response = await api.get(\`/api/projects/\${id}\`)
-      return response.data.data as Project
-    },
-    enabled: !!id, // Запрос выполняется только если id задан
-  })
-}
-
-export const useUpdateProject = () => {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const response = await api.patch(\`/api/projects/\${id}\`, { data })
-      return response.data.data
-    },
-    onSuccess: (updatedProject) => {
-      // Обновляем кеш
-      queryClient.invalidateQueries(['projects'])
-      queryClient.setQueryData(['projects', updatedProject.id], updatedProject)
-    },
-  })
-}
+// Мутации
+useUpdateProject()     // Обновить проект
+useDeleteProject()     // Удалить проект
+useSendToAI()          // Отправить в AI
 \`\`\`
 
-**Преимущества TanStack Query:**
-- Автоматическое кеширование ответов
-- Фоновое обновление данных (refetching)
+**Преимущества:**
+- Автоматическое кеширование
+- Фоновое обновление
 - Optimistic updates
-- Автоматический retry при ошибках
+- Retry на ошибках
 - Дедупликация запросов
 
 **2. Client State (Zustand)**
 
-Используется для локального состояния приложения:
+Глобальное клиентское состояние:
 
 \`\`\`typescript
-// apps/web/src/store/auth.store.ts
-interface AuthStore {
+// auth.store.ts - аутентификация
+{
   user: User | null
   accessToken: string | null
   refreshToken: string | null
-  login: (tokens: Tokens, user: User) => void
-  logout: () => void
-  updateToken: (accessToken: string) => void
+  login()
+  logout()
+  updateToken()
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  user: null,
-  accessToken: null,
-  refreshToken: null,
-  
-  login: (tokens, user) => {
-    set({ 
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      user 
-    })
-  },
-  
-  logout: () => {
-    set({ user: null, accessToken: null, refreshToken: null })
-  },
-  
-  updateToken: (accessToken) => {
-    set({ accessToken })
-  },
-}))
+// offline.store.ts - оффлайн режим
+{
+  pendingChanges: Change[]
+  addPendingChange()
+  syncChanges()
+}
 \`\`\`
 
 **3. Context API**
 
-Используется для UI состояния, которое нужно передавать глубоко в дерево компонентов:
+UI состояние для глубокой передачи:
 
 \`\`\`typescript
-// apps/web/src/context/EditorContext.tsx
-interface EditorContextType {
+// EditorContext - состояние редактора
+{
   activeTab: 'context' | 'prompts'
-  setActiveTab: (tab: 'context' | 'prompts') => void
   activeContextBlockId: number | null
-  setActiveContextBlockId: (id: number | null) => void
   activePromptBlockId: number | null
-  setActivePromptBlockId: (id: number | null) => void
   expandedItems: Set<number>
-  toggleItemExpanded: (id: number) => void
 }
 
-export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<'context' | 'prompts'>('context')
-  const [activeContextBlockId, setActiveContextBlockId] = useState<number | null>(null)
-  const [activePromptBlockId, setActivePromptBlockId] = useState<number | null>(null)
-  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
-
-  const toggleItemExpanded = (id: number) => {
-    setExpandedItems(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
-    })
-  }
-
-  return (
-    <EditorContext.Provider value={{
-      activeTab, setActiveTab,
-      activeContextBlockId, setActiveContextBlockId,
-      activePromptBlockId, setActivePromptBlockId,
-      expandedItems, toggleItemExpanded,
-    }}>
-      {children}
-    </EditorContext.Provider>
-  )
+// ConfirmationContext - модалки
+{
+  confirm(message)
+  alert(message)
 }
 \`\`\`
 
-**4. Local Component State (useState)**
+**4. Local State (useState)**
 
-Используется для простого локального состояния компонента:
+Локальное состояние компонента:
 
 \`\`\`typescript
-// Пример в ContextEditor.tsx
 const [editingName, setEditingName] = useState(false)
-const [isModalOpen, setIsModalOpen] = useState(false)
 const [localTitle, setLocalTitle] = useState(block.title)
 \`\`\`
 
-### Паттерны Frontend
+### Ключевые паттерны
 
-**1. Optimistic Updates (оптимистичные обновления)**
+**Optimistic Updates**
 
-Обновление UI до получения ответа от сервера для лучшего UX:
+UI обновляется немедленно, откатывается при ошибке:
 
 \`\`\`typescript
-const updateProjectMutation = useMutation({
-  mutationFn: async ({ id, data }) => {
-    return await api.patch(\`/api/projects/\${id}\`, { data })
-  },
-  
+useMutation({
   onMutate: async (newData) => {
-    // Отменяем текущие refetch запросы
-    await queryClient.cancelQueries(['projects', newData.id])
-    
-    // Сохраняем предыдущее значение для отката
-    const previousProject = queryClient.getQueryData(['projects', newData.id])
-    
-    // Оптимистично обновляем кеш
-    queryClient.setQueryData(['projects', newData.id], (old: any) => ({
-      ...old,
-      ...newData.data,
-    }))
-    
-    return { previousProject }
+    await queryClient.cancelQueries(['projects'])
+    const previous = queryClient.getQueryData(['projects'])
+    queryClient.setQueryData(['projects'], optimisticData)
+    return { previous }
   },
-  
-  onError: (err, newData, context) => {
-    // Откатываем изменения при ошибке
-    if (context?.previousProject) {
-      queryClient.setQueryData(['projects', newData.id], context.previousProject)
-    }
-    toast.error('Не удалось сохранить изменения')
-  },
-  
-  onSuccess: (data, variables) => {
-    // Инвалидируем связанные запросы
-    queryClient.invalidateQueries(['projects'])
-  },
+  onError: (err, data, context) => {
+    queryClient.setQueryData(['projects'], context.previous)
+  }
 })
 \`\`\`
 
-**2. Debounced Auto-Save (автосохранение с задержкой)**
+**Debounced Auto-Save**
 
-Предотвращение лишних API запросов при быстром вводе:
+Задержка сохранения на 500мс:
 
 \`\`\`typescript
-import { debounce } from 'lodash'
+const debouncedSave = useMemo(
+  () => debounce((data) => updateProject.mutate(data), 500),
+  []
+)
 
-const PromptEditor = ({ block }) => {
-  const updateProject = useProjectUpdate()
-  const [localTitle, setLocalTitle] = useState(block.title)
-  
-  // Debounced функция сохранения (вызывается не чаще раза в 500мс)
-  const debouncedSave = useMemo(
-    () => debounce((title: string) => {
-      updateProject.mutate({
-        id: block.id,
-        data: { title }
-      })
-    }, 500),
-    [block.id]
-  )
-  
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value
-    setLocalTitle(newTitle)  // Немедленное обновление UI
-    debouncedSave(newTitle)  // Отложенное сохранение на сервер
-  }
-  
-  return <input value={localTitle} onChange={handleTitleChange} />
+const handleChange = (content) => {
+  setLocalContent(content)  // Немедленно
+  debouncedSave(content)    // С задержкой
 }
 \`\`\`
 
-**3. Offline Support (поддержка оффлайн режима)**
+**Offline Support**
 
-Сохранение изменений локально, если нет сети:
-
-\`\`\`typescript
-// apps/web/src/hooks/useProjectUpdate.ts
-export const useProjectUpdate = () => {
-  const queryClient = useQueryClient()
-  const offlineStore = useOfflineStore()
-
-  return useMutation({
-    mutationFn: async (data) => {
-      const response = await api.patch(\`/api/projects/\${data.id}\`, data)
-      return response.data.data
-    },
-    
-    onError: (error: any, variables) => {
-      if (!navigator.onLine) {
-        // Сохраняем в localStorage для синхронизации позже
-        offlineStore.addPendingChange({
-          type: 'project_update',
-          data: variables,
-          timestamp: Date.now(),
-        })
-        toast.info('Нет сети. Изменения сохранены локально.')
-      } else {
-        toast.error('Не удалось сохранить изменения')
-      }
-    },
-  })
-}
-\`\`\`
-
-**4. Error Boundary (перехват ошибок React)**
+Сохранение в localStorage при отсутствии сети:
 
 \`\`\`typescript
-// apps/web/src/components/ErrorBoundary.tsx
-class ErrorBoundary extends React.Component<Props, State> {
-  state = { hasError: false, error: null }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('React Error:', error, errorInfo)
-    // Можно отправить на Sentry/LogRocket
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="error-fallback">
-          <h1>Что-то пошло не так</h1>
-          <button onClick={() => window.location.reload()}>
-            Перезагрузить страницу
-          </button>
-        </div>
-      )
-    }
-
-    return this.props.children
+onError: (error) => {
+  if (!navigator.onLine) {
+    offlineStore.addPendingChange(data)
+    toast.info('Оффлайн: изменения сохранены локально')
   }
 }
 \`\`\`
 
 ---
 
-## Архитектура Backend
+## Backend архитектура
 
 ### Слоистая архитектура
 
-Backend построен по принципу разделения ответственности на слои:
-
 \`\`\`
-┌─────────────────────────────────────────────────────────────┐
-│                      ROUTES LAYER                            │
-│  • HTTP маршрутизация                                        │
-│  • Валидация запросов (Zod schemas)                          │
-│  • Обработка ошибок                                          │
-│  • Middleware (auth, CORS, rate limiting)                    │
-│  Файлы: auth.routes.ts, project.routes.ts, etc.            │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     SERVICE LAYER                            │
-│  • Бизнес-логика приложения                                  │
-│  • Авторизация (проверка прав доступа)                       │
-│  • Трансформация данных                                      │
-│  • Валидация бизнес-правил                                   │
-│  Файлы: projectService, templateService, userService         │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   DATA ACCESS LAYER                          │
-│  • Операции с базой данных (Prisma)                          │
-│  • Кеширование (Redis)                                       │
-│  • Внешние API (AI провайдеры)                              │
-│  • Шифрование/дешифрование                                   │
-│  Файлы: prisma.ts, redis.ts, providers/                    │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    ROUTES LAYER                          │
+│  • HTTP маршрутизация                                    │
+│  • Валидация запросов (Zod)                              │
+│  • Middleware (auth, CORS, rate limit)                   │
+│  • Обработка ошибок                                      │
+└────────────────────┬────────────────────────────────────┘
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│                   SERVICE LAYER                          │
+│  • Бизнес-логика                                         │
+│  • Авторизация (проверка владельца)                      │
+│  • Валидация бизнес-правил                               │
+│  • Трансформация данных                                  │
+└────────────────────┬────────────────────────────────────┘
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│                 DATA ACCESS LAYER                        │
+│  • Операции с БД (Prisma)                                │
+│  • Кеширование (Redis)                                   │
+│  • Внешние API (AI провайдеры)                          │
+│  • Шифрование/дешифрование                               │
+└─────────────────────────────────────────────────────────┘
 \`\`\`
 
-### RESTful API структура
+### RESTful API
 
 \`\`\`
-📁 /auth/*                            # Аутентификация
-  POST   /auth/google                 # Google OAuth callback
-  POST   /auth/refresh                # Обновление access token
-  
-📁 /api/user                          # Профиль пользователя
-  GET    /api/user                    # Получить профиль
-  PATCH  /api/user                    # Обновить профиль
-  POST   /api/user/api-keys/:provider # Добавить API ключ
-  DELETE /api/user/api-keys/:provider # Удалить API ключ
-  GET    /api/user/api-keys           # Список сохраненных ключей
-  
-📁 /api/projects                      # CRUD проектов
-  GET    /api/projects                # Список всех проектов пользователя
-  POST   /api/projects                # Создать новый проект
-  GET    /api/projects/:id            # Получить проект по ID
-  PATCH  /api/projects/:id            # Обновить проект
-  DELETE /api/projects/:id            # Удалить проект
-  
-📁 /api/projects/:id/context-blocks   # Управление контекстом
-  PATCH  /api/projects/:id/context-blocks        # Обновить блоки контекста
-  GET    /api/projects/:id/context-blocks/stats  # Статистика (символы, элементы)
-  
-📁 /api/projects/:id/prompt-blocks    # Управление промптами
-  PATCH  /api/projects/:id/prompt-blocks         # Обновить блоки промптов
-  POST   /api/projects/:id/prompt-blocks/compile # Скомпилировать промпт
-  
-📁 /api/templates                     # Библиотека шаблонов
-  GET    /api/templates               # Список шаблонов пользователя
-  GET    /api/templates/search?q=     # Поиск по шаблонам (full-text search)
-  POST   /api/templates               # Создать шаблон
-  PATCH  /api/templates/:id           # Обновить шаблон
-  DELETE /api/templates/:id           # Удалить шаблон
-  
-📁 /ai/*                              # AI интеграция
-  GET    /ai/models                   # Список доступных моделей
-  POST   /ai/send                     # Отправить запрос к AI
-  POST   /ai/test-connection          # Тестировать API ключ провайдера
+📁 Authentication
+POST   /auth/google                 # OAuth callback
+POST   /auth/refresh                # Refresh access token
+
+📁 User Profile
+GET    /api/user                    # Получить профиль
+PATCH  /api/user                    # Обновить профиль
+POST   /api/user/api-keys/:provider # Добавить API ключ
+DELETE /api/user/api-keys/:provider # Удалить API ключ
+GET    /api/user/api-keys           # Список ключей
+
+📁 Projects
+GET    /api/projects                # Список проектов
+POST   /api/projects                # Создать проект
+GET    /api/projects/:id            # Получить проект
+PATCH  /api/projects/:id            # Обновить проект
+DELETE /api/projects/:id            # Удалить проект
+
+📁 Context Blocks
+PATCH  /api/projects/:id/context-blocks        # Обновить
+GET    /api/projects/:id/context-blocks/stats  # Статистика
+
+📁 Prompt Blocks
+PATCH  /api/projects/:id/prompt-blocks         # Обновить
+POST   /api/projects/:id/prompt-blocks/compile # Скомпилировать
+
+📁 Templates
+GET    /api/templates               # Список шаблонов
+GET    /api/templates/search?q=     # Поиск (full-text)
+POST   /api/templates               # Создать
+PATCH  /api/templates/:id           # Обновить
+DELETE /api/templates/:id           # Удалить
+
+📁 AI Integration
+GET    /ai/models                   # Доступные модели
+POST   /ai/send                     # Отправить запрос
+POST   /ai/test-connection          # Тест API ключа
 \`\`\`
 
-### Service Layer (слой сервисов)
+### Service Layer
 
-Вся бизнес-логика инкапсулирована в сервисах:
+Пример ProjectService:
 
 \`\`\`typescript
-// apps/api/src/services/project.service.ts
 class ProjectService {
-  /**
-   * Получить все проекты пользователя
-   */
+  // Получить все проекты пользователя
   async getUserProjects(userId: string): Promise<Project[]> {
-    return await prisma.project.findMany({
+    return prisma.project.findMany({
       where: { userId },
-      orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true,
-        name: true,
-        data: true,
-        createdAt: true,
-        updatedAt: true,
-      }
+      orderBy: { updatedAt: 'desc' }
     })
   }
 
-  /**
-   * Получить проект по ID с проверкой прав доступа
-   */
-  async getProjectById(projectId: string, userId: string): Promise<Project | null> {
-    const project = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        userId, // Проверка, что проект принадлежит пользователю
-      },
-    })
-    
-    if (!project) {
-      throw new Error('Проект не найден или у вас нет доступа')
-    }
-    
-    return project
-  }
-
-  /**
-   * Обновить проект с валидацией размера
-   */
+  // Обновить с валидацией
   async updateProject(
-    projectId: string, 
-    userId: string, 
+    projectId: string,
+    userId: string,
     input: UpdateProjectInput
   ): Promise<Project> {
-    // 1. Проверяем права доступа
+    // 1. Проверка владельца
     const project = await this.getProjectById(projectId, userId)
     
-    // 2. Валидируем размер проекта
+    // 2. Валидация размера
     if (input.data) {
-      const sizeValidation = this.validateProjectSize(input.data)
-      if (!sizeValidation.valid) {
-        throw new Error(sizeValidation.error)
+      const validation = this.validateProjectSize(input.data)
+      if (!validation.valid) {
+        throw new Error(validation.error)
       }
     }
     
-    // 3. Обновляем в БД
-    return await prisma.project.update({
+    // 3. Обновление
+    return prisma.project.update({
       where: { id: projectId },
-      data: {
-        ...input,
-        updatedAt: new Date(),
-      }
+      data: input
     })
   }
 
-  /**
-   * Валидация размера проекта
-   */
-  validateProjectSize(data: ProjectData): { valid: boolean; error?: string } {
-    const MAX_PROJECT_SIZE = 10_000_000 // 10M символов
-    const MAX_BLOCK_SIZE = 5_000_000   // 5M символов
-
-    const { totalChars, largestBlockChars } = this.calculateProjectSize(data)
-
+  // Валидация лимитов
+  validateProjectSize(data: ProjectData) {
+    const MAX_PROJECT_SIZE = 10_000_000  // 10M символов
+    const MAX_BLOCK_SIZE = 5_000_000     // 5M символов
+    
+    const { totalChars, largestBlockChars } = 
+      this.calculateProjectSize(data)
+    
     if (largestBlockChars > MAX_BLOCK_SIZE) {
-      return {
-        valid: false,
-        error: \`Блок контекста превышает лимит (\${largestBlockChars.toLocaleString()} / \${MAX_BLOCK_SIZE.toLocaleString()} символов)\`
+      return { 
+        valid: false, 
+        error: \`Блок превышает лимит\` 
       }
     }
-
+    
     if (totalChars > MAX_PROJECT_SIZE) {
-      return {
-        valid: false,
-        error: \`Проект превышает лимит (\${totalChars.toLocaleString()} / \${MAX_PROJECT_SIZE.toLocaleString()} символов)\`
+      return { 
+        valid: false, 
+        error: \`Проект превышает лимит\` 
       }
     }
-
+    
     return { valid: true }
   }
 
-  /**
-   * Подсчет размера проекта
-   */
-  calculateProjectSize(data: ProjectData): ProjectSizeInfo {
+  // Подсчет символов
+  calculateProjectSize(data: ProjectData) {
     let totalChars = 0
     let largestBlockChars = 0
 
-    // Подсчет символов в блоках контекста
     for (const block of data.contextBlocks || []) {
       let blockChars = 0
-
+      
       for (const item of block.items || []) {
         // Если есть subItems, считаем только их
-        if (item.subItems && item.subItems.length > 0) {
-          const subItemsChars = item.subItems.reduce(
+        if (item.subItems?.length > 0) {
+          blockChars += item.subItems.reduce(
             (sum, sub) => sum + (sub.chars || 0), 
             0
           )
-          blockChars += subItemsChars
         } else {
-          // Иначе считаем chars элемента
           blockChars += item.chars || 0
         }
       }
-
+      
       totalChars += blockChars
       largestBlockChars = Math.max(largestBlockChars, blockChars)
     }
 
     return { totalChars, largestBlockChars }
   }
-
-  /**
-   * Создать новый проект
-   */
-  async createProject(userId: string, name: string): Promise<Project> {
-    return await prisma.project.create({
-      data: {
-        userId,
-        name,
-        data: {
-          contextBlocks: [],
-          promptBlocks: [],
-        },
-      },
-    })
-  }
-
-  /**
-   * Удалить проект
-   */
-  async deleteProject(projectId: string, userId: string): Promise<void> {
-    // Проверяем права доступа
-    await this.getProjectById(projectId, userId)
-    
-    // Удаляем
-    await prisma.project.delete({
-      where: { id: projectId },
-    })
-  }
 }
-
-export const projectService = new ProjectService()
 \`\`\`
 
-### Provider Pattern (паттерн провайдеров для AI)
+### Provider Pattern
 
-Единый интерфейс для работы с разными AI провайдерами:
+Единый интерфейс для AI провайдеров:
 
 \`\`\`typescript
-// apps/api/src/providers/base.provider.ts
-export interface AIModel {
-  id: string
-  name: string
-  provider: string
-  contextWindow: number
-  maxOutputTokens?: number
-}
-
-export interface SendMessageOptions {
-  apiKey: string
-  model: string
-  messages: Array<{ role: string; content: string }>
-  temperature?: number
-  maxTokens?: number
-  stream?: boolean
-}
-
-export abstract class BaseProvider {
+// Базовый класс
+abstract class BaseProvider {
   protected apiKey: string
   protected baseUrl: string
 
-  constructor(apiKey?: string) {
-    this.apiKey = apiKey || ''
-    this.baseUrl = this.getDefaultBaseUrl()
-  }
-
-  protected abstract getDefaultBaseUrl(): string
-
-  /**
-   * Получить список доступных моделей
-   */
   abstract getModels(apiKey?: string): Promise<AIModel[]>
-
-  /**
-   * Отправить сообщение в AI
-   */
   abstract sendMessage(options: SendMessageOptions): Promise<string>
-
-  /**
-   * Проверить подключение (тест API ключа)
-   */
   abstract testConnection(apiKey: string): Promise<boolean>
-
-  /**
-   * Получить fallback модели (если API недоступен)
-   */
+  
   protected getFallbackModels(): AIModel[] {
     return []
   }
 }
-\`\`\`
 
-Пример конкретной реализации:
-
-\`\`\`typescript
-// apps/api/src/providers/openai.provider.ts
-export class OpenAIProvider extends BaseProvider {
-  protected getDefaultBaseUrl(): string {
+// OpenAI реализация
+class OpenAIProvider extends BaseProvider {
+  protected getDefaultBaseUrl() {
     return 'https://api.openai.com'
   }
 
-  protected getFallbackModels(): AIModel[] {
-    return [
-      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', contextWindow: 128000 },
-      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', contextWindow: 128000 },
-      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'openai', contextWindow: 128000 },
-      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'openai', contextWindow: 16385 },
-      { id: 'gpt-5.1-chat-latest', name: 'GPT-5.1 Chat', provider: 'openai', contextWindow: 200000 },
-    ]
-  }
-
-  async getModels(apiKey?: string): Promise<AIModel[]> {
-    if (!apiKey) return this.getFallbackModels()
-
-    try {
-      const response = await fetch(\`\${this.baseUrl}/v1/models\`, {
-        headers: { 'Authorization': \`Bearer \${apiKey}\` }
-      })
-
-      if (!response.ok) {
-        return this.getFallbackModels()
-      }
-
-      const data = await response.json()
-      return data.data
-        .filter((m: any) => m.id.startsWith('gpt'))
-        .map((m: any) => ({
-          id: m.id,
-          name: m.id,
-          provider: 'openai',
-          contextWindow: this.getContextWindow(m.id),
-        }))
-    } catch (error) {
-      return this.getFallbackModels()
-    }
-  }
-
   async sendMessage(options: SendMessageOptions): Promise<string> {
-    const { apiKey, model, messages, temperature = 0.7, maxTokens = 4000 } = options
+    const { apiKey, model, messages, temperature, maxTokens } = options
 
     // GPT-5.1 использует другой endpoint
     const isGpt5 = model.startsWith('gpt-5')
     const endpoint = isGpt5 ? '/v1/responses' : '/v1/chat/completions'
 
-    // Для GPT-5.1 формат запроса отличается
+    // Разный формат запроса
     const requestBody = isGpt5 
       ? {
           model,
-          input: messages.map(m => m.content).join('\n\n'),
+          input: messages.map(m => m.content).join('\n'),
           temperature,
-          max_output_tokens: maxTokens,
+          max_output_tokens: maxTokens
         }
       : {
           model,
           messages,
           temperature,
-          max_tokens: maxTokens,
+          max_tokens: maxTokens
         }
 
     const response = await fetch(\`\${this.baseUrl}\${endpoint}\`, {
       method: 'POST',
       headers: {
         'Authorization': \`Bearer \${apiKey}\`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(requestBody)
     })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error?.message || 'OpenAI API error')
-    }
 
     const data = await response.json()
 
-    // Разный формат ответа для GPT-5.1
+    // Разный формат ответа
     if (isGpt5) {
-      const messageOutput = data.output?.find((item: any) => item.type === 'message')
-      const textContent = messageOutput?.content?.find((c: any) => c.type === 'output_text')?.text
-      return textContent || ''
+      const msg = data.output?.find(i => i.type === 'message')
+      const text = msg?.content?.find(c => c.type === 'output_text')?.text
+      return text || ''
     }
 
     return data.choices[0]?.message?.content || ''
   }
-
-  async testConnection(apiKey: string): Promise<boolean> {
-    try {
-      await this.getModels(apiKey)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  private getContextWindow(modelId: string): number {
-    if (modelId.includes('gpt-5')) return 200000
-    if (modelId.includes('gpt-4')) return 128000
-    if (modelId.includes('gpt-3.5')) return 16385
-    return 4096
-  }
 }
 \`\`\`
 
-### Middleware (промежуточное ПО)
+### Middleware
 
-**1. Authentication Middleware**
+**Authentication**
 
 \`\`\`typescript
-// apps/api/src/middleware/auth.middleware.ts
-import { FastifyRequest, FastifyReply } from 'fastify'
-import jwt from 'jsonwebtoken'
-
-export async function authenticate(
+async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  try {
-    const authHeader = request.headers.authorization
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.code(401).send({ error: 'Unauthorized' })
-    }
-    
-    const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload
-    
-    // Добавляем user в request
-    request.user = {
-      userId: decoded.userId,
-      email: decoded.email,
-    }
-  } catch (error) {
-    return reply.code(401).send({ error: 'Invalid token' })
+  const authHeader = request.headers.authorization
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return reply.code(401).send({ error: 'Unauthorized' })
+  }
+  
+  const token = authHeader.substring(7)
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+  
+  request.user = {
+    userId: decoded.userId,
+    email: decoded.email
   }
 }
 \`\`\`
 
-**2. Error Handler**
+**Error Handler**
 
 \`\`\`typescript
-// apps/api/src/middleware/errorHandler.ts
-export function errorHandler(
+function errorHandler(
   error: Error,
   request: FastifyRequest,
   reply: FastifyReply
 ) {
   logger.error('Request error:', {
     error: error.message,
-    stack: error.stack,
     url: request.url,
-    method: request.method,
+    method: request.method
   })
 
-  // Специальные ошибки
   if (error.message.includes('превышает лимит')) {
     return reply.code(413).send({
       error: 'PAYLOAD_TOO_LARGE',
-      message: error.message,
+      message: error.message
     })
   }
 
-  if (error.message.includes('не найден')) {
-    return reply.code(404).send({
-      error: 'NOT_FOUND',
-      message: error.message,
-    })
-  }
-
-  // Общая ошибка
   return reply.code(500).send({
     error: 'INTERNAL_SERVER_ERROR',
-    message: 'Произошла внутренняя ошибка сервера',
+    message: 'Внутренняя ошибка сервера'
   })
 }
-\`\`\`
-
----
-
-## Поток данных
-
-### Полный цикл запроса
-
-Рассмотрим пример: пользователь редактирует содержимое элемента контекста.
-
-\`\`\`
-1. USER ACTION
-   │ Пользователь вводит текст в textarea
-   │
-   ▼
-2. COMPONENT EVENT
-   │ onChange={(e) => handleItemContentChange(item.id, e.target.value)}
-   │
-   ▼
-3. DEBOUNCE (500ms)
-   │ Предотвращаем лишние запросы при быстром вводе
-   │
-   ▼
-4. COMPONENT HANDLER
-   │ const updatedBlocks = contextBlocks.map(block => 
-   │   block.id === activeBlock.id ? {
-   │     ...block,
-   │     items: block.items.map(item =>
-   │       item.id === itemId ? { ...item, content, chars: content.length } : item
-   │     )
-   │   } : block
-   │ )
-   │
-   ▼
-5. CUSTOM HOOK (React Query mutation)
-   │ updateProjectMutation.mutate({ 
-   │   id: projectId, 
-   │   data: { contextBlocks: updatedBlocks } 
-   │ })
-   │
-   ▼
-6. API CALL (Axios)
-   │ PATCH /api/projects/:id
-   │ Body: { data: { contextBlocks: [...] } }
-   │ Headers: { Authorization: 'Bearer <token>' }
-   │
-   ▼
-7. BACKEND ROUTE (Fastify)
-   │ fastify.patch('/api/projects/:id', 
-   │   { preHandler: authenticate },
-   │   async (request, reply) => { ... }
-   │ )
-   │
-   ▼
-8. AUTH MIDDLEWARE
-   │ Проверяем JWT token
-   │ Извлекаем userId из токена
-   │ Добавляем request.user = { userId, email }
-   │
-   ▼
-9. SERVICE LAYER
-   │ projectService.updateProject(projectId, userId, input)
-   │   1. Проверка прав доступа (проект принадлежит пользователю)
-   │   2. Валидация размера проекта (не превышает 10M)
-   │   3. Валидация размера блока (не превышает 5M)
-   │
-   ▼
-10. DATABASE (Prisma + PostgreSQL)
-   │ UPDATE projects
-   │ SET data = $1, updated_at = NOW()
-   │ WHERE id = $2 AND user_id = $3
-   │ RETURNING *
-   │
-   ▼
-11. RESPONSE BACK TO CLIENT
-   │ { success: true, data: updatedProject }
-   │
-   ▼
-12. REACT QUERY CACHE UPDATE
-   │ queryClient.setQueryData(['projects', id], updatedProject)
-   │ queryClient.invalidateQueries(['projects'])
-   │
-   ▼
-13. COMPONENT RE-RENDER
-   │ UI автоматически обновляется с новыми данными
-\`\`\`
-
-### Optimistic Update Flow
-
-Для улучшения UX обновления происходят оптимистично:
-
-\`\`\`
-USER TYPES
-   │
-   ▼
-UI UPDATES IMMEDIATELY (local state)
-   │ setLocalContent(newContent)
-   │
-   ├─────────────────────────────────┐
-   │                                 │
-   ▼                                 ▼
-OPTIMISTIC CACHE UPDATE        DEBOUNCED API CALL (500ms later)
-   │ queryClient.setQueryData()      │
-   │                                 │
-   │                                 ▼
-   │                            API REQUEST
-   │                                 │
-   │                        ┌────────┴────────┐
-   │                        │                 │
-   │                        ▼                 ▼
-   │                    SUCCESS            ERROR
-   │                        │                 │
-   │                        ▼                 ▼
-   └──────────────> CONFIRM UPDATE    ROLLBACK UPDATE
-                          │                 │
-                          │                 ▼
-                          │          queryClient.setQueryData(previousValue)
-                          │          toast.error('Ошибка сохранения')
-                          │
-                          ▼
-                    ALL IN SYNC
-\`\`\`
-
----
-
-## Безопасность
-
-### Аутентификация через Google OAuth 2.0 + JWT
-
-**Полный flow аутентификации:**
-
-\`\`\`
-1. USER CLICKS "Войти через Google"
-   │
-   ▼
-2. REDIRECT TO GOOGLE OAUTH
-   │ https://accounts.google.com/o/oauth2/v2/auth?
-   │   client_id=<CLIENT_ID>
-   │   redirect_uri=https://promptyflow.com/auth/google/callback
-   │   response_type=code
-   │   scope=openid email profile
-   │
-   ▼
-3. USER AUTHORIZES IN GOOGLE
-   │ Вводит логин/пароль
-   │ Подтверждает доступ к email и профилю
-   │
-   ▼
-4. GOOGLE REDIRECTS BACK WITH CODE
-   │ https://promptyflow.com/auth/google/callback?code=<AUTHORIZATION_CODE>
-   │
-   ▼
-5. BACKEND EXCHANGES CODE FOR TOKENS
-   │ POST https://oauth2.googleapis.com/token
-   │ Body: {
-   │   code: <AUTHORIZATION_CODE>,
-   │   client_id: <CLIENT_ID>,
-   │   client_secret: <CLIENT_SECRET>,
-   │   redirect_uri: https://promptyflow.com/auth/google/callback,
-   │   grant_type: 'authorization_code'
-   │ }
-   │
-   ▼
-6. GOOGLE RETURNS ACCESS TOKEN
-   │ { access_token: '...', id_token: '...', expires_in: 3600 }
-   │
-   ▼
-7. BACKEND FETCHES USER PROFILE
-   │ GET https://www.googleapis.com/oauth2/v1/userinfo
-   │ Headers: { Authorization: 'Bearer <access_token>' }
-   │
-   ▼
-8. CREATE/UPDATE USER IN DATABASE
-   │ prisma.user.upsert({
-   │   where: { googleId: profile.id },
-   │   create: { googleId, email, name, picture },
-   │   update: { email, name, picture, lastLoginAt: new Date() }
-   │ })
-   │
-   ▼
-9. GENERATE JWT TOKENS
-   │ Access Token (15 мин):
-   │   jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '15m' })
-   │
-   │ Refresh Token (7 дней):
-   │   jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' })
-   │
-   ▼
-10. REDIRECT TO FRONTEND WITH TOKENS
-   │ https://promptyflow.com/#/auth/callback?
-   │   access_token=<JWT_ACCESS_TOKEN>
-   │   &refresh_token=<JWT_REFRESH_TOKEN>
-   │
-   ▼
-11. FRONTEND STORES TOKENS IN MEMORY
-   │ useAuthStore.login({ accessToken, refreshToken }, user)
-   │ navigate('/dashboard')
-   │
-   ▼
-12. SUBSEQUENT API CALLS USE ACCESS TOKEN
-   │ axios.interceptors.request.use(config => {
-   │   config.headers.Authorization = \`Bearer \${accessToken}\`
-   │   return config
-   │ })
-\`\`\`
-
-**Обновление токена при истечении:**
-
-\`\`\`typescript
-// apps/web/src/lib/api.ts
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
-
-    // Если 401 и это не retry попытка
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
-      try {
-        // Запрашиваем новый access token
-        const refreshToken = useAuthStore.getState().refreshToken
-        const response = await axios.post('/auth/refresh', { refreshToken })
-        
-        const { accessToken } = response.data
-        
-        // Обновляем токен в store
-        useAuthStore.getState().updateToken(accessToken)
-        
-        // Повторяем оригинальный запрос с новым токеном
-        originalRequest.headers.Authorization = \`Bearer \${accessToken}\`
-        return api(originalRequest)
-      } catch (refreshError) {
-        // Refresh token тоже невалиден - разлогиниваем
-        useAuthStore.getState().logout()
-        window.location.href = '/'
-        return Promise.reject(refreshError)
-      }
-    }
-
-    return Promise.reject(error)
-  }
-)
-\`\`\`
-
-### Шифрование API ключей
-
-Все API ключи AI провайдеров шифруются перед сохранением в БД:
-
-\`\`\`typescript
-// apps/api/src/services/encryption.service.ts
-import crypto from 'crypto'
-
-class EncryptionService {
-  private algorithm = 'aes-256-gcm'
-  private key: Buffer
-
-  constructor() {
-    // Ключ шифрования из переменных окружения (32 байта для AES-256)
-    const keyString = process.env.ENCRYPTION_KEY!
-    this.key = Buffer.from(keyString, 'hex')
-  }
-
-  /**
-   * Шифрование текста
-   * Возвращает строку в формате: iv:authTag:encrypted
-   */
-  encrypt(text: string): string {
-    // Генерируем случайный initialization vector (16 байт)
-    const iv = crypto.randomBytes(16)
-    
-    // Создаем cipher
-    const cipher = crypto.createCipheriv(this.algorithm, this.key, iv)
-    
-    // Шифруем текст
-    let encrypted = cipher.update(text, 'utf8', 'hex')
-    encrypted += cipher.final('hex')
-    
-    // Получаем authentication tag (для проверки целостности)
-    const authTag = cipher.getAuthTag()
-    
-    // Возвращаем iv:authTag:encrypted (все в hex формате)
-    return \`\${iv.toString('hex')}:\${authTag.toString('hex')}:\${encrypted}\`
-  }
-
-  /**
-   * Дешифрование текста
-   */
-  decrypt(encrypted: string): string {
-    // Разбираем строку на компоненты
-    const [ivHex, authTagHex, encryptedText] = encrypted.split(':')
-    
-    const iv = Buffer.from(ivHex, 'hex')
-    const authTag = Buffer.from(authTagHex, 'hex')
-    
-    // Создаем decipher
-    const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv)
-    decipher.setAuthTag(authTag)
-    
-    // Дешифруем
-    let decrypted = decipher.update(encryptedText, 'hex', 'utf8')
-    decrypted += decipher.final('utf8')
-    
-    return decrypted
-  }
-}
-
-export const encryptionService = new EncryptionService()
-\`\`\`
-
-**Использование:**
-
-\`\`\`typescript
-// Сохранение API ключа
-const encryptedKey = encryptionService.encrypt(apiKey)
-await prisma.apiKey.create({
-  data: {
-    userId,
-    provider: 'openai',
-    encryptedKey, // Сохраняем зашифрованный ключ
-  }
-})
-
-// Получение API ключа
-const record = await prisma.apiKey.findFirst({
-  where: { userId, provider: 'openai' }
-})
-const apiKey = encryptionService.decrypt(record.encryptedKey)
-\`\`\`
-
-### Security Best Practices
-
-**1. Защита от SQL Injection**
-- Используем Prisma ORM (параметризованные запросы)
-- Все пользовательские данные валидируются через Zod schemas
-
-**2. Защита от XSS (Cross-Site Scripting)**
-- React автоматически экранирует JSX
-- Для HTML используем DOMPurify
-- CSP (Content Security Policy) headers
-
-**3. CORS (Cross-Origin Resource Sharing)**
-\`\`\`typescript
-fastify.register(cors, {
-  origin: process.env.FRONTEND_URL || 'https://promptyflow.com',
-  credentials: true,
-})
-\`\`\`
-
-**4. Rate Limiting**
-\`\`\`typescript
-fastify.register(rateLimit, {
-  max: 100, // максимум 100 запросов
-  timeWindow: '1 minute', // за 1 минуту
-})
-\`\`\`
-
-**5. Input Validation (Zod)**
-\`\`\`typescript
-const createProjectSchema = z.object({
-  name: z.string().min(1).max(100),
-})
-
-fastify.post('/api/projects', async (request, reply) => {
-  const body = createProjectSchema.parse(request.body) // Throws если невалидно
-  // ...
-})
-\`\`\`
-
----
-
-## Производительность
-
-### Frontend оптимизации
-
-**1. Code Splitting (разделение кода)**
-
-\`\`\`typescript
-// apps/web/src/App.tsx
-import { lazy, Suspense } from 'react'
-
-// Ленивая загрузка страниц
-const LandingPage = lazy(() => import('./pages/LandingPage'))
-const DashboardPage = lazy(() => import('./pages/DashboardPage'))
-
-function App() {
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-      </Routes>
-    </Suspense>
-  )
-}
-\`\`\`
-
-**2. Memoization (кеширование вычислений)**
-
-\`\`\`typescript
-// Кеширование дорогих вычислений
-const contextBlocksWithStats = useMemo(() => {
-  return contextBlocks.map(block => {
-    const totalChars = calculateTotalChars(block)
-    const totalItems = block.items.length
-    const totalSubItems = block.items.reduce(
-      (sum, item) => sum + (item.subItems?.length || 0), 
-      0
-    )
-
-    return { ...block, totalChars, totalItems, totalSubItems }
-  })
-}, [contextBlocks]) // Пересчитывается только при изменении contextBlocks
-
-// Кеширование callback функций
-const handleItemClick = useCallback((itemId: number) => {
-  setActiveItemId(itemId)
-}, []) // Функция создается только один раз
-\`\`\`
-
-**3. Debouncing (задержка выполнения)**
-
-\`\`\`typescript
-// Задержка автосохранения при вводе текста
-const debouncedSave = useMemo(
-  () => debounce((content: string) => {
-    updateProject.mutate({ data: { content } })
-  }, 500),
-  []
-)
-
-const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  const newContent = e.target.value
-  setLocalContent(newContent) // Немедленно обновляем UI
-  debouncedSave(newContent)   // Отложенное сохранение
-}
-\`\`\`
-
-**4. Virtualization (виртуализация списков)**
-
-Для больших списков (будущее):
-
-\`\`\`typescript
-import { FixedSizeList } from 'react-window'
-
-<FixedSizeList
-  height={600}
-  itemCount={items.length}
-  itemSize={80}
-  width="100%"
->
-  {({ index, style }) => (
-    <div style={style}>
-      <ItemComponent item={items[index]} />
-    </div>
-  )}
-</FixedSizeList>
-\`\`\`
-
-### Backend оптимизации
-
-**1. Database Indexes (индексы БД)**
-
-\`\`\`sql
--- Индекс для быстрого поиска проектов пользователя
-CREATE INDEX idx_projects_user_id ON projects(user_id);
-
--- Индекс для быстрого поиска шаблонов пользователя
-CREATE INDEX idx_templates_user_id ON templates(user_id);
-
--- Полнотекстовый поиск по шаблонам
-CREATE INDEX idx_templates_name_tsv ON templates USING gin(name_tsv);
-CREATE INDEX idx_templates_content_tsv ON templates USING gin(content_tsv);
-\`\`\`
-
-**2. Redis Caching (кеширование в Redis)**
-
-\`\`\`typescript
-// apps/api/src/services/modelsCache.service.ts
-class ModelsCacheService {
-  private readonly CACHE_TTL = 3600 // 1 час
-
-  /**
-   * Получить модели с кешированием
-   */
-  async getModels(provider: string, apiKey?: string): Promise<AIModel[]> {
-    const cacheKey = \`models:\${provider}\`
-    
-    // Проверяем кеш
-    const cached = await redis.get(cacheKey)
-    if (cached) {
-      return JSON.parse(cached)
-    }
-
-    // Запрашиваем у провайдера
-    const providerInstance = this.getProviderInstance(provider)
-    const models = await providerInstance.getModels(apiKey)
-
-    // Сохраняем в кеш
-    await redis.setex(cacheKey, this.CACHE_TTL, JSON.stringify(models))
-
-    return models
-  }
-
-  /**
-   * Инвалидировать кеш
-   */
-  async invalidateCache(provider: string): Promise<void> {
-    await redis.del(\`models:\${provider}\`)
-  }
-}
-\`\`\`
-
-**3. Full-Text Search (полнотекстовый поиск)**
-
-До оптимизации: ~7-8 секунд на тысячах записей  
-После оптимизации: 1-11ms
-
-\`\`\`typescript
-// apps/api/src/services/template.service.ts
-async searchTemplates(userId: string, query: string): Promise<Template[]> {
-  // Используем PostgreSQL Full-Text Search с GIN индексами
-  const results = await prisma.$queryRaw<Template[]>\`
-    SELECT 
-      id, user_id, name, content, created_at, updated_at,
-      ts_rank(name_tsv || content_tsv, to_tsquery('english', \${query})) as rank
-    FROM templates
-    WHERE user_id = \${userId}
-      AND (
-        name_tsv @@ to_tsquery('english', \${query}) OR
-        content_tsv @@ to_tsquery('english', \${query})
-      )
-    ORDER BY rank DESC, updated_at DESC
-    LIMIT 100
-  \`
-
-  return results
-}
-\`\`\`
-
-**Как работает Full-Text Search:**
-
-1. При создании/обновлении шаблона автоматически создаются tsvector столбцы:
-\`\`\`sql
-ALTER TABLE templates 
-ADD COLUMN name_tsv tsvector 
-GENERATED ALWAYS AS (to_tsvector('english', name)) STORED;
-
-ALTER TABLE templates 
-ADD COLUMN content_tsv tsvector 
-GENERATED ALWAYS AS (to_tsvector('english', content)) STORED;
-\`\`\`
-
-2. GIN индексы на этих столбцах:
-\`\`\`sql
-CREATE INDEX idx_templates_name_tsv ON templates USING gin(name_tsv);
-CREATE INDEX idx_templates_content_tsv ON templates USING gin(content_tsv);
-\`\`\`
-
-3. Поиск через оператор `@@` (соответствие) и функцию `ts_rank` (ранжирование).
-
-**4. Connection Pooling (пул соединений)**
-
-\`\`\`typescript
-// apps/api/prisma/schema.prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// В DATABASE_URL указываем параметры пула:
-// postgresql://user:password@localhost:5432/db?
-//   connection_limit=20&
-//   pool_timeout=10
-\`\`\`
-
-**5. Query Optimization (оптимизация запросов)**
-
-\`\`\`typescript
-// ❌ Плохо: N+1 problem
-const projects = await prisma.project.findMany({ where: { userId } })
-for (const project of projects) {
-  const user = await prisma.user.findUnique({ where: { id: project.userId } })
-  // ...
-}
-
-// ✅ Хорошо: используем include
-const projects = await prisma.project.findMany({
-  where: { userId },
-  include: {
-    user: true, // Один запрос с JOIN
-  },
-})
-\`\`\`
-
----
-
-## Масштабируемость
-
-### Horizontal Scaling (горизонтальное масштабирование)
-
-\`\`\`
-                        ┌─────────────┐
-                        │    Nginx    │
-                        │Load Balancer│
-                        │  (SSL/TLS)  │
-                        └──────┬──────┘
-                               │
-              ┌────────────────┼────────────────┐
-              │                │                │
-              ▼                ▼                ▼
-        ┌──────────┐     ┌──────────┐     ┌──────────┐
-        │ Backend  │     │ Backend  │     │ Backend  │
-        │Instance 1│     │Instance 2│     │Instance 3│
-        │ (Fastify)│     │ (Fastify)│     │ (Fastify)│
-        └────┬─────┘     └────┬─────┘     └────┬─────┘
-             │                │                │
-             │                │                │
-             └────────────────┼────────────────┘
-                              │
-                ┌─────────────┴─────────────┐
-                │                           │
-                ▼                           ▼
-         ┌─────────────┐            ┌─────────────┐
-         │ PostgreSQL  │            │    Redis    │
-         │  (Primary)  │            │   Cluster   │
-         └──────┬──────┘            └─────────────┘
-                │
-         ┌──────┴──────┐
-         │             │
-         ▼             ▼
-  ┌───────────┐ ┌───────────┐
-  │PostgreSQL │ │PostgreSQL │
-  │(Replica 1)│ │(Replica 2)│
-  └───────────┘ └───────────┘
-       │             │
-       └──────┬──────┘
-              │
-        (Read queries)
-\`\`\`
-
-**Конфигурация Nginx Load Balancer:**
-
-\`\`\`nginx
-upstream backend {
-    least_conn; # Балансировка по наименьшему числу соединений
-    
-    server backend1.promptyflow.com:3000 weight=1;
-    server backend2.promptyflow.com:3000 weight=1;
-    server backend3.promptyflow.com:3000 weight=1;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name api.promptyflow.com;
-
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-
-    location / {
-        proxy_pass http://backend;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-        
-        # Timeouts
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-    }
-}
-\`\`\`
-
-### Database Scaling (масштабирование БД)
-
-**1. Read Replicas (реплики для чтения)**
-
-\`\`\`typescript
-// Разделение на чтение/запись
-const prismaWrite = new PrismaClient({ datasources: { db: { url: PRIMARY_URL } } })
-const prismaRead = new PrismaClient({ datasources: { db: { url: REPLICA_URL } } })
-
-// Чтение из реплики
-const projects = await prismaRead.project.findMany({ where: { userId } })
-
-// Запись в primary
-const newProject = await prismaWrite.project.create({ data: { ... } })
-\`\`\`
-
-**2. Sharding (будущее)**
-
-Разделение данных по пользователям:
-
-\`\`\`typescript
-function getShardForUser(userId: string): 'shard1' | 'shard2' | 'shard3' {
-  // Consistent hashing
-  const hash = crypto.createHash('md5').update(userId).digest('hex')
-  const numShards = 3
-  const shardIndex = parseInt(hash.substring(0, 8), 16) % numShards
-  return \`shard\${shardIndex + 1}\` as any
-}
-
-const shard = getShardForUser(userId)
-const prisma = prismaClients[shard]
-\`\`\`
-
-**3. Connection Pooling с PgBouncer**
-
-\`\`\`
-Application (20 connections) ──┐
-Application (20 connections) ──┼─→ PgBouncer ─→ PostgreSQL (100 connections)
-Application (20 connections) ──┘     (pool)
-\`\`\`
-
-### Caching Strategy (стратегия кеширования)
-
-**Многоуровневое кеширование:**
-
-\`\`\`
-┌─────────────────────────────────────────────────────────────┐
-│                      CACHE LAYERS                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  L1: Browser Cache (React Query)                             │
-│      • Automatic caching                                     │
-│      • staleTime: 5-15 min                                   │
-│      • cacheTime: 10 min                                     │
-│      Данные: projects, templates, AI models                  │
-│                                                               │
-│  ────────────────────────────────────────────────────        │
-│                                                               │
-│  L2: Redis Cache (Backend)                                   │
-│      • AI models list: 1 hour                                │
-│      • User sessions: 7 days                                 │
-│      • API rate limits: 1 min                                │
-│      Данные: модели AI, сессии, rate limiting               │
-│                                                               │
-│  ────────────────────────────────────────────────────        │
-│                                                               │
-│  L3: PostgreSQL (Persistent Storage)                         │
-│      • Permanent storage                                     │
-│      • Full-text search indexes                              │
-│      • Foreign key constraints                               │
-│      Данные: users, projects, templates, api_keys            │
-│                                                               │
-└─────────────────────────────────────────────────────────────┘
 \`\`\`
 
 ---
@@ -1779,21 +699,19 @@ Application (20 connections) ──┘     (pool)
 ### Схема PostgreSQL
 
 \`\`\`prisma
-// apps/api/prisma/schema.prisma
-
 model User {
-  id            String    @id @default(cuid())
-  googleId      String    @unique
-  email         String    @unique
-  name          String?
-  picture       String?
-  lastLoginAt   DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  googleId    String    @unique
+  email       String    @unique
+  name        String?
+  picture     String?
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  projects      Project[]
-  templates     Template[]
-  apiKeys       ApiKey[]
+  projects  Project[]
+  templates Template[]
+  apiKeys   ApiKey[]
 
   @@index([googleId])
   @@index([email])
@@ -1803,7 +721,7 @@ model Project {
   id        String   @id @default(cuid())
   userId    String
   name      String
-  data      Json     // ProjectData { contextBlocks, promptBlocks }
+  data      Json     // ProjectData JSONB
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1821,9 +739,9 @@ model Template {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  // Generated columns для full-text search
-  name_tsv    Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english', name)"))
-  content_tsv Unsupported("tsvector")? @default(dbgenerated("to_tsvector('english', content)"))
+  // Full-text search
+  name_tsv    Unsupported("tsvector")?
+  content_tsv Unsupported("tsvector")?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -1835,7 +753,7 @@ model Template {
 model ApiKey {
   id           String   @id @default(cuid())
   userId       String
-  provider     String   // 'openai' | 'anthropic' | 'gemini' | 'grok' | 'openrouter'
+  provider     String   // openai | anthropic | gemini | grok | openrouter
   encryptedKey String   @db.Text
   createdAt    DateTime @default(now())
 
@@ -1846,9 +764,7 @@ model ApiKey {
 }
 \`\`\`
 
-### Типы данных
-
-**ProjectData (хранится в JSONB):**
+### Типы данных (JSONB)
 
 \`\`\`typescript
 interface ProjectData {
@@ -1893,174 +809,386 @@ interface SelectedContext {
 }
 \`\`\`
 
-### Миграции
+### Индексы и оптимизации
 
-Пример миграции для добавления full-text search:
+**1. Full-Text Search**
 
 \`\`\`sql
--- apps/api/prisma/migrations/20251203183130_add_fulltext_search_indexes/migration.sql
-
--- Добавляем tsvector столбцы
+-- Generated columns
 ALTER TABLE templates 
 ADD COLUMN name_tsv tsvector 
 GENERATED ALWAYS AS (to_tsvector('english', name)) STORED;
 
-ALTER TABLE templates 
-ADD COLUMN content_tsv tsvector 
-GENERATED ALWAYS AS (to_tsvector('english', content)) STORED;
+-- GIN индексы
+CREATE INDEX idx_templates_name_tsv 
+ON templates USING gin(name_tsv);
 
--- Создаем GIN индексы
-CREATE INDEX idx_templates_name_tsv ON templates USING gin(name_tsv);
-CREATE INDEX idx_templates_content_tsv ON templates USING gin(content_tsv);
+CREATE INDEX idx_templates_content_tsv 
+ON templates USING gin(content_tsv);
+\`\`\`
+
+**Использование:**
+
+\`\`\`typescript
+const results = await prisma.$queryRaw\`
+  SELECT * FROM templates
+  WHERE user_id = \${userId}
+    AND (name_tsv @@ to_tsquery('english', \${query})
+         OR content_tsv @@ to_tsquery('english', \${query}))
+  ORDER BY ts_rank(name_tsv || content_tsv, to_tsquery('english', \${query})) DESC
+  LIMIT 100
+\`
+
+// Результат: 1-11ms вместо 7-8 секунд
+\`\`\`
+
+**2. Обычные индексы**
+
+\`\`\`sql
+CREATE INDEX idx_projects_user_id ON projects(user_id);
+CREATE INDEX idx_templates_user_id ON templates(user_id);
+CREATE INDEX idx_projects_updated_at ON projects(updated_at);
 \`\`\`
 
 ---
 
 ## AI интеграция
 
-### Архитектура AI провайдеров
+### Архитектура
 
 \`\`\`
-┌─────────────────────────────────────────────────────────────┐
-│                    CLIENT REQUEST                            │
-│  POST /ai/send                                              │
-│  { provider: 'openai', model: 'gpt-4o', messages: [...] }  │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    AI ROUTE HANDLER                          │
-│  1. Authenticate user                                        │
-│  2. Get API key from database (encrypted)                    │
-│  3. Decrypt API key                                          │
-│  4. Select provider instance                                 │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  PROVIDER FACTORY                            │
-│  switch (provider) {                                         │
-│    case 'openai': return new OpenAIProvider()               │
-│    case 'anthropic': return new AnthropicProvider()         │
-│    case 'gemini': return new GeminiProvider()               │
-│    case 'grok': return new GrokProvider()                   │
-│    case 'openrouter': return new OpenRouterProvider()       │
-│  }                                                           │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 PROVIDER INSTANCE                            │
-│  provider.sendMessage({                                      │
-│    apiKey, model, messages, temperature, maxTokens          │
-│  })                                                          │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-        ┌──────────────┼──────────────┐
-        │              │              │
-        ▼              ▼              ▼
-┌────────────┐  ┌────────────┐  ┌────────────┐
-│  OpenAI    │  │ Anthropic  │  │   Gemini   │
-│    API     │  │    API     │  │    API     │
-└────────────┘  └────────────┘  └────────────┘
-        │              │              │
-        └──────────────┼──────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   AI RESPONSE                                │
-│  { content: 'Generated text...', usage: { ... } }           │
-└──────────────────────┬──────────────────────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   RETURN TO CLIENT                           │
-│  { success: true, response: 'Generated text...' }           │
-└─────────────────────────────────────────────────────────────┘
+CLIENT
+  │ POST /ai/send
+  │ { provider: 'openai', model: 'gpt-4o', messages: [...] }
+  ▼
+ROUTE HANDLER
+  │ 1. Authenticate user
+  │ 2. Get encrypted API key from DB
+  │ 3. Decrypt API key
+  ▼
+PROVIDER FACTORY
+  │ switch (provider) {
+  │   case 'openai': return new OpenAIProvider()
+  │   case 'anthropic': return new AnthropicProvider()
+  │   ...
+  │ }
+  ▼
+PROVIDER INSTANCE
+  │ provider.sendMessage({ apiKey, model, messages, ... })
+  ▼
+AI API (OpenAI/Anthropic/Gemini/Grok/OpenRouter)
+  │ HTTP request to external AI service
+  ▼
+AI RESPONSE
+  │ { content: 'Generated text...', usage: {...} }
+  ▼
+RETURN TO CLIENT
+  │ { success: true, response: 'Generated text...' }
 \`\`\`
 
 ### Поддерживаемые провайдеры
 
-| Провайдер | Модели | Особенности |
-|-----------|--------|-------------|
-| **OpenAI** | GPT-4o, GPT-4o-mini, GPT-4-turbo, GPT-3.5-turbo, GPT-5.1 | GPT-5.1 использует `/v1/responses` endpoint |
-| **Anthropic** | Claude 4.5 Sonnet/Opus, Claude 4 Sonnet/Opus, Claude 3.5 Sonnet/Haiku | Поддержка всех новых моделей Claude |
-| **Google Gemini** | Gemini 2.5 Flash, Gemini 1.5 Flash/Pro | Использует v1beta API |
-| **X.AI Grok** | Grok Beta, Grok Vision Beta | Новый провайдер от X.AI |
-| **OpenRouter** | 100+ моделей от разных провайдеров | Агрегатор моделей |
+| Провайдер | Endpoint | Особенности |
+|-----------|----------|-------------|
+| **OpenAI** | api.openai.com | GPT-5.1: `/v1/responses`<br>Остальные: `/v1/chat/completions` |
+| **Anthropic** | api.anthropic.com | `/v1/messages`<br>Claude 4.5 поддержка |
+| **Gemini** | generativelanguage.googleapis.com | API v1beta |
+| **Grok** | api.x.ai | X.AI API |
+| **OpenRouter** | openrouter.ai | Агрегатор 100+ моделей |
 
-### Пример использования
+### Кеширование моделей
 
 \`\`\`typescript
-// Frontend: Отправка промпта в AI
-const response = await api.post('/ai/send', {
-  provider: 'openai',
-  model: 'gpt-4o-mini',
-  messages: [
-    { role: 'system', content: 'You are a helpful assistant.' },
-    { role: 'user', content: compiledPrompt }
-  ],
-  temperature: 0.7,
-  maxTokens: 2000,
-})
+class ModelsCacheService {
+  private CACHE_TTL = 3600 // 1 час
 
-console.log(response.data.response)
+  async getModels(provider: string, apiKey?: string): Promise<AIModel[]> {
+    const cacheKey = \`models:\${provider}\`
+    
+    // Проверяем Redis
+    const cached = await redis.get(cacheKey)
+    if (cached) return JSON.parse(cached)
+
+    // Запрашиваем у провайдера
+    const models = await providerInstance.getModels(apiKey)
+
+    // Сохраняем в Redis
+    await redis.setex(cacheKey, this.CACHE_TTL, JSON.stringify(models))
+
+    return models
+  }
+
+  // Fallback если нет API ключа
+  async getFallbackModels(provider: string): Promise<AIModel[]> {
+    const providerInstance = this.getProviderInstance(provider)
+    return providerInstance.getFallbackModels()
+  }
+}
 \`\`\`
 
 ---
 
-## Мониторинг и логирование
+## Безопасность
 
-### Winston Logger
+### Google OAuth 2.0 + JWT
+
+**Поток аутентификации:**
+
+\`\`\`
+1. USER CLICKS "Войти через Google"
+   ▼
+2. REDIRECT TO GOOGLE OAUTH
+   https://accounts.google.com/o/oauth2/v2/auth?
+     client_id=...
+     redirect_uri=https://promptyflow.com/auth/google/callback
+     scope=openid email profile
+   ▼
+3. USER AUTHORIZES
+   Вводит логин/пароль Google
+   ▼
+4. GOOGLE REDIRECTS BACK
+   https://promptyflow.com/auth/google/callback?code=<CODE>
+   ▼
+5. BACKEND EXCHANGES CODE FOR TOKENS
+   POST https://oauth2.googleapis.com/token
+   Body: { code, client_id, client_secret, ... }
+   ▼
+6. FETCH USER PROFILE
+   GET https://www.googleapis.com/oauth2/v1/userinfo
+   Headers: { Authorization: Bearer <access_token> }
+   ▼
+7. CREATE/UPDATE USER IN DB
+   prisma.user.upsert({
+     where: { googleId },
+     create: { googleId, email, name, picture },
+     update: { lastLoginAt: new Date() }
+   })
+   ▼
+8. GENERATE JWT TOKENS
+   Access Token (15 min): jwt.sign({ userId, email }, SECRET, { expiresIn: '15m' })
+   Refresh Token (7 days): jwt.sign({ userId }, SECRET, { expiresIn: '7d' })
+   ▼
+9. REDIRECT TO FRONTEND
+   https://promptyflow.com/#/auth/callback?
+     access_token=...&refresh_token=...
+   ▼
+10. FRONTEND STORES TOKENS
+   useAuthStore.login({ accessToken, refreshToken }, user)
+   ▼
+11. SUBSEQUENT REQUESTS
+   axios.interceptors.request.use(config => {
+     config.headers.Authorization = \`Bearer \${accessToken}\`
+   })
+\`\`\`
+
+### Шифрование API ключей
+
+**AES-256-GCM:**
 
 \`\`\`typescript
-// apps/api/src/lib/logger.ts
-import winston from 'winston'
+class EncryptionService {
+  private algorithm = 'aes-256-gcm'
+  private key: Buffer // 32 bytes from env
 
-export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
-    }),
-    new winston.transports.File({ 
-      filename: 'logs/error.log', 
-      level: 'error' 
-    }),
-    new winston.transports.File({ 
-      filename: 'logs/combined.log' 
-    })
-  ]
+  encrypt(text: string): string {
+    const iv = crypto.randomBytes(16)
+    const cipher = crypto.createCipheriv(this.algorithm, this.key, iv)
+    
+    let encrypted = cipher.update(text, 'utf8', 'hex')
+    encrypted += cipher.final('hex')
+    
+    const authTag = cipher.getAuthTag()
+    
+    // Формат: iv:authTag:encrypted
+    return \`\${iv.toString('hex')}:\${authTag.toString('hex')}:\${encrypted}\`
+  }
+
+  decrypt(encrypted: string): string {
+    const [ivHex, authTagHex, encryptedText] = encrypted.split(':')
+    
+    const iv = Buffer.from(ivHex, 'hex')
+    const authTag = Buffer.from(authTagHex, 'hex')
+    const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv)
+    
+    decipher.setAuthTag(authTag)
+    
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    
+    return decrypted
+  }
+}
+\`\`\`
+
+**Использование:**
+
+\`\`\`typescript
+// Сохранение
+const encryptedKey = encryptionService.encrypt(apiKey)
+await prisma.apiKey.create({
+  data: { userId, provider, encryptedKey }
+})
+
+// Получение
+const record = await prisma.apiKey.findFirst({
+  where: { userId, provider }
+})
+const apiKey = encryptionService.decrypt(record.encryptedKey)
+\`\`\`
+
+### Best Practices
+
+**1. SQL Injection**
+- Prisma ORM (параметризованные запросы)
+- Zod валидация входных данных
+
+**2. XSS**
+- React автоматически экранирует JSX
+- CSP headers
+
+**3. CORS**
+\`\`\`typescript
+fastify.register(cors, {
+  origin: 'https://promptyflow.com',
+  credentials: true
 })
 \`\`\`
 
-### Метрики для отслеживания
-
-**1. Performance Metrics (производительность):**
-- API response time (p50, p95, p99)
-- Database query time
-- Redis cache hit ratio
-- AI provider response time
-
-**2. Business Metrics (бизнес-метрики):**
-- Daily Active Users (DAU)
-- Monthly Active Users (MAU)
-- Projects created per day
-- AI API calls per day
-- Template usage
-- Average project size
-
-**3. Error Metrics (ошибки):**
-- Error rate by endpoint
-- Failed AI requests
-- Database connection errors
-- Authentication failures
+**4. Rate Limiting**
+\`\`\`typescript
+fastify.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute'
+})
+\`\`\`
 
 ---
 
-**Дата создания:** 05.12.2025  
-**Последнее обновление:** 05.12.2025  
-**Статус:** Актуально  
-**Версия:** 2.0 (детализированная русская версия)
+## Производительность
+
+### Frontend оптимизации
+
+**1. Code Splitting**
+
+\`\`\`typescript
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+\`\`\`
+
+**2. Memoization**
+
+\`\`\`typescript
+const stats = useMemo(() => {
+  return blocks.map(block => ({
+    ...block,
+    totalChars: calculateTotalChars(block)
+  }))
+}, [blocks])
+\`\`\`
+
+**3. Debouncing**
+
+\`\`\`typescript
+const debouncedSave = useMemo(
+  () => debounce((data) => save(data), 500),
+  []
+)
+\`\`\`
+
+### Backend оптимизации
+
+**1. Database Indexes**
+
+- B-tree индексы: `user_id`, `updated_at`
+- GIN индексы: full-text search на `name_tsv`, `content_tsv`
+
+**2. Redis Caching**
+
+- AI models: 1 час TTL
+- User sessions: 7 дней TTL
+
+**3. Full-Text Search**
+
+До: 7-8 секунд  
+После: 1-11ms (700x быстрее)
+
+**4. Connection Pooling**
+
+- Prisma: 20 connections pool
+- PgBouncer для масштабирования
+
+---
+
+## Масштабируемость
+
+### Horizontal Scaling
+
+\`\`\`
+               Nginx Load Balancer
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+        ▼              ▼              ▼
+   Backend 1      Backend 2      Backend 3
+   (Fastify)      (Fastify)      (Fastify)
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+            ┌──────────┴──────────┐
+            │                     │
+            ▼                     ▼
+       PostgreSQL             Redis
+        (Primary)            (Cluster)
+            │
+     ┌──────┴──────┐
+     │             │
+     ▼             ▼
+  Replica 1    Replica 2
+ (Read-only)  (Read-only)
+\`\`\`
+
+### Caching Strategy
+
+\`\`\`
+┌────────────────────────────────────────────┐
+│            CACHE LAYERS                    │
+├────────────────────────────────────────────┤
+│ L1: Browser (React Query)  5-15 min        │
+│     • Projects, templates, AI models       │
+│                                            │
+│ L2: Redis (Backend)        1-24 hours      │
+│     • AI models, sessions, rate limits     │
+│                                            │
+│ L3: PostgreSQL             Permanent       │
+│     • Users, projects, templates, keys     │
+└────────────────────────────────────────────┘
+\`\`\`
+
+### Database Scaling
+
+**1. Read Replicas**
+
+\`\`\`typescript
+const prismaWrite = new PrismaClient({ url: PRIMARY_URL })
+const prismaRead = new PrismaClient({ url: REPLICA_URL })
+
+// Чтение
+const projects = await prismaRead.project.findMany()
+
+// Запись
+await prismaWrite.project.create()
+\`\`\`
+
+**2. Sharding (будущее)**
+
+Разделение по `user_id` с consistent hashing.
+
+**3. PgBouncer**
+
+Connection pooling для эффективного использования соединений.
+
+---
+
+**Дата:** 05.12.2025  
+**Версия:** 3.0  
+**Статус:** Производственная версия
