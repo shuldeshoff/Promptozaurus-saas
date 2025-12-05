@@ -18,7 +18,7 @@
 
 ### htop - интерактивный мониторинг процессов
 
-\`\`\`bash
+```bash
 # Установка
 sudo apt install -y htop
 
@@ -29,21 +29,21 @@ htop
 # F6 - сортировка по CPU/Memory
 # F9 - kill процесс
 # Q - выход
-\`\`\`
+```
 
 ### free - мониторинг памяти
 
-\`\`\`bash
+```bash
 # Общая информация о памяти
 free -h
 
 # Обновление каждую секунду
 watch -n 1 free -h
-\`\`\`
+```
 
 ### df - мониторинг дискового пространства
 
-\`\`\`bash
+```bash
 # Использование дисков
 df -h
 
@@ -52,11 +52,11 @@ du -sh /var/* | sort -h
 
 # Топ 10 самых больших директорий
 du -h /var | sort -rh | head -n 10
-\`\`\`
+```
 
 ### iostat - мониторинг ввода-вывода
 
-\`\`\`bash
+```bash
 # Установка
 sudo apt install -y sysstat
 
@@ -65,11 +65,11 @@ iostat -x 1
 
 # Расширенная статистика CPU
 mpstat 1
-\`\`\`
+```
 
 ### netstat - мониторинг сети
 
-\`\`\`bash
+```bash
 # Активные соединения
 sudo netstat -tuln
 
@@ -78,7 +78,7 @@ sudo ss -tunlp | grep :3001
 
 # Подсчет соединений
 sudo netstat -an | grep ESTABLISHED | wc -l
-\`\`\`
+```
 
 ---
 
@@ -86,7 +86,7 @@ sudo netstat -an | grep ESTABLISHED | wc -l
 
 ### Основные команды
 
-\`\`\`bash
+```bash
 # Список всех процессов
 pm2 list
 
@@ -98,11 +98,11 @@ pm2 monit
 
 # Статус и использование ресурсов
 pm2 status
-\`\`\`
+```
 
 ### Просмотр логов
 
-\`\`\`bash
+```bash
 # Все логи
 pm2 logs promptyflow-api
 
@@ -117,11 +117,11 @@ pm2 logs promptyflow-api --raw
 
 # Очистить логи
 pm2 flush
-\`\`\`
+```
 
 ### Метрики PM2
 
-\`\`\`bash
+```bash
 # Web-based мониторинг (PM2 Plus - бесплатно для 1 сервера)
 pm2 plus
 
@@ -129,13 +129,13 @@ pm2 plus
 npm install -g pm2-web
 pm2-web
 # Откройте http://localhost:9000
-\`\`\`
+```
 
 ### Настройка алертов
 
 Создайте \`/home/promptyflow/pm2-alerts.sh\`:
 
-\`\`\`bash
+```bash
 #!/bin/bash
 
 # Проверка что процесс запущен
@@ -150,16 +150,16 @@ MEMORY=$(pm2 jlist | jq '.[0].monit.memory' | awk '{print int($1/1024/1024)}')
 if [ $MEMORY -gt 450 ]; then
     echo "ALERT: promptyflow-api using ${MEMORY}MB of memory" | mail -s "PM2 Memory Alert" admin@example.com
 fi
-\`\`\`
+```
 
 Добавьте в cron:
 
-\`\`\`bash
+```bash
 crontab -e
 
 # Проверка каждые 5 минут
 */5 * * * * /home/promptyflow/pm2-alerts.sh
-\`\`\`
+```
 
 ---
 
@@ -167,7 +167,7 @@ crontab -e
 
 ### Access Logs
 
-\`\`\`bash
+```bash
 # Просмотр access логов
 sudo tail -f /var/log/nginx/access.log
 
@@ -182,11 +182,11 @@ sudo awk -F'"' '{print $6}' /var/log/nginx/access.log | sort | uniq -c | sort -r
 
 # Статистика по кодам ответов
 sudo awk '{print $9}' /var/log/nginx/access.log | sort | uniq -c | sort -rn
-\`\`\`
+```
 
 ### Error Logs
 
-\`\`\`bash
+```bash
 # Просмотр error логов
 sudo tail -f /var/log/nginx/error.log
 
@@ -195,13 +195,13 @@ sudo grep "502" /var/log/nginx/error.log
 
 # Поиск upstream ошибок
 sudo grep "upstream" /var/log/nginx/error.log
-\`\`\`
+```
 
 ### Nginx Status Module
 
 Включите stub_status в конфигурации Nginx:
 
-\`\`\`nginx
+```nginx
 server {
     listen 127.0.0.1:8080;
     server_name localhost;
@@ -213,11 +213,11 @@ server {
         deny all;
     }
 }
-\`\`\`
+```
 
 Проверка статуса:
 
-\`\`\`bash
+```bash
 curl http://127.0.0.1:8080/nginx_status
 
 # Вывод:
@@ -225,11 +225,11 @@ curl http://127.0.0.1:8080/nginx_status
 # server accepts handled requests
 #  1000 1000 5000
 # Reading: 0 Writing: 2 Waiting: 3
-\`\`\`
+```
 
 ### Анализ логов с GoAccess
 
-\`\`\`bash
+```bash
 # Установка
 sudo apt install -y goaccess
 
@@ -238,7 +238,7 @@ sudo goaccess /var/log/nginx/access.log -o /var/www/html/report.html --log-forma
 
 # Терминальный отчет
 sudo goaccess /var/log/nginx/access.log --log-format=COMBINED
-\`\`\`
+```
 
 ---
 
@@ -246,7 +246,7 @@ sudo goaccess /var/log/nginx/access.log --log-format=COMBINED
 
 ### Основные метрики
 
-\`\`\`bash
+```bash
 # Подключение к БД
 sudo -u postgres psql -d promptyflow
 
@@ -288,11 +288,11 @@ SELECT
     sum(heap_blks_hit)  as heap_hit,
     sum(heap_blks_hit) / (sum(heap_blks_hit) + sum(heap_blks_read)) as ratio
 FROM pg_statio_user_tables;
-\`\`\`
+```
 
 ### pg_stat_statements (расширение для мониторинга запросов)
 
-\`\`\`bash
+```bash
 sudo -u postgres psql -d promptyflow
 
 -- Включить расширение
@@ -316,13 +316,13 @@ SELECT
 FROM pg_stat_statements
 ORDER BY calls DESC
 LIMIT 10;
-\`\`\`
+```
 
 ### Логирование медленных запросов
 
 Отредактируйте \`/etc/postgresql/14/main/postgresql.conf\`:
 
-\`\`\`conf
+```conf
 # Логировать запросы дольше 1 секунды
 log_min_duration_statement = 1000
 
@@ -331,19 +331,19 @@ log_statement = 'ddl'
 
 # Детализация логов
 log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
-\`\`\`
+```
 
 Перезапуск:
 
-\`\`\`bash
+```bash
 sudo systemctl restart postgresql
-\`\`\`
+```
 
 Просмотр логов:
 
-\`\`\`bash
+```bash
 sudo tail -f /var/log/postgresql/postgresql-14-main.log
-\`\`\`
+```
 
 ---
 
@@ -351,7 +351,7 @@ sudo tail -f /var/log/postgresql/postgresql-14-main.log
 
 ### Redis CLI команды
 
-\`\`\`bash
+```bash
 # Подключение
 redis-cli -a your_redis_password
 
@@ -382,11 +382,11 @@ SLOWLOG GET 10
 # Проверка конкретного ключа
 TTL models:openai
 GET models:openai
-\`\`\`
+```
 
 ### Метрики Redis
 
-\`\`\`bash
+```bash
 # Используемая память
 redis-cli -a password INFO memory | grep used_memory_human
 
@@ -398,11 +398,11 @@ redis-cli -a password INFO clients | grep connected_clients
 
 # Операций в секунду
 redis-cli -a password INFO stats | grep instantaneous_ops_per_sec
-\`\`\`
+```
 
 ### redis-stat - визуальный мониторинг
 
-\`\`\`bash
+```bash
 # Установка
 gem install redis-stat
 
@@ -410,7 +410,7 @@ gem install redis-stat
 redis-stat --auth your_redis_password --server
 
 # Откройте http://localhost:63790
-\`\`\`
+```
 
 ---
 
@@ -420,7 +420,7 @@ redis-stat --auth your_redis_password --server
 
 Backend уже использует Winston через Fastify logger:
 
-\`\`\`typescript
+```typescript
 // apps/api/src/index.ts
 const server = Fastify({
   logger: {
@@ -434,7 +434,7 @@ const server = Fastify({
     }
   }
 })
-\`\`\`
+```
 
 ### Уровни логирования
 
@@ -446,7 +446,7 @@ const server = Fastify({
 
 ### Использование в коде
 
-\`\`\`typescript
+```typescript
 // Информация
 server.log.info({ userId: user.id }, 'User logged in')
 
@@ -466,11 +466,11 @@ server.log.warn({
 
 // Отладка
 server.log.debug({ query }, 'Executing database query')
-\`\`\`
+```
 
 ### Просмотр логов
 
-\`\`\`bash
+```bash
 # PM2 логи (Winston пишет в PM2)
 pm2 logs promptyflow-api
 
@@ -481,19 +481,19 @@ tail -f ~/Promptozaurus-saas/apps/api/logs/pm2-error.log
 # Фильтрация по уровню (grep)
 pm2 logs promptyflow-api | grep ERROR
 pm2 logs promptyflow-api | grep WARN
-\`\`\`
+```
 
 ### Ротация логов
 
 PM2 автоматически управляет логами, но можно настроить logrotate:
 
-\`\`\`bash
+```bash
 sudo nano /etc/logrotate.d/promptyflow
-\`\`\`
+```
 
 Содержимое:
 
-\`\`\`
+```
 /home/promptyflow/Promptozaurus-saas/apps/api/logs/*.log {
     daily
     missingok
@@ -507,7 +507,7 @@ sudo nano /etc/logrotate.d/promptyflow
         pm2 reloadLogs
     endscript
 }
-\`\`\`
+```
 
 ---
 
@@ -515,13 +515,13 @@ sudo nano /etc/logrotate.d/promptyflow
 
 ### Установка Netdata
 
-\`\`\`bash
+```bash
 # Автоматическая установка
 bash <(curl -Ss https://my-netdata.io/kickstart.sh)
 
 # Netdata запустится автоматически
 sudo systemctl status netdata
-\`\`\`
+```
 
 ### Доступ к Dashboard
 
@@ -538,7 +538,7 @@ sudo systemctl status netdata
 
 Настройте доступ только с localhost или через Nginx reverse proxy:
 
-\`\`\`nginx
+```nginx
 # В конфигурации Nginx
 location /netdata/ {
     proxy_pass http://localhost:19999/;
@@ -548,14 +548,14 @@ location /netdata/ {
     auth_basic "Restricted";
     auth_basic_user_file /etc/nginx/.htpasswd;
 }
-\`\`\`
+```
 
 Создание пароля:
 
-\`\`\`bash
+```bash
 sudo apt install -y apache2-utils
 sudo htpasswd -c /etc/nginx/.htpasswd admin
-\`\`\`
+```
 
 ---
 
@@ -563,7 +563,7 @@ sudo htpasswd -c /etc/nginx/.htpasswd admin
 
 ### Установка Prometheus
 
-\`\`\`bash
+```bash
 # Создать пользователя
 sudo useradd --no-create-home --shell /bin/false prometheus
 
@@ -582,11 +582,11 @@ sudo mkdir /var/lib/prometheus
 
 # Конфигурация
 sudo nano /etc/prometheus/prometheus.yml
-\`\`\`
+```
 
 Базовая конфигурация:
 
-\`\`\`yaml
+```yaml
 global:
   scrape_interval: 15s
 
@@ -610,15 +610,15 @@ scrape_configs:
   - job_name: 'redis'
     static_configs:
       - targets: ['localhost:9121']
-\`\`\`
+```
 
 Systemd service:
 
-\`\`\`bash
+```bash
 sudo nano /etc/systemd/system/prometheus.service
-\`\`\`
+```
 
-\`\`\`ini
+```ini
 [Unit]
 Description=Prometheus
 Wants=network-online.target
@@ -636,19 +636,19 @@ ExecStart=/usr/local/bin/prometheus \
 
 [Install]
 WantedBy=multi-user.target
-\`\`\`
+```
 
 Запуск:
 
-\`\`\`bash
+```bash
 sudo systemctl daemon-reload
 sudo systemctl start prometheus
 sudo systemctl enable prometheus
-\`\`\`
+```
 
 ### Установка Grafana
 
-\`\`\`bash
+```bash
 # Добавить репозиторий
 sudo apt install -y software-properties-common
 sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
@@ -661,7 +661,7 @@ sudo apt install -y grafana
 # Запустить
 sudo systemctl start grafana-server
 sudo systemctl enable grafana-server
-\`\`\`
+```
 
 Откройте: \`http://your-server-ip:3000\` (логин: admin, пароль: admin)
 
@@ -678,21 +678,21 @@ sudo systemctl enable grafana-server
 
 ### Email алерты через mail
 
-\`\`\`bash
+```bash
 # Установка
 sudo apt install -y mailutils
 
 # Тест
 echo "Test email" | mail -s "Test Subject" admin@example.com
-\`\`\`
+```
 
 ### Скрипт проверки здоровья системы
 
-\`\`\`bash
+```bash
 sudo nano /usr/local/bin/health-check.sh
-\`\`\`
+```
 
-\`\`\`bash
+```bash
 #!/bin/bash
 
 ADMIN_EMAIL="admin@example.com"
@@ -745,16 +745,16 @@ fi
 if [ "$ALERT" = true ]; then
     echo -e "$MESSAGE" | mail -s "PromptyFlow Health Alert" $ADMIN_EMAIL
 fi
-\`\`\`
+```
 
 Сделать исполняемым и добавить в cron:
 
-\`\`\`bash
+```bash
 sudo chmod +x /usr/local/bin/health-check.sh
 
 crontab -e
 */5 * * * * /usr/local/bin/health-check.sh
-\`\`\`
+```
 
 ---
 
@@ -764,7 +764,7 @@ crontab -e
 
 Добавьте в \`apps/api/src/routes/monitoring.routes.ts\`:
 
-\`\`\`typescript
+```typescript
 import { FastifyInstance } from 'fastify'
 import { authenticate } from '../middleware/auth.middleware'
 
@@ -816,7 +816,7 @@ export async function monitoringRoutes(fastify: FastifyInstance) {
     }
   })
 }
-\`\`\`
+```
 
 ---
 
@@ -860,42 +860,42 @@ export async function monitoringRoutes(fastify: FastifyInstance) {
 
 ### Backend не отвечает
 
-\`\`\`bash
+```bash
 pm2 logs promptyflow-api --err
 pm2 restart promptyflow-api
 curl http://localhost:3001/health
-\`\`\`
+```
 
 ### Nginx 502 Bad Gateway
 
-\`\`\`bash
+```bash
 sudo tail -f /var/log/nginx/error.log
 sudo systemctl status nginx
 pm2 status
-\`\`\`
+```
 
 ### PostgreSQL медленные запросы
 
-\`\`\`bash
+```bash
 sudo -u postgres psql -d promptyflow
 SELECT * FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 10;
-\`\`\`
+```
 
 ### Redis память заполнена
 
-\`\`\`bash
+```bash
 redis-cli -a password INFO memory
 redis-cli -a password FLUSHALL  # Осторожно!
-\`\`\`
+```
 
 ### Disk заполнен
 
-\`\`\`bash
+```bash
 df -h
 du -sh /var/* | sort -h
 sudo journalctl --vacuum-time=7d
 pm2 flush
-\`\`\`
+```
 
 ---
 

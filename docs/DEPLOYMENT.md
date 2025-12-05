@@ -37,27 +37,27 @@ PromptyFlow SaaS разворачивается на Ubuntu сервере со 
 
 ### 1.1. Обновление системы
 
-\`\`\`bash
+```bash
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y curl wget git build-essential
-\`\`\`
+```
 
 ### 1.2. Настройка firewall
 
-\`\`\`bash
+```bash
 sudo ufw allow OpenSSH
 sudo ufw allow 'Nginx Full'
 sudo ufw enable
 sudo ufw status
-\`\`\`
+```
 
 ### 1.3. Создание пользователя для приложения
 
-\`\`\`bash
+```bash
 sudo adduser --disabled-password --gecos "" promptyflow
 sudo usermod -aG sudo promptyflow
-\`\`\`
+```
 
 ---
 
@@ -65,18 +65,18 @@ sudo usermod -aG sudo promptyflow
 
 ### 2.1. Node.js 20.x
 
-\`\`\`bash
+```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 
 # Проверка версии
 node --version  # v20.x.x
 npm --version   # 10.x.x
-\`\`\`
+```
 
 ### 2.2. PostgreSQL 14+
 
-\`\`\`bash
+```bash
 # Добавление репозитория PostgreSQL
 sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null
@@ -87,11 +87,11 @@ sudo apt install -y postgresql-14 postgresql-contrib-14
 
 # Проверка статуса
 sudo systemctl status postgresql
-\`\`\`
+```
 
 ### 2.3. Redis 7+
 
-\`\`\`bash
+```bash
 # Установка из официального репозитория
 sudo apt install -y lsb-release
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
@@ -102,31 +102,31 @@ sudo apt install -y redis
 
 # Проверка статуса
 sudo systemctl status redis-server
-\`\`\`
+```
 
 ### 2.4. Nginx
 
-\`\`\`bash
+```bash
 sudo apt install -y nginx
 
 # Проверка статуса
 sudo systemctl status nginx
-\`\`\`
+```
 
 ### 2.5. PM2 (Process Manager)
 
-\`\`\`bash
+```bash
 sudo npm install -g pm2
 
 # Настройка автозапуска
 pm2 startup systemd -u promptyflow --hp /home/promptyflow
-\`\`\`
+```
 
 ### 2.6. Certbot (для SSL)
 
-\`\`\`bash
+```bash
 sudo apt install -y certbot python3-certbot-nginx
-\`\`\`
+```
 
 ---
 
@@ -134,7 +134,7 @@ sudo apt install -y certbot python3-certbot-nginx
 
 ### 3.1. Создание базы данных и пользователя
 
-\`\`\`bash
+```bash
 sudo -u postgres psql
 
 -- В psql консоли:
@@ -149,38 +149,38 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- Выход
 \q
-\`\`\`
+```
 
 ### 3.2. Настройка доступа
 
 Отредактируйте `/etc/postgresql/14/main/pg_hba.conf`:
 
-\`\`\`bash
+```bash
 sudo nano /etc/postgresql/14/main/pg_hba.conf
-\`\`\`
+```
 
 Добавьте/измените строку:
 
-\`\`\`
+```
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 local   promptyflow     promptyflow                             md5
 host    promptyflow     promptyflow     127.0.0.1/32           md5
-\`\`\`
+```
 
 Перезапустите PostgreSQL:
 
-\`\`\`bash
+```bash
 sudo systemctl restart postgresql
-\`\`\`
+```
 
 ### 3.3. Проверка подключения
 
-\`\`\`bash
+```bash
 psql -U promptyflow -d promptyflow -h 127.0.0.1
 
 # Если успешно подключились:
 \q
-\`\`\`
+```
 
 ---
 
@@ -190,13 +190,13 @@ psql -U promptyflow -d promptyflow -h 127.0.0.1
 
 Отредактируйте `/etc/redis/redis.conf`:
 
-\`\`\`bash
+```bash
 sudo nano /etc/redis/redis.conf
-\`\`\`
+```
 
 Найдите и измените:
 
-\`\`\`conf
+```conf
 # Bind на localhost
 bind 127.0.0.1
 
@@ -211,20 +211,20 @@ maxmemory-policy allkeys-lru
 save 900 1
 save 300 10
 save 60 10000
-\`\`\`
+```
 
 ### 4.2. Перезапуск Redis
 
-\`\`\`bash
+```bash
 sudo systemctl restart redis-server
-\`\`\`
+```
 
 ### 4.3. Проверка подключения
 
-\`\`\`bash
+```bash
 redis-cli -a your_redis_password ping
 # Ответ: PONG
-\`\`\`
+```
 
 ---
 
@@ -232,23 +232,23 @@ redis-cli -a your_redis_password ping
 
 ### 5.1. Переключение на пользователя promptyflow
 
-\`\`\`bash
+```bash
 sudo su - promptyflow
-\`\`\`
+```
 
 ### 5.2. Клонирование
 
-\`\`\`bash
+```bash
 cd ~
 git clone https://github.com/your-username/Promptozaurus-saas.git
 cd Promptozaurus-saas
-\`\`\`
+```
 
 ### 5.3. Установка зависимостей
 
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ---
 
@@ -256,14 +256,14 @@ npm install
 
 ### 6.1. Создание .env файла
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/api
 nano .env.production
-\`\`\`
+```
 
 Добавьте переменные окружения:
 
-\`\`\`bash
+```bash
 # Environment
 NODE_ENV=production
 PORT=3001
@@ -290,11 +290,11 @@ CORS_ORIGIN=https://your-domain.com
 
 # Frontend URL
 FRONTEND_URL=https://your-domain.com
-\`\`\`
+```
 
 ### 6.2. Генерация секретных ключей
 
-\`\`\`bash
+```bash
 # JWT_SECRET (64 символа hex)
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
@@ -303,11 +303,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 # SESSION_SECRET (64 символа hex)
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-\`\`\`
+```
 
 ### 6.3. Применение миграций Prisma
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/api
 
 # Загрузка переменных окружения
@@ -318,30 +318,30 @@ npx prisma migrate deploy
 
 # Генерация Prisma Client
 npx prisma generate
-\`\`\`
+```
 
 ### 6.4. Сборка Backend
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/api
 npm run build
 
 # Проверка сборки
 ls -la dist/
-\`\`\`
+```
 
 ### 6.5. Настройка PM2
 
 Создайте `ecosystem.config.js`:
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/api
 nano ecosystem.config.js
-\`\`\`
+```
 
 Содержимое:
 
-\`\`\`javascript
+```javascript
 module.exports = {
   apps: [{
     name: 'promptyflow-api',
@@ -363,11 +363,11 @@ module.exports = {
     watch: false
   }]
 }
-\`\`\`
+```
 
 ### 6.6. Запуск Backend через PM2
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/api
 
 # Создание директории для логов
@@ -387,16 +387,16 @@ pm2 logs promptyflow-api
 
 # Сохранение конфигурации PM2
 pm2 save
-\`\`\`
+```
 
 ### 6.7. Проверка работы Backend
 
-\`\`\`bash
+```bash
 curl http://localhost:3001/health
 
 # Ожидаемый ответ:
 # {"status":"ok","timestamp":"...","redis":"connected"}
-\`\`\`
+```
 
 ---
 
@@ -404,20 +404,20 @@ curl http://localhost:3001/health
 
 ### 7.1. Создание .env файла
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/web
 nano .env.production
-\`\`\`
+```
 
 Добавьте:
 
-\`\`\`bash
+```bash
 VITE_API_URL=https://your-domain.com
-\`\`\`
+```
 
 ### 7.2. Сборка Frontend
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas/apps/web
 
 # Установка зависимостей
@@ -428,18 +428,18 @@ npm run build
 
 # Проверка сборки
 ls -la dist/
-\`\`\`
+```
 
 ### 7.3. Копирование статических файлов
 
-\`\`\`bash
+```bash
 # Создание директории для frontend
 sudo mkdir -p /var/www/promptyflow
 sudo chown -R promptyflow:promptyflow /var/www/promptyflow
 
 # Копирование собранных файлов
 cp -r ~/Promptozaurus-saas/apps/web/dist/* /var/www/promptyflow/
-\`\`\`
+```
 
 ---
 
@@ -447,13 +447,13 @@ cp -r ~/Promptozaurus-saas/apps/web/dist/* /var/www/promptyflow/
 
 ### 8.1. Создание конфигурации Nginx
 
-\`\`\`bash
+```bash
 sudo nano /etc/nginx/sites-available/promptyflow
-\`\`\`
+```
 
 Базовая конфигурация (HTTP):
 
-\`\`\`nginx
+```nginx
 # HTTP конфигурация (временная, до установки SSL)
 server {
     listen 80;
@@ -536,11 +536,11 @@ server {
         access_log off;
     }
 }
-\`\`\`
+```
 
 ### 8.2. Активация конфигурации
 
-\`\`\`bash
+```bash
 # Создание символической ссылки
 sudo ln -s /etc/nginx/sites-available/promptyflow /etc/nginx/sites-enabled/
 
@@ -552,7 +552,7 @@ sudo nginx -t
 
 # Перезапуск Nginx
 sudo systemctl restart nginx
-\`\`\`
+```
 
 ---
 
@@ -560,9 +560,9 @@ sudo systemctl restart nginx
 
 ### 9.1. Получение Let's Encrypt сертификата
 
-\`\`\`bash
+```bash
 sudo certbot --nginx -d your-domain.com -d www.your-domain.com
-\`\`\`
+```
 
 Certbot автоматически:
 1. Получит сертификат
@@ -571,15 +571,15 @@ Certbot автоматически:
 
 ### 9.2. Проверка автоматического обновления
 
-\`\`\`bash
+```bash
 sudo certbot renew --dry-run
-\`\`\`
+```
 
 ### 9.3. Финальная конфигурация Nginx (после SSL)
 
 Certbot автоматически обновит конфигурацию, добавив:
 
-\`\`\`nginx
+```nginx
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
@@ -601,7 +601,7 @@ server {
     server_name your-domain.com www.your-domain.com;
     return 301 https://$server_name$request_uri;
 }
-\`\`\`
+```
 
 ---
 
@@ -609,13 +609,13 @@ server {
 
 ### 10.1. Создание скрипта обновления
 
-\`\`\`bash
+```bash
 nano ~/Promptozaurus-saas/deploy.sh
-\`\`\`
+```
 
 Содержимое:
 
-\`\`\`bash
+```bash
 #!/bin/bash
 
 set -e
@@ -659,20 +659,20 @@ echo "🔄 Reloading Nginx..."
 sudo systemctl reload nginx
 
 echo "✅ Deployment completed successfully!"
-\`\`\`
+```
 
 Сделайте скрипт исполняемым:
 
-\`\`\`bash
+```bash
 chmod +x ~/Promptozaurus-saas/deploy.sh
-\`\`\`
+```
 
 ### 10.2. Запуск обновления
 
-\`\`\`bash
+```bash
 cd ~/Promptozaurus-saas
 ./deploy.sh
-\`\`\`
+```
 
 ---
 
@@ -680,7 +680,7 @@ cd ~/Promptozaurus-saas
 
 ### 11.1. Просмотр логов PM2
 
-\`\`\`bash
+```bash
 # Все логи
 pm2 logs promptyflow-api
 
@@ -692,21 +692,21 @@ pm2 logs promptyflow-api --lines 100
 
 # Очистка логов
 pm2 flush
-\`\`\`
+```
 
 ### 11.2. Просмотр логов Nginx
 
-\`\`\`bash
+```bash
 # Access logs
 sudo tail -f /var/log/nginx/access.log
 
 # Error logs
 sudo tail -f /var/log/nginx/error.log
-\`\`\`
+```
 
 ### 11.3. Мониторинг системы
 
-\`\`\`bash
+```bash
 # Мониторинг процессов PM2
 pm2 monit
 
@@ -717,19 +717,19 @@ sudo systemctl status nginx
 
 # Использование ресурсов
 htop
-\`\`\`
+```
 
 ### 11.4. Настройка ротации логов
 
 Создайте `/etc/logrotate.d/promptyflow`:
 
-\`\`\`bash
+```bash
 sudo nano /etc/logrotate.d/promptyflow
-\`\`\`
+```
 
 Содержимое:
 
-\`\`\`
+```
 /home/promptyflow/Promptozaurus-saas/apps/api/logs/*.log {
     daily
     missingok
@@ -743,7 +743,7 @@ sudo nano /etc/logrotate.d/promptyflow
         pm2 reloadLogs
     endscript
 }
-\`\`\`
+```
 
 ---
 
@@ -755,15 +755,15 @@ sudo nano /etc/logrotate.d/promptyflow
 2. Перейдите в APIs & Services → Credentials
 3. Выберите ваш OAuth Client
 4. В "Authorized redirect URIs" добавьте:
-   \`\`\`
+   ```
    https://your-domain.com/auth/google/callback
-   \`\`\`
+   ```
 
 ### 12.2. Обновление Authorized JavaScript origins
 
-\`\`\`
+```
 https://your-domain.com
-\`\`\`
+```
 
 ---
 
@@ -771,16 +771,16 @@ https://your-domain.com
 
 ### 13.1. Настройка fail2ban
 
-\`\`\`bash
+```bash
 sudo apt install -y fail2ban
 
 # Создание конфигурации для Nginx
 sudo nano /etc/fail2ban/jail.local
-\`\`\`
+```
 
 Добавьте:
 
-\`\`\`ini
+```ini
 [nginx-http-auth]
 enabled = true
 port = http,https
@@ -791,41 +791,41 @@ enabled = true
 port = http,https
 logpath = /var/log/nginx/access.log
 maxretry = 6
-\`\`\`
+```
 
 Перезапустите fail2ban:
 
-\`\`\`bash
+```bash
 sudo systemctl restart fail2ban
 sudo fail2ban-client status
-\`\`\`
+```
 
 ### 13.2. Ограничение SSH доступа
 
-\`\`\`bash
+```bash
 sudo nano /etc/ssh/sshd_config
-\`\`\`
+```
 
 Измените:
 
-\`\`\`
+```
 PermitRootLogin no
 PasswordAuthentication no
 PubkeyAuthentication yes
-\`\`\`
+```
 
 Перезапустите SSH:
 
-\`\`\`bash
+```bash
 sudo systemctl restart sshd
-\`\`\`
+```
 
 ### 13.3. Автоматические обновления безопасности
 
-\`\`\`bash
+```bash
 sudo apt install -y unattended-upgrades
 sudo dpkg-reconfigure --priority=low unattended-upgrades
-\`\`\`
+```
 
 ---
 
@@ -833,13 +833,13 @@ sudo dpkg-reconfigure --priority=low unattended-upgrades
 
 ### 14.1. Создание скрипта бэкапа
 
-\`\`\`bash
+```bash
 sudo nano /usr/local/bin/backup-promptyflow.sh
-\`\`\`
+```
 
 Содержимое:
 
-\`\`\`bash
+```bash
 #!/bin/bash
 
 BACKUP_DIR="/var/backups/promptyflow"
@@ -865,25 +865,25 @@ find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
 find $BACKUP_DIR -name "*.rdb" -mtime +7 -delete
 
 echo "Backup completed: $BACKUP_DIR"
-\`\`\`
+```
 
 Сделайте исполняемым:
 
-\`\`\`bash
+```bash
 sudo chmod +x /usr/local/bin/backup-promptyflow.sh
-\`\`\`
+```
 
 ### 14.2. Настройка cron для автоматических бэкапов
 
-\`\`\`bash
+```bash
 sudo crontab -e
-\`\`\`
+```
 
 Добавьте (ежедневно в 3:00 AM):
 
-\`\`\`
+```
 0 3 * * * /usr/local/bin/backup-promptyflow.sh >> /var/log/promptyflow-backup.log 2>&1
-\`\`\`
+```
 
 ---
 
@@ -918,7 +918,7 @@ sudo crontab -e
 
 ### Backend не запускается
 
-\`\`\`bash
+```bash
 # Проверка логов PM2
 pm2 logs promptyflow-api --err
 
@@ -927,11 +927,11 @@ pm2 env 0
 
 # Перезапуск
 pm2 restart promptyflow-api
-\`\`\`
+```
 
 ### PostgreSQL connection failed
 
-\`\`\`bash
+```bash
 # Проверка статуса
 sudo systemctl status postgresql
 
@@ -940,11 +940,11 @@ psql -U promptyflow -d promptyflow -h 127.0.0.1
 
 # Проверка логов
 sudo tail -f /var/log/postgresql/postgresql-14-main.log
-\`\`\`
+```
 
 ### Redis connection failed
 
-\`\`\`bash
+```bash
 # Проверка статуса
 sudo systemctl status redis-server
 
@@ -953,11 +953,11 @@ redis-cli -a your_redis_password ping
 
 # Проверка логов
 sudo tail -f /var/log/redis/redis-server.log
-\`\`\`
+```
 
 ### Nginx 502 Bad Gateway
 
-\`\`\`bash
+```bash
 # Проверка backend
 curl http://localhost:3001/health
 
@@ -966,11 +966,11 @@ sudo nginx -t
 
 # Проверка логов
 sudo tail -f /var/log/nginx/error.log
-\`\`\`
+```
 
 ### SSL сертификат не обновляется
 
-\`\`\`bash
+```bash
 # Проверка статуса Certbot
 sudo certbot certificates
 
@@ -979,7 +979,7 @@ sudo certbot renew --force-renewal
 
 # Проверка cron задачи
 sudo systemctl status certbot.timer
-\`\`\`
+```
 
 ---
 
@@ -987,40 +987,40 @@ sudo systemctl status certbot.timer
 
 ### PM2
 
-\`\`\`bash
+```bash
 pm2 list                    # Список процессов
 pm2 restart promptyflow-api # Перезапуск
 pm2 stop promptyflow-api    # Остановка
 pm2 delete promptyflow-api  # Удаление
 pm2 monit                   # Мониторинг
 pm2 save                    # Сохранение конфигурации
-\`\`\`
+```
 
 ### Nginx
 
-\`\`\`bash
+```bash
 sudo nginx -t               # Проверка конфигурации
 sudo systemctl restart nginx # Перезапуск
 sudo systemctl reload nginx  # Перезагрузка конфигурации
 sudo systemctl status nginx  # Статус
-\`\`\`
+```
 
 ### PostgreSQL
 
-\`\`\`bash
+```bash
 sudo systemctl restart postgresql # Перезапуск
 sudo -u postgres psql            # Вход в psql
 pg_dump promptyflow > backup.sql # Бэкап
 psql promptyflow < backup.sql    # Восстановление
-\`\`\`
+```
 
 ### Redis
 
-\`\`\`bash
+```bash
 sudo systemctl restart redis-server # Перезапуск
 redis-cli -a password              # Подключение
 redis-cli -a password FLUSHALL     # Очистка
-\`\`\`
+```
 
 ---
 

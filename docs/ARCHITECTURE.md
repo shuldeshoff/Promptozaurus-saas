@@ -21,7 +21,7 @@ PromptyFlow — это облачное SaaS-приложение для раб�
 
 ### Основные компоненты
 
-\`\`\`
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      PromptyFlow SaaS                            │
 ├──────────────────┬──────────────────────┬───────────────────────┤
@@ -36,7 +36,7 @@ PromptyFlow — это облачное SaaS-приложение для раб�
 │  i18next         │  Winston Logger      │                       │
 │                  │                      │                       │
 └──────────────────┴──────────────────────┴───────────────────────┘
-\`\`\`
+```
 
 ### Ключевые возможности
 
@@ -92,7 +92,7 @@ PromptyFlow — это облачное SaaS-приложение для раб�
 
 ## Структура проекта
 
-\`\`\`
+```
 Promptozaurus-saas/
 │
 ├── apps/
@@ -221,7 +221,7 @@ Promptozaurus-saas/
         │   ├── schemas.ts
         │   └── index.ts
         └── package.json
-\`\`\`
+```
 
 ---
 
@@ -229,7 +229,7 @@ Promptozaurus-saas/
 
 ### Иерархия компонентов
 
-\`\`\`
+```
 App.tsx
 │
 ├─ ErrorBoundary                            # Перехват ошибок React
@@ -274,7 +274,7 @@ App.tsx
 │                       ├─ Context selector
 │                       ├─ Preview
 │                       └─ AI send
-\`\`\`
+```
 
 ### Управление состоянием
 
@@ -282,7 +282,7 @@ App.tsx
 
 Автоматическая синхронизация с сервером:
 
-\`\`\`typescript
+```typescript
 // GET запросы
 useProjects()          // Список проектов
 useProject(id)         // Один проект
@@ -293,7 +293,7 @@ useAIModels()          // AI модели
 useUpdateProject()     // Обновить проект
 useDeleteProject()     // Удалить проект
 useSendToAI()          // Отправить в AI
-\`\`\`
+```
 
 **Преимущества:**
 - Автоматическое кеширование
@@ -306,7 +306,7 @@ useSendToAI()          // Отправить в AI
 
 Глобальное клиентское состояние:
 
-\`\`\`typescript
+```typescript
 // auth.store.ts - аутентификация
 {
   user: User | null
@@ -323,13 +323,13 @@ useSendToAI()          // Отправить в AI
   addPendingChange()
   syncChanges()
 }
-\`\`\`
+```
 
 **3. Context API**
 
 UI состояние для глубокой передачи:
 
-\`\`\`typescript
+```typescript
 // EditorContext - состояние редактора
 {
   activeTab: 'context' | 'prompts'
@@ -343,16 +343,16 @@ UI состояние для глубокой передачи:
   confirm(message)
   alert(message)
 }
-\`\`\`
+```
 
 **4. Local State (useState)**
 
 Локальное состояние компонента:
 
-\`\`\`typescript
+```typescript
 const [editingName, setEditingName] = useState(false)
 const [localTitle, setLocalTitle] = useState(block.title)
-\`\`\`
+```
 
 ### Ключевые паттерны
 
@@ -360,7 +360,7 @@ const [localTitle, setLocalTitle] = useState(block.title)
 
 UI обновляется немедленно, откатывается при ошибке:
 
-\`\`\`typescript
+```typescript
 useMutation({
   onMutate: async (newData) => {
     await queryClient.cancelQueries(['projects'])
@@ -372,13 +372,13 @@ useMutation({
     queryClient.setQueryData(['projects'], context.previous)
   }
 })
-\`\`\`
+```
 
 **Debounced Auto-Save**
 
 Задержка сохранения на 500мс:
 
-\`\`\`typescript
+```typescript
 const debouncedSave = useMemo(
   () => debounce((data) => updateProject.mutate(data), 500),
   []
@@ -388,20 +388,20 @@ const handleChange = (content) => {
   setLocalContent(content)  // Немедленно
   debouncedSave(content)    // С задержкой
 }
-\`\`\`
+```
 
 **Offline Support**
 
 Сохранение в localStorage при отсутствии сети:
 
-\`\`\`typescript
+```typescript
 onError: (error) => {
   if (!navigator.onLine) {
     offlineStore.addPendingChange(data)
     toast.info('Оффлайн: изменения сохранены локально')
   }
 }
-\`\`\`
+```
 
 ---
 
@@ -409,7 +409,7 @@ onError: (error) => {
 
 ### Слоистая архитектура
 
-\`\`\`
+```
 ┌─────────────────────────────────────────────────────────┐
 │                    ROUTES LAYER                          │
 │  • HTTP маршрутизация                                    │
@@ -433,11 +433,11 @@ onError: (error) => {
 │  • Внешние API (AI провайдеры)                          │
 │  • Шифрование/дешифрование                               │
 └─────────────────────────────────────────────────────────┘
-\`\`\`
+```
 
 ### RESTful API
 
-\`\`\`
+```
 📁 Authentication
 POST   /auth/google                 # OAuth callback
 POST   /auth/refresh                # Refresh access token
@@ -475,13 +475,13 @@ DELETE /api/templates/:id           # Удалить
 GET    /ai/models                   # Доступные модели
 POST   /ai/send                     # Отправить запрос
 POST   /ai/test-connection          # Тест API ключа
-\`\`\`
+```
 
 ### Service Layer
 
 Пример ProjectService:
 
-\`\`\`typescript
+```typescript
 class ProjectService {
   // Получить все проекты пользователя
   async getUserProjects(userId: string): Promise<Project[]> {
@@ -567,13 +567,13 @@ class ProjectService {
     return { totalChars, largestBlockChars }
   }
 }
-\`\`\`
+```
 
 ### Provider Pattern
 
 Единый интерфейс для AI провайдеров:
 
-\`\`\`typescript
+```typescript
 // Базовый класс
 abstract class BaseProvider {
   protected apiKey: string
@@ -637,13 +637,13 @@ class OpenAIProvider extends BaseProvider {
     return data.choices[0]?.message?.content || ''
   }
 }
-\`\`\`
+```
 
 ### Middleware
 
 **Authentication**
 
-\`\`\`typescript
+```typescript
 async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply
@@ -662,11 +662,11 @@ async function authenticate(
     email: decoded.email
   }
 }
-\`\`\`
+```
 
 **Error Handler**
 
-\`\`\`typescript
+```typescript
 function errorHandler(
   error: Error,
   request: FastifyRequest,
@@ -690,7 +690,7 @@ function errorHandler(
     message: 'Внутренняя ошибка сервера'
   })
 }
-\`\`\`
+```
 
 ---
 
@@ -698,7 +698,7 @@ function errorHandler(
 
 ### Схема PostgreSQL
 
-\`\`\`prisma
+```prisma
 model User {
   id          String    @id @default(cuid())
   googleId    String    @unique
@@ -762,11 +762,11 @@ model ApiKey {
   @@unique([userId, provider])
   @@index([userId])
 }
-\`\`\`
+```
 
 ### Типы данных (JSONB)
 
-\`\`\`typescript
+```typescript
 interface ProjectData {
   contextBlocks: ContextBlock[]
   promptBlocks: PromptBlock[]
@@ -807,13 +807,13 @@ interface SelectedContext {
   subItemId?: number
   order: number
 }
-\`\`\`
+```
 
 ### Индексы и оптимизации
 
 **1. Full-Text Search**
 
-\`\`\`sql
+```sql
 -- Generated columns
 ALTER TABLE templates 
 ADD COLUMN name_tsv tsvector 
@@ -825,11 +825,11 @@ ON templates USING gin(name_tsv);
 
 CREATE INDEX idx_templates_content_tsv 
 ON templates USING gin(content_tsv);
-\`\`\`
+```
 
 **Использование:**
 
-\`\`\`typescript
+```typescript
 const results = await prisma.$queryRaw\`
   SELECT * FROM templates
   WHERE user_id = \${userId}
@@ -840,15 +840,15 @@ const results = await prisma.$queryRaw\`
 \`
 
 // Результат: 1-11ms вместо 7-8 секунд
-\`\`\`
+```
 
 **2. Обычные индексы**
 
-\`\`\`sql
+```sql
 CREATE INDEX idx_projects_user_id ON projects(user_id);
 CREATE INDEX idx_templates_user_id ON templates(user_id);
 CREATE INDEX idx_projects_updated_at ON projects(updated_at);
-\`\`\`
+```
 
 ---
 
@@ -856,7 +856,7 @@ CREATE INDEX idx_projects_updated_at ON projects(updated_at);
 
 ### Архитектура
 
-\`\`\`
+```
 CLIENT
   │ POST /ai/send
   │ { provider: 'openai', model: 'gpt-4o', messages: [...] }
@@ -884,7 +884,7 @@ AI RESPONSE
   ▼
 RETURN TO CLIENT
   │ { success: true, response: 'Generated text...' }
-\`\`\`
+```
 
 ### Поддерживаемые провайдеры
 
@@ -898,7 +898,7 @@ RETURN TO CLIENT
 
 ### Кеширование моделей
 
-\`\`\`typescript
+```typescript
 class ModelsCacheService {
   private CACHE_TTL = 3600 // 1 час
 
@@ -924,7 +924,7 @@ class ModelsCacheService {
     return providerInstance.getFallbackModels()
   }
 }
-\`\`\`
+```
 
 ---
 
@@ -934,7 +934,7 @@ class ModelsCacheService {
 
 **Поток аутентификации:**
 
-\`\`\`
+```
 1. USER CLICKS "Войти через Google"
    ▼
 2. REDIRECT TO GOOGLE OAUTH
@@ -979,13 +979,13 @@ class ModelsCacheService {
    axios.interceptors.request.use(config => {
      config.headers.Authorization = \`Bearer \${accessToken}\`
    })
-\`\`\`
+```
 
 ### Шифрование API ключей
 
 **AES-256-GCM:**
 
-\`\`\`typescript
+```typescript
 class EncryptionService {
   private algorithm = 'aes-256-gcm'
   private key: Buffer // 32 bytes from env
@@ -1018,11 +1018,11 @@ class EncryptionService {
     return decrypted
   }
 }
-\`\`\`
+```
 
 **Использование:**
 
-\`\`\`typescript
+```typescript
 // Сохранение
 const encryptedKey = encryptionService.encrypt(apiKey)
 await prisma.apiKey.create({
@@ -1034,7 +1034,7 @@ const record = await prisma.apiKey.findFirst({
   where: { userId, provider }
 })
 const apiKey = encryptionService.decrypt(record.encryptedKey)
-\`\`\`
+```
 
 ### Best Practices
 
@@ -1047,20 +1047,20 @@ const apiKey = encryptionService.decrypt(record.encryptedKey)
 - CSP headers
 
 **3. CORS**
-\`\`\`typescript
+```typescript
 fastify.register(cors, {
   origin: 'https://promptyflow.com',
   credentials: true
 })
-\`\`\`
+```
 
 **4. Rate Limiting**
-\`\`\`typescript
+```typescript
 fastify.register(rateLimit, {
   max: 100,
   timeWindow: '1 minute'
 })
-\`\`\`
+```
 
 ---
 
@@ -1070,30 +1070,30 @@ fastify.register(rateLimit, {
 
 **1. Code Splitting**
 
-\`\`\`typescript
+```typescript
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
-\`\`\`
+```
 
 **2. Memoization**
 
-\`\`\`typescript
+```typescript
 const stats = useMemo(() => {
   return blocks.map(block => ({
     ...block,
     totalChars: calculateTotalChars(block)
   }))
 }, [blocks])
-\`\`\`
+```
 
 **3. Debouncing**
 
-\`\`\`typescript
+```typescript
 const debouncedSave = useMemo(
   () => debounce((data) => save(data), 500),
   []
 )
-\`\`\`
+```
 
 ### Backend оптимизации
 
@@ -1123,7 +1123,7 @@ const debouncedSave = useMemo(
 
 ### Horizontal Scaling
 
-\`\`\`
+```
                Nginx Load Balancer
                        │
         ┌──────────────┼──────────────┐
@@ -1145,11 +1145,11 @@ const debouncedSave = useMemo(
      ▼             ▼
   Replica 1    Replica 2
  (Read-only)  (Read-only)
-\`\`\`
+```
 
 ### Caching Strategy
 
-\`\`\`
+```
 ┌────────────────────────────────────────────┐
 │            CACHE LAYERS                    │
 ├────────────────────────────────────────────┤
@@ -1162,13 +1162,13 @@ const debouncedSave = useMemo(
 │ L3: PostgreSQL             Permanent       │
 │     • Users, projects, templates, keys     │
 └────────────────────────────────────────────┘
-\`\`\`
+```
 
 ### Database Scaling
 
 **1. Read Replicas**
 
-\`\`\`typescript
+```typescript
 const prismaWrite = new PrismaClient({ url: PRIMARY_URL })
 const prismaRead = new PrismaClient({ url: REPLICA_URL })
 
@@ -1177,7 +1177,7 @@ const projects = await prismaRead.project.findMany()
 
 // Запись
 await prismaWrite.project.create()
-\`\`\`
+```
 
 **2. Sharding (будущее)**
 
