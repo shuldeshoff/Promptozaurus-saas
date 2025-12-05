@@ -22,20 +22,20 @@ PromptyFlow — это облачное SaaS-приложение для раб�
 ### Основные компоненты
 
 ```
-
-                      PromptyFlow SaaS                            
-
-    Frontend             Backend               Shared          
-   (apps/web)           (apps/api)        (packages/shared)    
-                                                               
-  React 18.3        Fastify 4.28          TypeScript Types     
-  Vite 5.4          TypeScript 5.6        Zod Schemas          
-  TanStack Query    PostgreSQL 14+        Validation           
-  Zustand           Prisma ORM 5.22                            
-  Tailwind CSS      Redis 7+                                   
-  i18next           Winston Logger                             
-                                                               
-
+┌─────────────────────────────────────────────────────────────────┐
+│                      PromptyFlow SaaS                            │
+├──────────────────┬──────────────────────┬───────────────────────┤
+│    Frontend      │       Backend        │       Shared          │
+│   (apps/web)     │      (apps/api)      │  (packages/shared)    │
+│                  │                      │                       │
+│  React 18.3      │  Fastify 4.28        │  TypeScript Types     │
+│  Vite 5.4        │  TypeScript 5.6      │  Zod Schemas          │
+│  TanStack Query  │  PostgreSQL 14+      │  Validation           │
+│  Zustand         │  Prisma ORM 5.22     │                       │
+│  Tailwind CSS    │  Redis 7+            │                       │
+│  i18next         │  Winston Logger      │                       │
+│                  │                      │                       │
+└──────────────────┴──────────────────────┴───────────────────────┘
 ```
 
 ### Ключевые возможности
@@ -94,133 +94,133 @@ PromptyFlow — это облачное SaaS-приложение для раб�
 
 ```
 Promptozaurus-saas/
-
- apps/
-   
-    web/                                 # Frontend приложение
-       src/
-          components/
-             layout/                 # Компоненты макета
-                Header.tsx          # Шапка с навигацией
-                MainLayout.tsx      # Основной layout
-                NavigationPanel.tsx # Панель проектов
-            
-             context/                # Управление контекстом
-                ContextEditor.tsx
-                ContextItem.tsx
-                SplitModal.tsx
-            
-             prompt/                 # Управление промптами
-                PromptEditor.tsx
-                PromptItem.tsx
-            
-             context-selection/      # Визуальный селектор
-                ContextSelectionPanel.tsx
-            
-             ui/                     # Переиспользуемые компоненты
-             AIConfigModal.tsx
-             AIResponseModal.tsx
-             ProjectList.tsx
-             ConfirmationModal.tsx
-         
-          pages/
-             LandingPage.tsx
-             DashboardPage.tsx
-             AuthCallbackPage.tsx
-             ErrorPage.tsx
-         
-          hooks/                      # Кастомные хуки
-             useAuth.ts
-             useProjects.ts
-             useAI.ts
-             useAIModels.ts
-             useProjectUpdate.ts
-             useTemplates.ts
-         
-          context/                    # React Context
-             EditorContext.tsx
-             ConfirmationContext.tsx
-         
-          store/                      # Zustand stores
-             auth.store.ts
-             offline.store.ts
-         
-          lib/                        # Core утилиты
-             api.ts
-             queryClient.ts
-             i18n.ts
-         
-          locales/                    # Переводы
-             ru/
-                common.json
-                editor.json
-                aiConfig.json
-                providers.json
-             en/ (аналогично)
-         
-          utils/                      # Хелперы
-          data/                       # Статические данные
-      
-       index.html
-       vite.config.ts
-       tailwind.config.js
-       package.json
-   
-    api/                                # Backend приложение
-        src/
-           index.ts                    # Точка входа
-          
-           routes/                     # API endpoints
-              auth.routes.ts          # OAuth, JWT refresh
-              project.routes.ts       # CRUD проектов
-              context.routes.ts       # Контекстные блоки
-              prompt.routes.ts        # Блоки промптов
-              template.routes.ts      # Библиотека шаблонов
-              ai.routes.ts            # AI интеграция
-              user.routes.ts          # Профиль, API ключи
-          
-           services/                   # Бизнес-логика
-              project.service.ts
-              template.service.ts
-              user.service.ts
-              modelsCache.service.ts
-              encryption.service.ts
-          
-           providers/                  # AI провайдеры
-              base.provider.ts
-              openai.provider.ts
-              anthropic.provider.ts
-              gemini.provider.ts
-              grok.provider.ts
-              openrouter.provider.ts
-          
-           middleware/                 # Middleware
-              auth.middleware.ts
-              errorHandler.ts
-              cors.ts
-          
-           lib/                        # Core утилиты
-              prisma.ts
-              redis.ts
-              logger.ts
-          
-           utils/
-               prompt.utils.ts
-       
-        prisma/
-           schema.prisma
-           migrations/
-       
-        scripts/
-        package.json
-
- packages/
-     shared/                             # Общие типы
-         src/
-            types.ts
-            schemas.ts
-            index.ts
-         package.json
+│
+├── apps/
+│   │
+│   ├── web/                                 # Frontend приложение
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── layout/                 # Компоненты макета
+│   │   │   │   │   ├── Header.tsx          # Шапка с навигацией
+│   │   │   │   │   ├── MainLayout.tsx      # Основной layout
+│   │   │   │   │   └── NavigationPanel.tsx # Панель проектов
+│   │   │   │   │
+│   │   │   │   ├── context/                # Управление контекстом
+│   │   │   │   │   ├── ContextEditor.tsx
+│   │   │   │   │   ├── ContextItem.tsx
+│   │   │   │   │   └── SplitModal.tsx
+│   │   │   │   │
+│   │   │   │   ├── prompt/                 # Управление промптами
+│   │   │   │   │   ├── PromptEditor.tsx
+│   │   │   │   │   └── PromptItem.tsx
+│   │   │   │   │
+│   │   │   │   ├── context-selection/      # Визуальный селектор
+│   │   │   │   │   └── ContextSelectionPanel.tsx
+│   │   │   │   │
+│   │   │   │   └── ui/                     # Переиспользуемые компоненты
+│   │   │   │       ├── AIConfigModal.tsx
+│   │   │   │       ├── AIResponseModal.tsx
+│   │   │   │       ├── ProjectList.tsx
+│   │   │   │       └── ConfirmationModal.tsx
+│   │   │   │
+│   │   │   ├── pages/
+│   │   │   │   ├── LandingPage.tsx
+│   │   │   │   ├── DashboardPage.tsx
+│   │   │   │   ├── AuthCallbackPage.tsx
+│   │   │   │   └── ErrorPage.tsx
+│   │   │   │
+│   │   │   ├── hooks/                      # Кастомные хуки
+│   │   │   │   ├── useAuth.ts
+│   │   │   │   ├── useProjects.ts
+│   │   │   │   ├── useAI.ts
+│   │   │   │   ├── useAIModels.ts
+│   │   │   │   ├── useProjectUpdate.ts
+│   │   │   │   └── useTemplates.ts
+│   │   │   │
+│   │   │   ├── context/                    # React Context
+│   │   │   │   ├── EditorContext.tsx
+│   │   │   │   └── ConfirmationContext.tsx
+│   │   │   │
+│   │   │   ├── store/                      # Zustand stores
+│   │   │   │   ├── auth.store.ts
+│   │   │   │   └── offline.store.ts
+│   │   │   │
+│   │   │   ├── lib/                        # Core утилиты
+│   │   │   │   ├── api.ts
+│   │   │   │   ├── queryClient.ts
+│   │   │   │   └── i18n.ts
+│   │   │   │
+│   │   │   ├── locales/                    # Переводы
+│   │   │   │   ├── ru/
+│   │   │   │   │   ├── common.json
+│   │   │   │   │   ├── editor.json
+│   │   │   │   │   ├── aiConfig.json
+│   │   │   │   │   └── providers.json
+│   │   │   │   └── en/ (аналогично)
+│   │   │   │
+│   │   │   ├── utils/                      # Хелперы
+│   │   │   └── data/                       # Статические данные
+│   │   │
+│   │   ├── index.html
+│   │   ├── vite.config.ts
+│   │   ├── tailwind.config.js
+│   │   └── package.json
+│   │
+│   └── api/                                # Backend приложение
+│       ├── src/
+│       │   ├── index.ts                    # Точка входа
+│       │   │
+│       │   ├── routes/                     # API endpoints
+│       │   │   ├── auth.routes.ts          # OAuth, JWT refresh
+│       │   │   ├── project.routes.ts       # CRUD проектов
+│       │   │   ├── context.routes.ts       # Контекстные блоки
+│       │   │   ├── prompt.routes.ts        # Блоки промптов
+│       │   │   ├── template.routes.ts      # Библиотека шаблонов
+│       │   │   ├── ai.routes.ts            # AI интеграция
+│       │   │   └── user.routes.ts          # Профиль, API ключи
+│       │   │
+│       │   ├── services/                   # Бизнес-логика
+│       │   │   ├── project.service.ts
+│       │   │   ├── template.service.ts
+│       │   │   ├── user.service.ts
+│       │   │   ├── modelsCache.service.ts
+│       │   │   └── encryption.service.ts
+│       │   │
+│       │   ├── providers/                  # AI провайдеры
+│       │   │   ├── base.provider.ts
+│       │   │   ├── openai.provider.ts
+│       │   │   ├── anthropic.provider.ts
+│       │   │   ├── gemini.provider.ts
+│       │   │   ├── grok.provider.ts
+│       │   │   └── openrouter.provider.ts
+│       │   │
+│       │   ├── middleware/                 # Middleware
+│       │   │   ├── auth.middleware.ts
+│       │   │   ├── errorHandler.ts
+│       │   │   └── cors.ts
+│       │   │
+│       │   ├── lib/                        # Core утилиты
+│       │   │   ├── prisma.ts
+│       │   │   ├── redis.ts
+│       │   │   └── logger.ts
+│       │   │
+│       │   └── utils/
+│       │       └── prompt.utils.ts
+│       │
+│       ├── prisma/
+│       │   ├── schema.prisma
+│       │   └── migrations/
+│       │
+│       ├── scripts/
+│       └── package.json
+│
+└── packages/
+    └── shared/                             # Общие типы
+        ├── src/
+        │   ├── types.ts
+        │   ├── schemas.ts
+        │   └── index.ts
+        └── package.json
 ```
 
 ---
@@ -231,49 +231,50 @@ Promptozaurus-saas/
 
 ```
 App.tsx
-
- ErrorBoundary                            # Перехват ошибок React
-   QueryClientProvider                   # TanStack Query
-      ConfirmationProvider               # Модалки подтверждения
-        
-         LandingPage                     # Для гостей
-           Header (guest)
-           Hero
-           Features
-           Footer
-        
-         DashboardPage                   # Для пользователей
-            EditorProvider               # Состояние редактора
-               MainLayout
-                 
-                  Header (authorized)
-                    Project selector
-                    AI config
-                    Language switcher
-                    User menu
-                 
-                  NavigationPanel         # Левая панель
-                    ProjectList
-                    "Create project"
-                 
-                  BlocksPanel             # Центральная панель
-                    Tabs: Context | Prompts
-                    Blocks list
-                    "Create block"
-                 
-                  EditorPanel             # Правая панель
-                     ContextEditor
-                       Title
-                       Items (drag-drop)
-                       SubItems
-                       Split modal
-                       Export
-                    
-                     PromptEditor
-                        Template
-                        Context selector
-                        Preview
-                        AI send
+│
+└── ErrorBoundary                            # Перехват ошибок React
+    └── QueryClientProvider                   # TanStack Query
+        └── ConfirmationProvider               # Модалки подтверждения
+            │
+            ├── LandingPage                     # Для гостей
+            │   ├── Header (guest)
+            │   ├── Hero
+            │   ├── Features
+            │   └── Footer
+            │
+            └── DashboardPage                   # Для пользователей
+                └── EditorProvider               # Состояние редактора
+                    └── MainLayout
+                        │
+                        ├── Header (authorized)
+                        │   ├── Project selector
+                        │   ├── AI config
+                        │   ├── Language switcher
+                        │   └── User menu
+                        │
+                        ├── NavigationPanel         # Левая панель
+                        │   ├── ProjectList
+                        │   └── "Create project"
+                        │
+                        ├── BlocksPanel             # Центральная панель
+                        │   ├── Tabs: Context | Prompts
+                        │   ├── Blocks list
+                        │   └── "Create block"
+                        │
+                        └── EditorPanel             # Правая панель
+                            │
+                            ├── ContextEditor
+                            │   ├── Title
+                            │   ├── Items (drag-drop)
+                            │   ├── SubItems
+                            │   ├── Split modal
+                            │   └── Export
+                            │
+                            └── PromptEditor
+                                ├── Template
+                                ├── Context selector
+                                ├── Preview
+                                └── AI send
 ```
 
 ### Управление состоянием
@@ -410,29 +411,31 @@ onError: (error) => {
 ### Слоистая архитектура
 
 ```
-
-                    ROUTES LAYER                          
-  • HTTP маршрутизация                                    
-  • Валидация запросов (Zod)                              
-  • Middleware (auth, CORS, rate limit)                   
-  • Обработка ошибок                                      
-
-                     
-
-                   SERVICE LAYER                          
-  • Бизнес-логика                                         
-  • Авторизация (проверка владельца)                      
-  • Валидация бизнес-правил                               
-  • Трансформация данных                                  
-
-                     
-
-                 DATA ACCESS LAYER                        
-  • Операции с БД (Prisma)                                
-  • Кеширование (Redis)                                   
-  • Внешние API (AI провайдеры)                          
-  • Шифрование/дешифрование                               
-
+┌─────────────────────────────────────────────────────────────────┐
+│                    ROUTES LAYER                                  │
+│  • HTTP маршрутизация                                            │
+│  • Валидация запросов (Zod)                                      │
+│  • Middleware (auth, CORS, rate limit)                           │
+│  • Обработка ошибок                                              │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   SERVICE LAYER                                  │
+│  • Бизнес-логика                                                 │
+│  • Авторизация (проверка владельца)                              │
+│  • Валидация бизнес-правил                                       │
+│  • Трансформация данных                                          │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 DATA ACCESS LAYER                                │
+│  • Операции с БД (Prisma)                                        │
+│  • Кеширование (Redis)                                           │
+│  • Внешние API (AI провайдеры)                                  │
+│  • Шифрование/дешифрование                                       │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### RESTful API
@@ -858,32 +861,45 @@ CREATE INDEX idx_projects_updated_at ON projects(updated_at);
 
 ```
 CLIENT
-   POST /ai/send
-   { provider: 'openai', model: 'gpt-4o', messages: [...] }
-  
+  │
+  ├─> POST /ai/send
+  │   { provider: 'openai', model: 'gpt-4o', messages: [...] }
+  │
+  ▼
 ROUTE HANDLER
-   1. Authenticate user
-   2. Get encrypted API key from DB
-   3. Decrypt API key
-  
+  │
+  ├─> 1. Authenticate user
+  ├─> 2. Get encrypted API key from DB
+  └─> 3. Decrypt API key
+  │
+  ▼
 PROVIDER FACTORY
-   switch (provider) {
-     case 'openai': return new OpenAIProvider()
-     case 'anthropic': return new AnthropicProvider()
-     ...
-   }
-  
+  │
+  └─> switch (provider) {
+        case 'openai': return new OpenAIProvider()
+        case 'anthropic': return new AnthropicProvider()
+        ...
+      }
+  │
+  ▼
 PROVIDER INSTANCE
-   provider.sendMessage({ apiKey, model, messages, ... })
-  
+  │
+  └─> provider.sendMessage({ apiKey, model, messages, ... })
+  │
+  ▼
 AI API (OpenAI/Anthropic/Gemini/Grok/OpenRouter)
-   HTTP request to external AI service
-  
+  │
+  └─> HTTP request to external AI service
+  │
+  ▼
 AI RESPONSE
-   { content: 'Generated text...', usage: {...} }
-  
+  │
+  └─> { content: 'Generated text...', usage: {...} }
+  │
+  ▼
 RETURN TO CLIENT
-   { success: true, response: 'Generated text...' }
+  │
+  └─> { success: true, response: 'Generated text...' }
 ```
 
 ### Поддерживаемые провайдеры
@@ -1125,24 +1141,24 @@ const debouncedSave = useMemo(
 
 ```
                Nginx Load Balancer
-                       
-        
-                                    
-                                    
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+        ▼              ▼              ▼
    Backend 1      Backend 2      Backend 3
    (Fastify)      (Fastify)      (Fastify)
-                                    
-        
-                       
-            
-                                 
-                                 
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+            ┌──────────┴──────────┐
+            │                     │
+            ▼                     ▼
        PostgreSQL             Redis
         (Primary)            (Cluster)
-            
-     
-                  
-                  
+            │
+     ┌──────┴──────┐
+     │             │
+     ▼             ▼
   Replica 1    Replica 2
  (Read-only)  (Read-only)
 ```
@@ -1150,18 +1166,18 @@ const debouncedSave = useMemo(
 ### Caching Strategy
 
 ```
-
-            CACHE LAYERS                    
-
- L1: Browser (React Query)  5-15 min        
-     • Projects, templates, AI models       
-                                            
- L2: Redis (Backend)        1-24 hours      
-     • AI models, sessions, rate limits     
-                                            
- L3: PostgreSQL             Permanent       
-     • Users, projects, templates, keys     
-
+┌────────────────────────────────────────────┐
+│            CACHE LAYERS                    │
+├────────────────────────────────────────────┤
+│ L1: Browser (React Query)  5-15 min        │
+│     • Projects, templates, AI models       │
+│                                            │
+│ L2: Redis (Backend)        1-24 hours      │
+│     • AI models, sessions, rate limits     │
+│                                            │
+│ L3: PostgreSQL             Permanent       │
+│     • Users, projects, templates, keys     │
+└────────────────────────────────────────────┘
 ```
 
 ### Database Scaling
