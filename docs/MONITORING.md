@@ -1,4 +1,4 @@
-# 📊 Мониторинг и логирование
+#  Мониторинг и логирование
 
 ## Обзор
 
@@ -14,7 +14,7 @@
 
 ---
 
-## 🖥️ Системный мониторинг
+##  Системный мониторинг
 
 ### htop - интерактивный мониторинг процессов
 
@@ -82,7 +82,7 @@ sudo netstat -an | grep ESTABLISHED | wc -l
 
 ---
 
-## 📦 PM2 мониторинг
+##  PM2 мониторинг
 
 ### Основные команды
 
@@ -163,7 +163,7 @@ crontab -e
 
 ---
 
-## 🌐 Nginx мониторинг
+##  Nginx мониторинг
 
 ### Access Logs
 
@@ -242,7 +242,7 @@ sudo goaccess /var/log/nginx/access.log --log-format=COMBINED
 
 ---
 
-## 🗄️ PostgreSQL мониторинг
+##  PostgreSQL мониторинг
 
 ### Основные метрики
 
@@ -347,7 +347,7 @@ sudo tail -f /var/log/postgresql/postgresql-14-main.log
 
 ---
 
-## 🔴 Redis мониторинг
+##  Redis мониторинг
 
 ### Redis CLI команды
 
@@ -414,7 +414,7 @@ redis-stat --auth your_redis_password --server
 
 ---
 
-## 📝 Winston логирование
+##  Winston логирование
 
 ### Конфигурация логирования
 
@@ -511,7 +511,7 @@ sudo nano /etc/logrotate.d/promptyflow
 
 ---
 
-## 📊 Netdata - Real-time мониторинг
+##  Netdata - Real-time мониторинг
 
 ### Установка Netdata
 
@@ -559,7 +559,7 @@ sudo htpasswd -c /etc/nginx/.htpasswd admin
 
 ---
 
-## 📈 Grafana + Prometheus (продвинутый мониторинг)
+##  Grafana + Prometheus (продвинутый мониторинг)
 
 ### Установка Prometheus
 
@@ -674,7 +674,7 @@ sudo systemctl enable grafana-server
 
 ---
 
-## 🚨 Алертинг
+##  Алертинг
 
 ### Email алерты через mail
 
@@ -758,7 +758,7 @@ crontab -e
 
 ---
 
-## 📊 Метрики приложения
+##  Метрики приложения
 
 ### Custom метрики endpoint
 
@@ -820,7 +820,7 @@ export async function monitoringRoutes(fastify: FastifyInstance) {
 
 ---
 
-## ✅ Checklist мониторинга
+##  Checklist мониторинга
 
 ### Установка и настройка:
 - [ ] htop установлен
@@ -856,7 +856,7 @@ export async function monitoringRoutes(fastify: FastifyInstance) {
 
 ---
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Backend не отвечает
 
@@ -901,4 +901,4 @@ pm2 flush
 
 **Дата обновления:** 05.12.2025  
 **Версия:** 2.0 (Self-Hosted Ubuntu)  
-**Статус:** Production Ready 📊
+**Статус:** Production Ready 

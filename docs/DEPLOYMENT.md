@@ -1,4 +1,4 @@
-# 🚀 Руководство по развертыванию
+#  Руководство по развертыванию
 
 ## Обзор
 
@@ -12,7 +12,7 @@ PromptyFlow SaaS разворачивается на Ubuntu сервере со 
 
 ---
 
-## 📋 Системные требования
+##  Системные требования
 
 ### Минимальные требования:
 - **CPU:** 2 cores
@@ -33,7 +33,7 @@ PromptyFlow SaaS разворачивается на Ubuntu сервере со 
 
 ---
 
-## 🛠️ 1. Подготовка сервера
+##  1. Подготовка сервера
 
 ### 1.1. Обновление системы
 
@@ -61,7 +61,7 @@ sudo usermod -aG sudo promptyflow
 
 ---
 
-## 📦 2. Установка зависимостей
+##  2. Установка зависимостей
 
 ### 2.1. Node.js 20.x
 
@@ -130,7 +130,7 @@ sudo apt install -y certbot python3-certbot-nginx
 
 ---
 
-## 🗄️ 3. Настройка PostgreSQL
+##  3. Настройка PostgreSQL
 
 ### 3.1. Создание базы данных и пользователя
 
@@ -184,7 +184,7 @@ psql -U promptyflow -d promptyflow -h 127.0.0.1
 
 ---
 
-## 🔴 4. Настройка Redis
+##  4. Настройка Redis
 
 ### 4.1. Конфигурация Redis
 
@@ -228,7 +228,7 @@ redis-cli -a your_redis_password ping
 
 ---
 
-## 📥 5. Клонирование репозитория
+##  5. Клонирование репозитория
 
 ### 5.1. Переключение на пользователя promptyflow
 
@@ -252,7 +252,7 @@ npm install
 
 ---
 
-## 🖥️ 6. Настройка Backend
+##  6. Настройка Backend
 
 ### 6.1. Создание .env файла
 
@@ -400,7 +400,7 @@ curl http://localhost:3001/health
 
 ---
 
-## 🌐 7. Настройка Frontend
+##  7. Настройка Frontend
 
 ### 7.1. Создание .env файла
 
@@ -443,7 +443,7 @@ cp -r ~/Promptozaurus-saas/apps/web/dist/* /var/www/promptyflow/
 
 ---
 
-## 🔧 8. Настройка Nginx
+##  8. Настройка Nginx
 
 ### 8.1. Создание конфигурации Nginx
 
@@ -556,7 +556,7 @@ sudo systemctl restart nginx
 
 ---
 
-## 🔒 9. Установка SSL сертификата
+##  9. Установка SSL сертификата
 
 ### 9.1. Получение Let's Encrypt сертификата
 
@@ -605,7 +605,7 @@ server {
 
 ---
 
-## 🔄 10. Обновление приложения
+##  10. Обновление приложения
 
 ### 10.1. Создание скрипта обновления
 
@@ -620,45 +620,45 @@ nano ~/Promptozaurus-saas/deploy.sh
 
 set -e
 
-echo "🚀 Starting deployment..."
+echo " Starting deployment..."
 
 # 1. Pull latest changes
-echo "📥 Pulling latest code..."
+echo " Pulling latest code..."
 cd ~/Promptozaurus-saas
 git pull origin main
 
 # 2. Install dependencies
-echo "📦 Installing dependencies..."
+echo " Installing dependencies..."
 npm install
 
 # 3. Build Backend
-echo "🔨 Building backend..."
+echo " Building backend..."
 cd apps/api
 npm run build
 
 # 4. Apply migrations
-echo "🗄️ Applying database migrations..."
+echo " Applying database migrations..."
 export $(cat .env.production | xargs)
 npx prisma migrate deploy
 
 # 5. Build Frontend
-echo "🎨 Building frontend..."
+echo " Building frontend..."
 cd ../web
 npm run build
 
 # 6. Copy frontend files
-echo "📋 Copying frontend files..."
+echo " Copying frontend files..."
 sudo cp -r dist/* /var/www/promptyflow/
 
 # 7. Restart backend
-echo "♻️ Restarting backend..."
+echo " Restarting backend..."
 pm2 restart promptyflow-api
 
 # 8. Reload Nginx
-echo "🔄 Reloading Nginx..."
+echo " Reloading Nginx..."
 sudo systemctl reload nginx
 
-echo "✅ Deployment completed successfully!"
+echo " Deployment completed successfully!"
 ```
 
 Сделайте скрипт исполняемым:
@@ -676,7 +676,7 @@ cd ~/Promptozaurus-saas
 
 ---
 
-## 📊 11. Мониторинг и логирование
+##  11. Мониторинг и логирование
 
 ### 11.1. Просмотр логов PM2
 
@@ -747,7 +747,7 @@ sudo nano /etc/logrotate.d/promptyflow
 
 ---
 
-## 🔐 12. Настройка Google OAuth
+##  12. Настройка Google OAuth
 
 ### 12.1. Обновление Authorized Redirect URIs
 
@@ -767,7 +767,7 @@ https://your-domain.com
 
 ---
 
-## 🛡️ 13. Безопасность
+##  13. Безопасность
 
 ### 13.1. Настройка fail2ban
 
@@ -829,7 +829,7 @@ sudo dpkg-reconfigure --priority=low unattended-upgrades
 
 ---
 
-## 🔄 14. Резервное копирование
+##  14. Резервное копирование
 
 ### 14.1. Создание скрипта бэкапа
 
@@ -887,7 +887,7 @@ sudo crontab -e
 
 ---
 
-## ✅ Checklist развертывания
+##  Checklist развертывания
 
 - [ ] Ubuntu сервер подготовлен и обновлен
 - [ ] Firewall настроен (UFW)
@@ -914,7 +914,7 @@ sudo crontab -e
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Backend не запускается
 
@@ -983,7 +983,7 @@ sudo systemctl status certbot.timer
 
 ---
 
-## 📝 Полезные команды
+##  Полезные команды
 
 ### PM2
 
@@ -1026,4 +1026,4 @@ redis-cli -a password FLUSHALL     # Очистка
 
 **Дата создания:** 05.12.2025  
 **Версия:** 2.0 (Self-Hosted Ubuntu)  
-**Статус:** Production Ready 🚀
+**Статус:** Production Ready 
