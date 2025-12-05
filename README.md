@@ -223,6 +223,7 @@ Promptozaurus-saas/
 **ЭТАП 2: API для проектов** ✅
 - Full CRUD для проектов
 - Лимит 10 проектов (free plan)
+- Project sharing между пользователями
 - Import/Export JSON
 - Auto-save с debounce
 - Offline mode с localStorage
@@ -230,35 +231,44 @@ Promptozaurus-saas/
 **ЭТАП 3: Контекст и промпты** ✅
 - 3-level structure (Block → Item → SubItem)
 - JSONB хранение в PostgreSQL
-- Character counters
+- Character counters с правильным подсчетом (без дублирования)
 - Prompt compilation с XML tags
+- Split text по различным критериям
 - Copy to clipboard
 
 **ЭТАП 4: Библиотека шаблонов** ✅
 - CRUD для templates
-- Search и filter
+- Full-text search (PostgreSQL GIN indexes)
 - Preview и quick use
+- Auto-save в контекст из AI ответов
 
 **ЭТАП 5: AI Integration** ✅
 - Secure API keys (AES-256-GCM encryption)
 - 5 провайдеров: OpenAI, Anthropic, Gemini, Grok, OpenRouter
-- Models cache (Redis + PostgreSQL)
-- AI proxy для запросов
-- Unit tests (45 tests passing)
+- Dynamic model loading (100+ моделей)
+- Models cache (Redis)
+- Support для GPT-5.1 и Claude 4/4.5
+- AI response modal с сохранением в context
+- Unit tests (70+ tests passing)
 
 **ЭТАП 6: UI/UX оптимизация** ✅
-- Responsive design (mobile/tablet/desktop)
-- Performance optimization (code splitting, мemoization)
+- Responsive design (mobile-first)
+- Performance optimization (FTS search 1-11ms для тысяч промптов)
 - Error boundaries + skeleton loaders
 - Welcome modal для новых пользователей
+- Project size limits (5M блок / 10M проект)
+- Improved project cards (3-line layout)
+- Auto-naming для AI моделей
+- Debounced inputs (предотвращение cursor jump)
 
-### 🚧 В процессе
+### ✅ В продакшене
 
-**ЭТАП 7: Deployment и CI/CD** 🚧
-- Vercel (frontend) + Railway (backend)
-- Supabase (PostgreSQL) + Upstash (Redis)
-- GitHub Actions CI/CD
-- Monitoring и logging
+**ЭТАП 7: Deployment** ✅
+- Frontend: https://promptyflow.com (Nginx + VPS)
+- Backend: Node.js + PM2 на VPS
+- PostgreSQL (локальный сервер)
+- SSL сертификаты (Let's Encrypt)
+- Автоматический deployment через SSH
 
 ### 📅 Следующие этапы
 
