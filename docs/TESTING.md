@@ -102,7 +102,7 @@ export default defineConfig({
 - **Vitest** - тестовый фреймворк
 - **@testing-library/react** - тестирование React компонентов
 - **@testing-library/user-event** - симуляция пользовательских действий
-- **msw** - мокирование API запросов
+- **jsdom** - браузерное окружение для Node.js
 
 **Структура:**
 ```
@@ -129,7 +129,7 @@ apps/web/
 └── vitest.setup.ts               # Глобальная настройка
 ```
 
-**Конфигурация (планируется):**
+**Конфигурация:**
 
 ```typescript
 import { defineConfig } from 'vitest/config';
@@ -141,7 +141,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    testMatch: ['**/*.test.{ts,tsx}'],
+    testMatch: ['**/__tests__/**/*.test.{ts,tsx}'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -741,7 +741,7 @@ pnpm test:ai-e2e
 
 ---
 
-### Frontend тесты (планируется)
+### Frontend тесты
 
 ```bash
 cd apps/web
