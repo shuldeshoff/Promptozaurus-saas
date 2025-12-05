@@ -787,9 +787,10 @@ const ContextEditor = () => {
 
           await updateProjectAndRefresh({ ...currentProject.data, contextBlocks: updatedBlocks });
         } else {
-          // Сохраняем исходный текст и создаем все части как новые элементы
+          // Сохраняем исходный текст в оригинальном элементе и создаем все части как новые элементы
+          // Оригинальный элемент остается без изменений, создаются только новые элементы с частями
           const newItems: ContextItem[] = contentParts.map((content, i) => ({
-            id: Date.now() + i,
+            id: Date.now() + i + 1000, // Увеличиваем ID чтобы избежать конфликтов
             title: `${originalItem.title} (${t('context.split.part')} ${i + 1})`,
             content,
             chars: content.length,

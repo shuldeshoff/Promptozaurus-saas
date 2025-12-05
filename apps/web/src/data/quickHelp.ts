@@ -86,6 +86,17 @@ export const quickHelpData: QuickHelpData = {
         ]
       },
       {
+        title: "Лимиты и ограничения",
+        items: [
+          "• Бесплатный план: до 10 проектов",
+          "• Максимум контекста: 5,000,000 символов на блок",
+          "• Максимум проекта: 10,000,000 символов всего",
+          "• При превышении лимита появится красное уведомление",
+          "• Разбивайте большие блоки на части для оптимизации",
+          "• Размер проекта виден в списке проектов"
+        ]
+      },
+      {
         title: "Безопасность",
         items: [
           "• API ключи шифруются AES-256-GCM",
@@ -163,6 +174,17 @@ export const quickHelpData: QuickHelpData = {
           "• Group related context in blocks",
           "• Use sub-items for detail",
           "• Projects auto-save automatically"
+        ]
+      },
+      {
+        title: "Limits and Restrictions",
+        items: [
+          "• Free plan: up to 10 projects",
+          "• Max context: 5,000,000 characters per block",
+          "• Max project: 10,000,000 characters total",
+          "• Red notification appears when limit exceeded",
+          "• Split large blocks into parts for optimization",
+          "• Project size visible in project list"
         ]
       },
       {

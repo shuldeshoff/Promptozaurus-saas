@@ -557,7 +557,15 @@ export default function AIConfigModal({ isOpen, onClose }: AIConfigModalProps) {
                   <div className="flex gap-2">
                     <select
                       value={newModelConfig.modelId}
-                      onChange={(e) => setNewModelConfig(prev => ({ ...prev, modelId: e.target.value }))}
+                      onChange={(e) => {
+                        const selectedModel = modelsByProvider[newModelConfig.provider as AiProvider]?.find(m => m.id === e.target.value);
+                        setNewModelConfig(prev => ({ 
+                          ...prev, 
+                          modelId: e.target.value,
+                          // Автоматически устанавливаем название модели, если customName пустое
+                          customName: prev.customName || selectedModel?.name || ''
+                        }));
+                      }}
                       disabled={!newModelConfig.provider || modelsLoading}
                       className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-purple-500 disabled:opacity-50 max-h-[400px] overflow-y-auto"
                     >

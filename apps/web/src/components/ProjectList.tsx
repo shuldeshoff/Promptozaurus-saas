@@ -108,23 +108,26 @@ function ProjectCard({
                 autoFocus
               />
             ) : (
-              <h3
-                className="font-medium truncate text-sm cursor-text hover:text-blue-300"
-                onClick={onStartRename}
-                title={t('labels.clickToRename', 'Нажмите для переименования')}
-              >
-                {project.name}
-              </h3>
+              <>
+                <h3
+                  className="font-medium truncate text-sm cursor-text hover:text-blue-300"
+                  onClick={onStartRename}
+                  title={t('labels.clickToRename', 'Нажмите для переименования')}
+                >
+                  {project.name}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-400">
+                  <span>{new Date(project.updatedAt).toLocaleDateString()}</span>
+                  <span>•</span>
+                  <span title="Project size">{formatSize(projectSizeChars)}</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  <span title="Contexts">{contextBlocksCount} contexts</span>
+                  <span className="mx-1">×</span>
+                  <span title="Prompts">{promptBlocksCount} prompts</span>
+                </div>
+              </>
             )}
-            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
-              <span>{new Date(project.updatedAt).toLocaleDateString()}</span>
-              <span>•</span>
-              <span title="Contexts">{contextBlocksCount} ctx</span>
-              <span>×</span>
-              <span title="Prompts">{promptBlocksCount} prm</span>
-              <span>•</span>
-              <span title="Project size">{formatSize(projectSizeChars)}</span>
-            </div>
           </div>
           
           {/* Action buttons */}
