@@ -1,78 +1,54 @@
-# 📘 API Documentation
+# 📘 API Документация
 
 ## Обзор
 
-Promptozaurus SaaS Backend API построен на Fastify + TypeScript и предоставляет RESTful API для работы с проектами, контекстами, промптами, шаблонами и AI-провайдерами.
+PromptyFlow Backend API предоставляет RESTful интерфейс для работы с проектами, контекстом, промптами, шаблонами и AI-провайдерами.
 
-**Base URL:** `https://api.yourapp.com` (или `http://localhost:3000` для разработки)
+**Base URL:** `https://your-domain.com` или `http://localhost:3001` (разработка)
 
-**Authentication:** JWT Bearer token в header `Authorization: Bearer <token>`
+**Аутентификация:** JWT Bearer token в заголовке `Authorization: Bearer <token>`
+
+**Формат:** JSON (Content-Type: application/json)
 
 ---
 
-## 🔐 Authentication
+## 🔐 Аутентификация
 
-### POST /auth/google
+### Google OAuth Flow
 
-Инициирует OAuth 2.0 flow с Google.
+#### POST /auth/google
+
+Инициирует OAuth 2.0 авторизацию через Google.
 
 **Request:** Redirect пользователя на этот endpoint
 
-**Response:** Redirect на Google OAuth consent screen
+**Response:** 302 Redirect на Google OAuth consent screen
 
 ---
 
-### GET /auth/google/callback
+#### GET /auth/google/callback
 
-Callback для Google OAuth.
+Callback endpoint для Google OAuth.
 
 **Query Parameters:**
-- `code` (string, required) - Authorization code от Google
+- `code` - Authorization code от Google
 
-**Response:**
-```json
-{
-  "token": "jwt-access-token",
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com",
-    "name": "John Doe",
-    "avatarUrl": "https://...",
-    "googleId": "google-user-id",
-    "createdAt": "2025-11-25T10:00:00Z"
-  }
-}
+**Response:** 302 Redirect на frontend с токенами в URL:
+```
+https://your-domain.com/#/auth/callback?access_token=...&refresh_token=...
 ```
 
-**Cookies:** `token` (HTTP-only cookie с JWT)
-
-**Errors:**
-- `401 Unauthorized` - OAuth flow failed
-- `500 Internal Server Error` - Server error
+**Ошибки:**
+- `401` - OAuth авторизация не удалась
+- `500` - Ошибка сервера
 
 ---
 
-### POST /auth/logout
+#### POST /auth/refresh
 
-Выход пользователя (очистка cookie).
+Обновление access token.
 
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Response:**
-```json
-{
-  "message": "Logged out successfully"
-}
-```
-
----
-
-### POST /auth/refresh
-
-Обновление JWT token (если используется refresh token logic).
-
-**Request Body:**
+**Body:**
 ```json
 {
   "refreshToken": "refresh-token-here"
@@ -82,15 +58,23 @@ Callback для Google OAuth.
 **Response:**
 ```json
 {
-  "token": "new-jwt-access-token"
+  "accessToken": "new-jwt-token",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "John Doe"
+  }
 }
 ```
 
+**Ошибки:**
+- `401` - Refresh token невалиден или истек
+
 ---
 
-## 👤 User
+## 👤 Профиль пользователя
 
-### GET /api/user/profile
+### GET /api/user
 
 Получить профиль текущего пользователя.
 
@@ -103,80 +87,135 @@ Callback для Google OAuth.
   "id": "uuid",
   "email": "user@example.com",
   "name": "John Doe",
-  "avatarUrl": "https://...",
+  "picture": "https://...",
   "googleId": "google-user-id",
+  "lastLoginAt": "2025-12-05T10:00:00Z",
   "createdAt": "2025-11-25T10:00:00Z",
-  "projectCount": 5
+  "updatedAt": "2025-12-05T10:00:00Z"
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `404 Not Found` - User not found
+**Ошибки:**
+- `401` - Не авторизован
+- `404` - Пользователь не найден
 
 ---
 
-### PATCH /api/user/profile
+### PATCH /api/user
 
 Обновить профиль пользователя.
 
 **Headers:**
 - `Authorization: Bearer <token>`
 
-**Request Body:**
+**Body:**
 ```json
 {
-  "name": "Jane Doe",
-  "email": "jane@example.com"
+  "name": "Jane Doe"
+}
+```
+
+**Response:** Обновленный профиль пользователя
+
+**Ошибки:**
+- `401` - Не авторизован
+- `400` - Невалидные данные
+
+---
+
+### POST /api/user/api-keys/:provider
+
+Добавить/обновить API ключ AI провайдера.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Path Parameters:**
+- `provider` - openai | anthropic | gemini | grok | openrouter
+
+**Body:**
+```json
+{
+  "apiKey": "sk-..."
 }
 ```
 
 **Response:**
 ```json
 {
-  "id": "uuid",
-  "email": "jane@example.com",
-  "name": "Jane Doe",
-  "avatarUrl": "https://...",
-  "googleId": "google-user-id",
-  "createdAt": "2025-11-25T10:00:00Z"
+  "success": true,
+  "message": "API key saved successfully"
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid input
+**Примечание:** API ключ шифруется AES-256-GCM перед сохранением в БД.
 
 ---
 
-## 📁 Projects
+### DELETE /api/user/api-keys/:provider
 
-### GET /api/projects
+Удалить API ключ провайдера.
 
-Получить список всех проектов пользователя.
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Path Parameters:**
+- `provider` - openai | anthropic | gemini | grok | openrouter
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "API key deleted successfully"
+}
+```
+
+---
+
+### GET /api/user/api-keys
+
+Получить список сохраненных провайдеров (без значений ключей).
 
 **Headers:**
 - `Authorization: Bearer <token>`
 
 **Response:**
 ```json
-[
-  {
-    "id": "uuid",
-    "name": "My Project",
-    "userId": "user-uuid",
-    "data": {
-      "contextBlocks": [...],
-      "promptBlocks": [...]
-    },
-    "createdAt": "2025-11-25T10:00:00Z",
-    "updatedAt": "2025-11-25T11:00:00Z"
-  }
-]
+{
+  "providers": ["openai", "anthropic"]
+}
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
+---
+
+## 📁 Проекты
+
+### GET /api/projects
+
+Получить все проекты пользователя.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "name": "My Project",
+      "userId": "user-uuid",
+      "data": {
+        "contextBlocks": [],
+        "promptBlocks": []
+      },
+      "createdAt": "2025-12-05T10:00:00Z",
+      "updatedAt": "2025-12-05T11:00:00Z"
+    }
+  ]
+}
+```
 
 ---
 
@@ -188,51 +227,65 @@ Callback для Google OAuth.
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `id` (string, required) - Project ID
+- `id` - Project ID (UUID)
 
 **Response:**
 ```json
 {
-  "id": "uuid",
-  "name": "My Project",
-  "userId": "user-uuid",
+  "success": true,
   "data": {
-    "contextBlocks": [
-      {
-        "id": "block-1",
-        "name": "API Documentation",
-        "items": [
-          {
-            "id": "item-1",
-            "name": "GET /users",
-            "subItems": [
-              {
-                "id": "subitem-1",
-                "name": "Request params",
-                "text": "?page=1&limit=10"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "promptBlocks": [
-      {
-        "id": "prompt-1",
-        "name": "API Analysis",
-        "text": "Analyze this API: {{context}}"
-      }
-    ]
-  },
-  "createdAt": "2025-11-25T10:00:00Z",
-  "updatedAt": "2025-11-25T11:00:00Z"
+    "id": "uuid",
+    "name": "My Project",
+    "userId": "user-uuid",
+    "data": {
+      "contextBlocks": [
+        {
+          "id": 1,
+          "title": "Context Block 1",
+          "items": [
+            {
+              "id": 1,
+              "title": "Item 1",
+              "content": "Item content",
+              "chars": 12,
+              "subItems": [
+                {
+                  "id": 1,
+                  "title": "Sub-item 1",
+                  "content": "Sub-item content",
+                  "chars": 16
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "promptBlocks": [
+        {
+          "id": 1,
+          "title": "Prompt 1",
+          "template": "Analyze: {{context}}",
+          "wrapInTags": true,
+          "selectedContext": [
+            {
+              "blockId": 1,
+              "itemId": 1,
+              "order": 0
+            }
+          ]
+        }
+      ]
+    },
+    "createdAt": "2025-12-05T10:00:00Z",
+    "updatedAt": "2025-12-05T11:00:00Z"
+  }
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project not found
+**Ошибки:**
+- `401` - Не авторизован
+- `403` - Нет доступа к проекту
+- `404` - Проект не найден
 
 ---
 
@@ -243,7 +296,7 @@ Callback для Google OAuth.
 **Headers:**
 - `Authorization: Bearer <token>`
 
-**Request Body:**
+**Body:**
 ```json
 {
   "name": "New Project"
@@ -253,22 +306,25 @@ Callback для Google OAuth.
 **Response:**
 ```json
 {
-  "id": "new-uuid",
-  "name": "New Project",
-  "userId": "user-uuid",
+  "success": true,
   "data": {
-    "contextBlocks": [],
-    "promptBlocks": []
-  },
-  "createdAt": "2025-11-25T12:00:00Z",
-  "updatedAt": "2025-11-25T12:00:00Z"
+    "id": "new-uuid",
+    "name": "New Project",
+    "userId": "user-uuid",
+    "data": {
+      "contextBlocks": [],
+      "promptBlocks": []
+    },
+    "createdAt": "2025-12-05T12:00:00Z",
+    "updatedAt": "2025-12-05T12:00:00Z"
+  }
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid input
-- `403 Forbidden` - Project limit reached (10 for free plan)
+**Ошибки:**
+- `401` - Не авторизован
+- `400` - Невалидные данные
+- `403` - Достигнут лимит проектов (10)
 
 ---
 
@@ -280,9 +336,9 @@ Callback для Google OAuth.
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `id` (string, required) - Project ID
+- `id` - Project ID
 
-**Request Body:**
+**Body:**
 ```json
 {
   "name": "Updated Name",
@@ -293,23 +349,13 @@ Callback для Google OAuth.
 }
 ```
 
-**Response:**
-```json
-{
-  "id": "uuid",
-  "name": "Updated Name",
-  "userId": "user-uuid",
-  "data": {...},
-  "createdAt": "2025-11-25T10:00:00Z",
-  "updatedAt": "2025-11-25T13:00:00Z"
-}
-```
+**Response:** Обновленный проект
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project not found
-- `400 Bad Request` - Invalid input
+**Ошибки:**
+- `401` - Не авторизован
+- `403` - Нет доступа к проекту
+- `404` - Проект не найден
+- `413` - Превышен лимит размера (10M символов для проекта, 5M для блока)
 
 ---
 
@@ -321,173 +367,128 @@ Callback для Google OAuth.
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `id` (string, required) - Project ID
+- `id` - Project ID
 
 **Response:**
 ```json
 {
+  "success": true,
   "message": "Project deleted successfully"
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project not found
+**Ошибки:**
+- `401` - Не авторизован
+- `403` - Нет доступа к проекту
+- `404` - Проект не найден
 
 ---
 
-### POST /api/projects/:id/duplicate
+## 📝 Контекстные блоки
 
-Дублировать проект.
+### PATCH /api/projects/:id/context-blocks
+
+Обновить контекстные блоки проекта.
 
 **Headers:**
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `id` (string, required) - Project ID
+- `id` - Project ID
 
-**Response:**
-```json
-{
-  "id": "new-uuid",
-  "name": "My Project (Copy)",
-  "userId": "user-uuid",
-  "data": {...},
-  "createdAt": "2025-11-25T14:00:00Z",
-  "updatedAt": "2025-11-25T14:00:00Z"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner or limit reached
-- `404 Not Found` - Project not found
-
----
-
-### GET /api/projects/:id/export
-
-Экспорт проекта в JSON.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `id` (string, required) - Project ID
-
-**Response:** JSON file download
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project not found
-
----
-
-### POST /api/projects/import
-
-Импорт проекта из JSON.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "name": "Imported Project",
-  "data": {
-    "contextBlocks": [...],
-    "promptBlocks": [...]
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "id": "new-uuid",
-  "name": "Imported Project",
-  "userId": "user-uuid",
-  "data": {...},
-  "createdAt": "2025-11-25T15:00:00Z",
-  "updatedAt": "2025-11-25T15:00:00Z"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid JSON structure
-- `403 Forbidden` - Project limit reached
-
----
-
-## 📝 Context Blocks
-
-### PATCH /api/projects/:projectId/context
-
-Обновить context blocks в проекте.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `projectId` (string, required) - Project ID
-
-**Request Body:**
+**Body:**
 ```json
 {
   "contextBlocks": [
     {
-      "id": "block-1",
-      "name": "API Docs",
+      "id": 1,
+      "title": "Updated Context",
       "items": [...]
     }
   ]
 }
 ```
 
-**Response:**
-```json
-{
-  "id": "project-uuid",
-  "name": "Project Name",
-  "data": {
-    "contextBlocks": [...],
-    "promptBlocks": [...]
-  },
-  "updatedAt": "2025-11-25T16:00:00Z"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project not found
-- `400 Bad Request` - Invalid context structure
+**Response:** Обновленный проект
 
 ---
 
-## 🤖 Prompt Blocks
+### GET /api/projects/:id/context-blocks/stats
 
-### PATCH /api/projects/:projectId/prompts
-
-Обновить prompt blocks в проекте.
+Получить статистику по контекстным блокам.
 
 **Headers:**
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `projectId` (string, required) - Project ID
+- `id` - Project ID
 
-**Request Body:**
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalBlocks": 5,
+    "totalItems": 25,
+    "totalSubItems": 50,
+    "totalChars": 125000,
+    "largestBlockChars": 45000
+  }
+}
+```
+
+---
+
+## 🤖 Блоки промптов
+
+### PATCH /api/projects/:id/prompt-blocks
+
+Обновить блоки промптов проекта.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Path Parameters:**
+- `id` - Project ID
+
+**Body:**
 ```json
 {
   "promptBlocks": [
     {
-      "id": "prompt-1",
-      "name": "Analysis Prompt",
-      "text": "Analyze: {{context}}"
+      "id": 1,
+      "title": "Analysis Prompt",
+      "template": "Analyze: {{context}}",
+      "wrapInTags": true,
+      "selectedContext": [...]
+    }
+  ]
+}
+```
+
+**Response:** Обновленный проект
+
+---
+
+### POST /api/projects/:id/prompt-blocks/compile
+
+Скомпилировать промпт с выбранным контекстом.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Path Parameters:**
+- `id` - Project ID
+
+**Body:**
+```json
+{
+  "promptBlockId": 1,
+  "contextIds": [
+    {
+      "blockId": 1,
+      "itemId": 1,
+      "subItemId": 1
     }
   ]
 }
@@ -496,59 +497,19 @@ Callback для Google OAuth.
 **Response:**
 ```json
 {
-  "id": "project-uuid",
-  "name": "Project Name",
-  "data": {
-    "contextBlocks": [...],
-    "promptBlocks": [...]
-  },
-  "updatedAt": "2025-11-25T17:00:00Z"
+  "success": true,
+  "compiledPrompt": "Analyze: <Context>\nItem content\nSub-item content\n</Context>",
+  "stats": {
+    "templateChars": 25,
+    "contextChars": 150,
+    "totalChars": 175
+  }
 }
 ```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project not found
-- `400 Bad Request` - Invalid prompt structure
 
 ---
 
-### POST /api/projects/:projectId/prompts/compile
-
-Скомпилировать промпт с контекстом.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `projectId` (string, required) - Project ID
-
-**Request Body:**
-```json
-{
-  "promptBlockId": "prompt-1",
-  "contextBlockIds": ["block-1", "block-2"]
-}
-```
-
-**Response:**
-```json
-{
-  "compiledPrompt": "Analyze this API:\n\n<context>\n<api_docs>...</api_docs>\n</context>",
-  "characterCount": 1543
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the project owner
-- `404 Not Found` - Project or blocks not found
-- `400 Bad Request` - Invalid request
-
----
-
-## 📚 Templates
+## 📚 Библиотека шаблонов
 
 ### GET /api/templates
 
@@ -557,52 +518,38 @@ Callback для Google OAuth.
 **Headers:**
 - `Authorization: Bearer <token>`
 
-**Query Parameters:**
-- `search` (string, optional) - Search by name or content
-
 **Response:**
 ```json
-[
-  {
-    "id": "uuid",
-    "userId": "user-uuid",
-    "name": "API Analysis Template",
-    "content": "Analyze this API: {{context}}",
-    "createdAt": "2025-11-25T10:00:00Z"
-  }
-]
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "userId": "user-uuid",
+      "name": "API Analysis",
+      "content": "Analyze this API: {{context}}",
+      "createdAt": "2025-12-05T10:00:00Z",
+      "updatedAt": "2025-12-05T10:00:00Z"
+    }
+  ]
+}
 ```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
 
 ---
 
-### GET /api/templates/:id
+### GET /api/templates/search
 
-Получить шаблон по ID.
+Полнотекстовый поиск по шаблонам.
 
 **Headers:**
 - `Authorization: Bearer <token>`
 
-**Path Parameters:**
-- `id` (string, required) - Template ID
+**Query Parameters:**
+- `q` - Поисковый запрос
 
-**Response:**
-```json
-{
-  "id": "uuid",
-  "userId": "user-uuid",
-  "name": "API Analysis Template",
-  "content": "Analyze this API: {{context}}",
-  "createdAt": "2025-11-25T10:00:00Z"
-}
-```
+**Response:** Список найденных шаблонов отсортированных по релевантности
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the template owner
-- `404 Not Found` - Template not found
+**Примечание:** Использует PostgreSQL Full-Text Search с GIN индексами (1-11ms на тысячах записей).
 
 ---
 
@@ -613,28 +560,15 @@ Callback для Google OAuth.
 **Headers:**
 - `Authorization: Bearer <token>`
 
-**Request Body:**
+**Body:**
 ```json
 {
   "name": "New Template",
-  "content": "Template content here"
+  "content": "Template content with {{context}}"
 }
 ```
 
-**Response:**
-```json
-{
-  "id": "new-uuid",
-  "userId": "user-uuid",
-  "name": "New Template",
-  "content": "Template content here",
-  "createdAt": "2025-11-25T18:00:00Z"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid input
+**Response:** Созданный шаблон
 
 ---
 
@@ -646,9 +580,9 @@ Callback для Google OAuth.
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `id` (string, required) - Template ID
+- `id` - Template ID
 
-**Request Body:**
+**Body:**
 ```json
 {
   "name": "Updated Name",
@@ -656,22 +590,7 @@ Callback для Google OAuth.
 }
 ```
 
-**Response:**
-```json
-{
-  "id": "uuid",
-  "userId": "user-uuid",
-  "name": "Updated Name",
-  "content": "Updated content",
-  "createdAt": "2025-11-25T10:00:00Z"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the template owner
-- `404 Not Found` - Template not found
-- `400 Bad Request` - Invalid input
+**Response:** Обновленный шаблон
 
 ---
 
@@ -683,200 +602,67 @@ Callback для Google OAuth.
 - `Authorization: Bearer <token>`
 
 **Path Parameters:**
-- `id` (string, required) - Template ID
+- `id` - Template ID
 
 **Response:**
 ```json
 {
+  "success": true,
   "message": "Template deleted successfully"
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the template owner
-- `404 Not Found` - Template not found
-
 ---
 
-## 🔑 API Keys
+## 🤖 AI интеграция
 
-### GET /api/apikeys
+### GET /ai/models
 
-Получить все API ключи пользователя (без значений ключей).
+Получить список доступных AI моделей.
 
 **Headers:**
 - `Authorization: Bearer <token>`
-
-**Response:**
-```json
-[
-  {
-    "id": "uuid",
-    "userId": "user-uuid",
-    "provider": "openai",
-    "status": "active",
-    "createdAt": "2025-11-25T10:00:00Z"
-  }
-]
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-
----
-
-### POST /api/apikeys
-
-Сохранить API ключ (зашифрованный).
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Request Body:**
-```json
-{
-  "provider": "openai",
-  "key": "sk-..."
-}
-```
 
 **Response:**
 ```json
 {
-  "id": "new-uuid",
-  "userId": "user-uuid",
-  "provider": "openai",
-  "status": "active",
-  "createdAt": "2025-11-25T19:00:00Z"
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4o",
+      "name": "GPT-4o",
+      "provider": "openai",
+      "contextWindow": 128000
+    },
+    {
+      "id": "claude-sonnet-4-5-20250929",
+      "name": "Claude Sonnet 4.5",
+      "provider": "anthropic",
+      "contextWindow": 200000
+    }
+  ]
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid provider or key format
+**Примечание:** 
+- Возвращает модели для всех провайдеров с сохраненными API ключами
+- Если ключей нет, возвращает fallback список моделей
+- Результат кешируется в Redis на 1 час
 
 ---
 
-### DELETE /api/apikeys/:id
-
-Удалить API ключ.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `id` (string, required) - API Key ID
-
-**Response:**
-```json
-{
-  "message": "API key deleted successfully"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the key owner
-- `404 Not Found` - Key not found
-
----
-
-### POST /api/apikeys/:id/test
-
-Тестировать API ключ (проверка валидности).
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `id` (string, required) - API Key ID
-
-**Response:**
-```json
-{
-  "status": "valid",
-  "provider": "openai",
-  "message": "Connection successful"
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `403 Forbidden` - Not the key owner
-- `404 Not Found` - Key not found
-- `400 Bad Request` - Invalid API key
-
----
-
-## 🤖 AI
-
-### GET /api/ai/models/:provider
-
-Получить список моделей для провайдера.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `provider` (string, required) - Provider name (openai, anthropic, gemini, grok, openrouter)
-
-**Response:**
-```json
-[
-  {
-    "id": "gpt-4",
-    "name": "GPT-4",
-    "contextWindow": 8192,
-    "supportsStreaming": true
-  }
-]
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid provider
-- `404 Not Found` - No API key for provider
-
----
-
-### POST /api/ai/models/:provider/refresh
-
-Обновить список моделей для провайдера.
-
-**Headers:**
-- `Authorization: Bearer <token>`
-
-**Path Parameters:**
-- `provider` (string, required) - Provider name
-
-**Response:**
-```json
-{
-  "message": "Models refreshed successfully",
-  "count": 15
-}
-```
-
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid provider
-- `404 Not Found` - No API key for provider
-
----
-
-### POST /api/ai/send
+### POST /ai/send
 
 Отправить промпт в AI.
 
 **Headers:**
 - `Authorization: Bearer <token>`
 
-**Request Body:**
+**Body:**
 ```json
 {
   "provider": "openai",
-  "model": "gpt-4",
+  "model": "gpt-4o-mini",
   "messages": [
     {
       "role": "system",
@@ -888,15 +674,14 @@ Callback для Google OAuth.
     }
   ],
   "temperature": 0.7,
-  "maxTokens": 1000
+  "maxTokens": 2000
 }
 ```
 
 **Response:**
 ```json
 {
-  "provider": "openai",
-  "model": "gpt-4",
+  "success": true,
   "response": "Hello! How can I help you today?",
   "usage": {
     "promptTokens": 25,
@@ -906,15 +691,53 @@ Callback для Google OAuth.
 }
 ```
 
-**Errors:**
-- `401 Unauthorized` - No token or invalid token
-- `400 Bad Request` - Invalid request format
-- `404 Not Found` - No API key for provider
-- `500 Internal Server Error` - AI API error
+**Поддерживаемые провайдеры:**
+- `openai` - GPT-4, GPT-4o, GPT-5.1 (автоматически использует `/v1/responses` для GPT-5.1)
+- `anthropic` - Claude 4.5, Claude 4, Claude 3.5
+- `gemini` - Gemini 2.5 Flash, Gemini 1.5 Flash/Pro
+- `grok` - Grok Beta, Grok Vision
+- `openrouter` - 100+ моделей разных провайдеров
+
+**Ошибки:**
+- `401` - Не авторизован
+- `404` - API ключ для провайдера не найден
+- `400` - Невалидный запрос
+- `500` - Ошибка AI API
 
 ---
 
-## 🏥 Health & Monitoring
+### POST /ai/test-connection
+
+Тестировать подключение к AI провайдеру.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Body:**
+```json
+{
+  "provider": "openai"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "provider": "openai",
+  "status": "connected",
+  "message": "Connection successful"
+}
+```
+
+**Ошибки:**
+- `401` - Не авторизован
+- `404` - API ключ не найден
+- `400` - Подключение не удалось (невалидный ключ)
+
+---
+
+## 🏥 Здоровье системы
 
 ### GET /health
 
@@ -924,104 +747,196 @@ Health check endpoint (без авторизации).
 ```json
 {
   "status": "ok",
-  "timestamp": "2025-11-25T20:00:00Z",
-  "redis": "connected"
+  "timestamp": "2025-12-05T20:00:00Z",
+  "redis": "connected",
+  "database": "connected"
 }
 ```
+
+**Использование:**
+- Мониторинг доступности сервиса
+- Load balancer health checks
+- Автоматические проверки uptime
 
 ---
 
-## ❌ Error Responses
+## ❌ Ошибки
 
-Все ошибки возвращаются в формате:
+### Формат ответа с ошибкой
 
 ```json
 {
-  "error": "Error Type",
-  "message": "Detailed error message",
-  "statusCode": 400
+  "success": false,
+  "error": "ERROR_CODE",
+  "message": "Human-readable error message"
 }
 ```
 
-### Common Status Codes:
+### Коды статусов
 
-- `200 OK` - Успешный запрос
-- `201 Created` - Ресурс создан
-- `400 Bad Request` - Неверные данные в запросе
-- `401 Unauthorized` - Не авторизован
-- `403 Forbidden` - Доступ запрещен
-- `404 Not Found` - Ресурс не найден
-- `429 Too Many Requests` - Rate limit exceeded
-- `500 Internal Server Error` - Ошибка сервера
+| Код | Описание |
+|-----|----------|
+| `200` | Успешный запрос |
+| `201` | Ресурс создан |
+| `400` | Невалидный запрос |
+| `401` | Не авторизован |
+| `403` | Доступ запрещен |
+| `404` | Ресурс не найден |
+| `413` | Payload слишком большой (превышен лимит) |
+| `429` | Rate limit превышен |
+| `500` | Ошибка сервера |
+
+### Типичные ошибки
+
+**401 Unauthorized:**
+```json
+{
+  "success": false,
+  "error": "UNAUTHORIZED",
+  "message": "Invalid or expired token"
+}
+```
+
+**403 Forbidden:**
+```json
+{
+  "success": false,
+  "error": "FORBIDDEN",
+  "message": "You don't have access to this resource"
+}
+```
+
+**413 Payload Too Large:**
+```json
+{
+  "success": false,
+  "error": "PAYLOAD_TOO_LARGE",
+  "message": "Project exceeds limit (10,000,000 / 10,000,000 characters)"
+}
+```
+
+**429 Rate Limit:**
+```json
+{
+  "success": false,
+  "error": "RATE_LIMIT_EXCEEDED",
+  "message": "Too many requests"
+}
+```
 
 ---
 
 ## 🔒 Rate Limiting
 
-API использует rate limiting:
-- **Free tier:** 100 requests/minute per user
-- **Authenticated:** 500 requests/minute per user
+API ограничивает количество запросов:
+- **Базовый лимит:** 100 запросов/минуту на пользователя
+- **AI endpoints:** 20 запросов/минуту на пользователя
 
-При превышении лимита:
-```json
-{
-  "error": "Rate Limit Exceeded",
-  "message": "Too many requests, please try again later",
-  "statusCode": 429,
-  "retryAfter": 60
-}
+Headers в ответе:
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1638360000
 ```
 
 ---
 
-## 📝 Request/Response Examples
+## 📊 Лимиты и ограничения
 
-### Full Example: Create Project → Add Context → Compile Prompt
+### Проекты
+- **Максимум проектов:** 10
+- **Размер проекта:** 10M символов
+- **Размер контекст блока:** 5M символов
 
-**1. Create Project:**
+### Запросы
+- **Request body:** 10 MB
+- **Response timeout:** 30 секунд (120 секунд для AI endpoints)
+
+---
+
+## 🔧 Примеры использования
+
+### Базовый flow: Создание проекта и работа с AI
+
+**1. Авторизация через Google:**
 ```bash
-curl -X POST https://api.yourapp.com/api/projects \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "API Analysis"}'
+# Redirect пользователя на:
+GET https://your-domain.com/auth/google
+
+# После авторизации получите tokens из redirect URL
 ```
 
-**2. Add Context:**
+**2. Создать проект:**
 ```bash
-curl -X PATCH https://api.yourapp.com/api/projects/<project-id>/context \
-  -H "Authorization: Bearer <token>" \
+curl -X POST https://your-domain.com/api/projects \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My AI Project"}'
+```
+
+**3. Добавить контекст:**
+```bash
+curl -X PATCH https://your-domain.com/api/projects/<project-id> \
+  -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "contextBlocks": [{
-      "id": "block-1",
-      "name": "API Docs",
-      "items": [{
-        "id": "item-1",
-        "name": "GET /users",
-        "subItems": [{
-          "id": "sub-1",
-          "name": "Description",
-          "text": "Returns list of users"
+    "data": {
+      "contextBlocks": [{
+        "id": 1,
+        "title": "API Documentation",
+        "items": [{
+          "id": 1,
+          "title": "Endpoint description",
+          "content": "GET /api/users returns list of users",
+          "chars": 41
         }]
-      }]
-    }]
+      }],
+      "promptBlocks": []
+    }
   }'
 ```
 
-**3. Compile Prompt:**
+**4. Сохранить API ключ OpenAI:**
 ```bash
-curl -X POST https://api.yourapp.com/api/projects/<project-id>/prompts/compile \
-  -H "Authorization: Bearer <token>" \
+curl -X POST https://your-domain.com/api/user/api-keys/openai \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey": "sk-proj-..."}'
+```
+
+**5. Отправить промпт в AI:**
+```bash
+curl -X POST https://your-domain.com/ai/send \
+  -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "promptBlockId": "prompt-1",
-    "contextBlockIds": ["block-1"]
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "messages": [{
+      "role": "user",
+      "content": "Analyze this API: GET /api/users returns list of users"
+    }],
+    "temperature": 0.7,
+    "maxTokens": 1000
   }'
 ```
 
 ---
 
-**Дата создания:** 25 ноября 2025  
-**Версия:** 1.0  
-**Статус:** Complete API Reference 📘
+## 📝 Changelog
 
+### v2.0 (05.12.2025)
+- Обновлена документация для self-hosted deployment
+- Добавлена поддержка Claude 4.5 и GPT-5.1
+- Улучшена структура ответов API
+- Добавлены примеры использования
+- Обновлена информация о лимитах
+
+### v1.0 (25.11.2025)
+- Первая версия API документации
+
+---
+
+**Дата обновления:** 05.12.2025  
+**Версия:** 2.0  
+**Статус:** Production Ready 📘
