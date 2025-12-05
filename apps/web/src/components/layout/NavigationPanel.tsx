@@ -31,14 +31,19 @@ const NavigationPanel = () => {
     num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
   // Функция для подсчета общего количества символов в блоке контекста
+  // ВАЖНО: Если у item есть subItems, считаем только их, игнорируя item.chars
   const calculateTotalChars = (block: ContextBlock) => {
     if (!Array.isArray(block.items)) return 0;
 
     return block.items.reduce((total, item) => {
-      let itemTotal = item.chars || 0;
+      let itemTotal = 0;
 
-      if (Array.isArray(item.subItems)) {
-        itemTotal += item.subItems.reduce((subTotal, subItem) => subTotal + (subItem.chars || 0), 0);
+      // Если есть подэлементы, считаем только их
+      if (Array.isArray(item.subItems) && item.subItems.length > 0) {
+        itemTotal = item.subItems.reduce((subTotal, subItem) => subTotal + (subItem.chars || 0), 0);
+      } else {
+        // Иначе считаем символы самого элемента
+        itemTotal = item.chars || 0;
       }
 
       return total + itemTotal;

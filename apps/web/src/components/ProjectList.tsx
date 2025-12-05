@@ -552,11 +552,16 @@ export default function ProjectList({ onSelectProject, selectedProjectId, isColl
               const isSharing = sharingProjectId === project.id;
               
               // Подсчитываем размер проекта
+              // ВАЖНО: Если у item есть subItems, считаем только их, игнорируя item.chars
               const projectSizeChars = contextBlocks.reduce((total, block) => {
                 const blockChars = (block.items || []).reduce((itemTotal, item) => {
-                  let chars = item.chars || 0;
-                  if (item.subItems) {
-                    chars += item.subItems.reduce((subTotal, sub) => subTotal + (sub.chars || 0), 0);
+                  let chars = 0;
+                  // Если есть подэлементы, считаем только их
+                  if (item.subItems && item.subItems.length > 0) {
+                    chars = item.subItems.reduce((subTotal, sub) => subTotal + (sub.chars || 0), 0);
+                  } else {
+                    // Иначе считаем символы самого элемента
+                    chars = item.chars || 0;
                   }
                   return itemTotal + chars;
                 }, 0);

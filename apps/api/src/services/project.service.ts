@@ -192,17 +192,21 @@ class ProjectService {
     const promptBlocks = (data.promptBlocks || []) as any[];
     
     // Подсчитываем размер каждого блока контекста
+    // ВАЖНО: Если у item есть subItems, считаем только их, игнорируя item.chars
+    // чтобы избежать двойного подсчета
     contextBlocks.forEach((block) => {
       let blockChars = 0;
       const items = block.items || [];
       
       items.forEach((item: any) => {
-        blockChars += item.chars || 0;
-        
-        if (item.subItems) {
+        // Если есть подэлементы, считаем только их
+        if (item.subItems && item.subItems.length > 0) {
           item.subItems.forEach((sub: any) => {
             blockChars += sub.chars || 0;
           });
+        } else {
+          // Иначе считаем символы самого элемента
+          blockChars += item.chars || 0;
         }
       });
       

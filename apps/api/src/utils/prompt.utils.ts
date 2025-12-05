@@ -2,13 +2,19 @@ import { ContextBlock, ContextItem, ContextSubItem, PromptBlock, SelectedContext
 
 /**
  * Calculate total characters in a context block
+ * ВАЖНО: Если у item есть subItems, считаем только их, игнорируя item.chars
+ * чтобы избежать двойного подсчета
  */
 export function calculateContextBlockChars(block: ContextBlock): number {
   return block.items.reduce((sum, item) => {
-    let itemSum = item.chars || 0;
+    let itemSum = 0;
     
+    // Если есть подэлементы, считаем только их
     if (item.subItems && item.subItems.length > 0) {
-      itemSum += item.subItems.reduce((subSum, subItem) => subSum + (subItem.chars || 0), 0);
+      itemSum = item.subItems.reduce((subSum, subItem) => subSum + (subItem.chars || 0), 0);
+    } else {
+      // Иначе считаем символы самого элемента
+      itemSum = item.chars || 0;
     }
     
     return sum + itemSum;
