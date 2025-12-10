@@ -414,6 +414,313 @@ docker-compose exec postgres psql -U promptyflow -d promptyflow
 
 ---
 
+## 💾 Работа с базой данных
+
+### Подключение к PostgreSQL
+
+**Интерактивное подключение:**
+```powershell
+docker-compose exec postgres psql -U promptyflow -d promptyflow
+```
+
+После подключения вы окажетесь в консоли PostgreSQL (`promptyflow=#`).
+
+### Полезные команды PostgreSQL
+
+**Просмотр структуры базы данных:**
+```sql
+-- Список всех таблиц
+\dt
+
+-- Детальная информация о таблице
+\d users
+\d projects
+\d templates
+
+-- Список всех баз данных
+\l
+
+-- Список всех пользователей
+\du
+
+-- Размер базы данных
+SELECT pg_size_pretty(pg_database_size('promptyflow'));
+
+-- Размер всех таблиц
+SELECT 
+    schemaname,
+    tablename,
+    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
+FROM pg_tables
+WHERE schemaname = 'public'
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+```
+
+**Просмотр данных:**
+```sql
+-- Количество записей в таблицах
+SELECT COUNT(*) FROM users;
+SELECT COUNT(*) FROM projects;
+SELECT COUNT(*) FROM templates;
+
+-- Просмотр данных (первые 10 записей)
+SELECT * FROM users LIMIT 10;
+SELECT * FROM projects LIMIT 10;
+
+-- Поиск по условию
+SELECT * FROM users WHERE email = 'user@example.com';
+SELECT * FROM projects WHERE "user_id" = 'user-uuid-here';
+```
+
+**Выход из консоли PostgreSQL:**
+```sql
+\q
+```
+
+### Выполнение SQL скриптов
+
+#### Вариант 1: Выполнение SQL команды напрямую
+
+```powershell
+# Выполнить одну SQL команду
+docker-compose exec -T postgres psql -U promptyflow -d promptyflow -c "SELECT COUNT(*) FROM users;"
+
+# Выполнить несколько команд
+docker-compose exec -T postgres psql -U promptyflow -d promptyflow -c "SELECT * FROM users; SELECT * FROM projects;"
+```
+
+#### Вариант 2: Загрузка SQL скрипта из файла
+
+**Шаг 1:** Создайте SQL файл на вашем компьютере, например `C:\Users\YourName\Documents\my_script.sql`:
+
+```sql
+-- Пример SQL скрипта
+SELECT 
+    u.email,
+    COUNT(p.id) as project_count
+FROM users u
+LEFT JOIN projects p ON p.user_id = u.id
+GROUP BY u.id, u.email
+ORDER BY project_count DESC;
+```
+
+**Шаг 2:** Скопируйте файл в контейнер и выполните:
+
+```powershell
+# Копирование файла в контейнер
+docker cp C:\Users\YourName\Documents\my_script.sql promptyflow-postgres:/tmp/my_script.sql
+
+# Выполнение скрипта
+docker-compose exec postgres psql -U promptyflow -d promptyflow -f /tmp/my_script.sql
+```
+
+**Альтернативный способ (без копирования в контейнер):**
+
+Если ваш SQL файл находится в директории проекта:
+
+```powershell
+# Выполнение SQL файла напрямую (файл должен быть доступен из контейнера)
+docker-compose exec -T postgres psql -U promptyflow -d promptyflow < C:\Users\YourName\Documents\my_script.sql
+```
+
+**Или через stdin:**
+
+```powershell
+Get-Content C:\Users\YourName\Documents\my_script.sql | docker-compose exec -T postgres psql -U promptyflow -d promptyflow
+```
+
+#### Вариант 3: Выполнение SQL из PowerShell скрипта
+
+Создайте файл `run-sql.ps1`:
+
+```powershell
+# run-sql.ps1
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SqlFile
+)
+
+if (-not (Test-Path $SqlFile)) {
+    Write-Host "Файл не найден: $SqlFile" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Выполнение SQL скрипта: $SqlFile" -ForegroundColor Green
+Get-Content $SqlFile | docker-compose exec -T postgres psql -U promptyflow -d promptyflow
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "SQL скрипт выполнен успешно!" -ForegroundColor Green
+} else {
+    Write-Host "Ошибка при выполнении SQL скрипта!" -ForegroundColor Red
+}
+```
+
+**Использование:**
+```powershell
+.\run-sql.ps1 -SqlFile "C:\Users\YourName\Documents\my_script.sql"
+```
+
+### Экспорт данных из базы данных
+
+**Экспорт всей базы данных (dump):**
+```powershell
+# Создать полный backup базы данных
+docker-compose exec postgres pg_dump -U promptyflow promptyflow > backup.sql
+
+# Или с форматированием
+docker-compose exec postgres pg_dump -U promptyflow -F c promptyflow > backup.dump
+```
+
+**Экспорт конкретной таблицы:**
+```powershell
+# Экспорт таблицы users
+docker-compose exec postgres pg_dump -U promptyflow -t users promptyflow > users_backup.sql
+
+# Экспорт нескольких таблиц
+docker-compose exec postgres pg_dump -U promptyflow -t users -t projects promptyflow > tables_backup.sql
+```
+
+**Экспорт только структуры (без данных):**
+```powershell
+docker-compose exec postgres pg_dump -U promptyflow -s promptyflow > schema_only.sql
+```
+
+**Экспорт только данных (без структуры):**
+```powershell
+docker-compose exec postgres pg_dump -U promptyflow -a promptyflow > data_only.sql
+```
+
+### Импорт данных в базу данных
+
+**Восстановление из SQL файла:**
+```powershell
+# Импорт SQL файла
+Get-Content backup.sql | docker-compose exec -T postgres psql -U promptyflow -d promptyflow
+
+# Или напрямую
+docker-compose exec -T postgres psql -U promptyflow -d promptyflow < backup.sql
+```
+
+**Восстановление из dump файла:**
+```powershell
+# Копирование dump файла в контейнер
+docker cp backup.dump promptyflow-postgres:/tmp/backup.dump
+
+# Восстановление
+docker-compose exec postgres pg_restore -U promptyflow -d promptyflow -c /tmp/backup.dump
+```
+
+**Восстановление конкретной таблицы:**
+```powershell
+Get-Content users_backup.sql | docker-compose exec -T postgres psql -U promptyflow -d promptyflow
+```
+
+### Полезные SQL запросы для PromptyFlow
+
+**Статистика пользователей:**
+```sql
+-- Количество пользователей
+SELECT COUNT(*) as total_users FROM users;
+
+-- Пользователи с количеством проектов
+SELECT 
+    u.email,
+    u.name,
+    COUNT(p.id) as project_count,
+    u.created_at
+FROM users u
+LEFT JOIN projects p ON p.user_id = u.id
+GROUP BY u.id, u.email, u.name, u.created_at
+ORDER BY project_count DESC;
+```
+
+**Статистика проектов:**
+```sql
+-- Общее количество проектов
+SELECT COUNT(*) as total_projects FROM projects;
+
+-- Размер проектов (примерно, если хранится в JSON)
+SELECT 
+    id,
+    name,
+    pg_column_size(data) as size_bytes,
+    created_at
+FROM projects
+ORDER BY size_bytes DESC
+LIMIT 10;
+```
+
+**Статистика шаблонов:**
+```sql
+-- Количество шаблонов
+SELECT COUNT(*) as total_templates FROM templates;
+
+-- Популярные шаблоны (по использованию)
+SELECT 
+    name,
+    usage_count,
+    created_at
+FROM templates
+ORDER BY usage_count DESC
+LIMIT 10;
+```
+
+**Очистка данных (осторожно!):**
+```sql
+-- Удалить все проекты (НЕОБРАТИМО!)
+-- DELETE FROM projects;
+
+-- Удалить все шаблоны (НЕОБРАТИМО!)
+-- DELETE FROM templates;
+
+-- Удалить всех пользователей кроме админа (НЕОБРАТИМО!)
+-- DELETE FROM users WHERE email != 'admin@example.com';
+```
+
+### Работа с миграциями Prisma
+
+**Просмотр примененных миграций:**
+```powershell
+docker-compose exec api npx prisma migrate status
+```
+
+**Применение новых миграций:**
+```powershell
+docker-compose exec api npx prisma migrate deploy
+```
+
+**Создание новой миграции (если нужно):**
+```powershell
+# Войдите в контейнер API
+docker-compose exec api sh
+
+# Внутри контейнера
+npx prisma migrate dev --name your_migration_name
+```
+
+**Просмотр схемы базы данных:**
+```powershell
+docker-compose exec api npx prisma db pull
+```
+
+**Открыть Prisma Studio (GUI для БД):**
+```powershell
+# Запустить Prisma Studio в контейнере
+docker-compose exec api npx prisma studio --hostname 0.0.0.0 --port 5555
+```
+
+**Примечание:** Для доступа к Prisma Studio из браузера нужно добавить проброс порта в `docker-compose.yml`:
+```yaml
+api:
+  ports:
+    - "3000:3000"
+    - "5555:5555"  # Добавить эту строку для Prisma Studio
+```
+
+Затем откройте в браузере: `http://localhost:5555`
+
+---
+
 ## 🛠️ Управление контейнерами
 
 ### Остановка контейнеров
@@ -705,11 +1012,14 @@ docker-compose logs -f redis
 
 ### Подключение к базе данных
 
+**Быстрое подключение:**
 ```powershell
 docker-compose exec postgres psql -U promptyflow -d promptyflow
 ```
 
-**Полезные команды PostgreSQL:**
+**📖 Подробная инструкция:** См. раздел [Работа с базой данных](#-работа-с-базой-данных) выше.
+
+**Краткая справка:**
 ```sql
 -- Список таблиц
 \dt
@@ -719,6 +1029,9 @@ SELECT * FROM users;
 
 -- Размер базы данных
 SELECT pg_size_pretty(pg_database_size('promptyflow'));
+
+-- Выполнение SQL скрипта из файла
+-- (см. раздел "Работа с базой данных" для подробностей)
 
 -- Выход
 \q
