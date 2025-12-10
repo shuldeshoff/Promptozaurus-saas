@@ -32,7 +32,36 @@
 
 ## 🚀 Быстрый старт
 
-### Production версия
+### 🐳 Docker развертывание (рекомендуется для Windows)
+
+**Быстрый запуск на Windows с Docker:**
+
+```bash
+# 1. Клонировать репозиторий
+git clone https://github.com/shuldeshoff/Promptozaurus-saas.git
+cd Promptozaurus-saas
+
+# 2. Создать .env файл (см. docs/DOCKER_DEPLOYMENT.md)
+# 3. Запустить все сервисы
+docker-compose up -d --build
+
+# 4. Открыть в браузере
+# Frontend: http://localhost:5173
+# API: http://localhost:3000/health
+```
+
+**📖 Полная инструкция:** [DOCKER_DEPLOYMENT.md](docs/DOCKER_DEPLOYMENT.md)
+
+**Включает:**
+- ✅ Установку Docker Desktop на Windows
+- ✅ Настройку Google OAuth
+- ✅ Генерацию секретных ключей
+- ✅ Решение типичных проблем
+- ✅ Управление контейнерами
+
+---
+
+### 💻 Локальная разработка
 
 **Требования:**
 - Node.js 18+
@@ -323,6 +352,7 @@ Promptozaurus-saas/
 - **[API.md](docs/API.md)** — API документация (endpoints, auth, rate limiting, full-text search)
 
 **Разработка и deployment:**
+- **[DOCKER_DEPLOYMENT.md](docs/DOCKER_DEPLOYMENT.md)** — 🐳 Полный гайд по развертыванию на Windows с Docker (установка, настройка, запуск)
 - **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** — Пошаговый гайд для самостоятельной разработки и деплоя
 - **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** — Полный гайд по deployment на Ubuntu (Nginx, PM2, SSL)
 - **[MONITORING.md](docs/MONITORING.md)** — Мониторинг и логирование (PM2, Nginx, PostgreSQL, Redis, Netdata)

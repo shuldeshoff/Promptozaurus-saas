@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: promptyflow-postgres
+    environment:
+      POSTGRES_USER: promptyflow
+      POSTGRES_PASSWORD: promptyflow_password
+      POSTGRES_DB: promptyflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U promptyflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - promptyflow-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: promptyflow-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - promptyflow-network
+
+  # Backend API
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: promptyflow-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://promptyflow:promptyflow_password@postgres:5432/promptyflow
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret-key-in-production}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-change-this-encryption-key-min-32-chars}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:3000/api/auth/google/callback}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/api/prisma:/app/prisma:ro
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running Prisma migrations...' &&
+        npx prisma migrate deploy &&
+        echo 'Starting API server...' &&
+        node dist/index.js
+      "
+    networks:
+      - promptyflow-network
+    restart: unless-stopped
+
+  # Frontend Web
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    container_name: promptyflow-web
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    networks:
+      - promptyflow-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  promptyflow-network:
+    driver: bridge
+
