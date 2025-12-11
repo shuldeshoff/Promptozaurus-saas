@@ -19,8 +19,8 @@ export function calculateSelectedContextsChars(
 
     // Подсчёт символов в выбранных items
     if (Array.isArray(selection.itemIds)) {
-      selection.itemIds.forEach((itemId) => {
-        const item = block.items.find((i) => i.id === itemId);
+      selection.itemIds.forEach((itemId: number) => {
+        const item = block.items.find((i: any) => i.id === itemId);
         if (item) {
           totalChars += item.chars || 0;
         }
@@ -29,14 +29,14 @@ export function calculateSelectedContextsChars(
 
     // Подсчёт символов в выбранных sub-items
     if (Array.isArray(selection.subItemIds)) {
-      selection.subItemIds.forEach((subItemKey) => {
+      selection.subItemIds.forEach((subItemKey: string) => {
         const [itemIdStr, subItemIdStr] = subItemKey.split('.');
         const itemId = parseInt(itemIdStr, 10);
         const subItemId = parseInt(subItemIdStr, 10);
 
-        const item = block.items.find((i) => i.id === itemId);
+        const item = block.items.find((i: any) => i.id === itemId);
         if (item && Array.isArray(item.subItems)) {
-          const subItem = item.subItems.find((s) => s.id === subItemId);
+          const subItem = item.subItems.find((s: any) => s.id === subItemId);
           if (subItem) {
             totalChars += subItem.chars || 0;
           }

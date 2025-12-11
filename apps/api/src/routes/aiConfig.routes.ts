@@ -74,7 +74,7 @@ export const aiConfigRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       try {
-        await aiUserConfigService.saveConfig(userId, parseResult.data);
+        await aiUserConfigService.saveConfig(userId, parseResult.data as UserAIConfig);
 
         reply.send({
           success: true,

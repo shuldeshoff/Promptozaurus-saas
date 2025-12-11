@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { projectService } from '../services/project.service.js';
 import { compilePrompt, calculatePromptContextChars } from '../utils/prompt.utils.js';
-import { PromptBlock, ProjectData } from '@promptozaurus/shared';
+import { PromptBlock, ProjectData, SelectedContext } from '@promptozaurus/shared';
 import { PromptBlockSchema } from '@promptozaurus/shared';
 
 interface PromptParams {
@@ -107,7 +107,7 @@ export async function promptRoutes(fastify: FastifyInstance) {
 
         // Find prompt block
         const promptBlock = projectData.promptBlocks?.find(
-          (p) => p.id === parseInt(promptId)
+          (p: PromptBlock) => p.id === parseInt(promptId)
         );
 
         if (!promptBlock) {
@@ -162,7 +162,7 @@ export async function promptRoutes(fastify: FastifyInstance) {
 
         // Find prompt block
         const promptBlock = projectData.promptBlocks?.find(
-          (p) => p.id === parseInt(promptId)
+          (p: PromptBlock) => p.id === parseInt(promptId)
         );
 
         if (!promptBlock) {
@@ -178,7 +178,7 @@ export async function promptRoutes(fastify: FastifyInstance) {
         const templateChars = promptBlock.template.length;
         const selectedBlocksCount = promptBlock.selectedContexts.length;
         const selectedItemsCount = promptBlock.selectedContexts.reduce(
-          (sum, sel) => sum + sel.itemIds.length + sel.subItemIds.length,
+          (sum: number, sel: SelectedContext) => sum + sel.itemIds.length + sel.subItemIds.length,
           0
         );
 

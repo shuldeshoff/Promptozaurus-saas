@@ -67,10 +67,10 @@ export async function contextRoutes(fastify: FastifyInstance) {
 
         // Calculate statistics
         const totalBlocks = updatedBlocks.length;
-        const totalItems = updatedBlocks.reduce((sum, block) => sum + block.items.length, 0);
+        const totalItems = updatedBlocks.reduce((sum: number, block: ContextBlock) => sum + block.items.length, 0);
         const totalSubItems = updatedBlocks.reduce(
-          (sum, block) =>
-            sum + block.items.reduce((itemSum, item) => itemSum + item.subItems.length, 0),
+          (sum: number, block: ContextBlock) =>
+            sum + block.items.reduce((itemSum: number, item) => itemSum + item.subItems.length, 0),
           0
         );
         const totalChars = updatedBlocks.reduce(
@@ -117,23 +117,23 @@ export async function contextRoutes(fastify: FastifyInstance) {
 
         // Calculate statistics
         const totalBlocks = contextBlocks.length;
-        const totalItems = contextBlocks.reduce((sum, block) => sum + block.items.length, 0);
+        const totalItems = contextBlocks.reduce((sum: number, block: ContextBlock) => sum + block.items.length, 0);
         const totalSubItems = contextBlocks.reduce(
-          (sum, block) =>
-            sum + block.items.reduce((itemSum, item) => itemSum + item.subItems.length, 0),
+          (sum: number, block: ContextBlock) =>
+            sum + block.items.reduce((itemSum: number, item) => itemSum + item.subItems.length, 0),
           0
         );
         const totalChars = contextBlocks.reduce(
-          (sum, block) => sum + calculateContextBlockChars(block),
+          (sum: number, block: ContextBlock) => sum + calculateContextBlockChars(block),
           0
         );
 
         // Block-wise statistics
-        const blockStats = contextBlocks.map((block) => ({
+        const blockStats = contextBlocks.map((block: ContextBlock) => ({
           id: block.id,
           title: block.title,
           itemsCount: block.items.length,
-          subItemsCount: block.items.reduce((sum, item) => sum + item.subItems.length, 0),
+          subItemsCount: block.items.reduce((sum: number, item) => sum + item.subItems.length, 0),
           totalChars: calculateContextBlockChars(block),
         }));
 

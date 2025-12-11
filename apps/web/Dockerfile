@@ -13,14 +13,16 @@ COPY apps/web/package.json ./apps/web/
 COPY packages/shared/package.json ./packages/shared/
 
 # Install all dependencies (workspaces)
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Build shared package
 FROM base AS shared-builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY package.json ./
+COPY package.json package-lock.json* ./
 COPY packages/shared ./packages/shared
+WORKDIR /app
+RUN npm install --legacy-peer-deps
 WORKDIR /app/packages/shared
 RUN npm run build
 
@@ -36,10 +38,21 @@ COPY --from=deps /app/package-lock.json ./package-lock.json
 # Copy shared package (built)
 COPY --from=shared-builder /app/packages/shared ./packages/shared
 
+# Install shared package as dependency and ensure all deps are available
+RUN rm -rf ./node_modules/@promptozaurus/shared && \
+    mkdir -p ./node_modules/@promptozaurus/shared && \
+    cp -r ./packages/shared/dist ./node_modules/@promptozaurus/shared/dist && \
+    cp ./packages/shared/package.json ./node_modules/@promptozaurus/shared/package.json.orig && \
+    echo '{"name":"@promptozaurus/shared","version":"1.0.0","type":"module","main":"./dist/index.js","types":"./dist/index.d.ts","exports":{".":{"types":"./dist/index.d.ts","default":"./dist/index.js"}}}' > ./node_modules/@promptozaurus/shared/package.json && \
+    npm install --legacy-peer-deps
+
 # Copy frontend source
 COPY apps/web ./apps/web
 
 WORKDIR /app/apps/web
+
+# Install dependencies locally to ensure all modules are available
+RUN npm install --legacy-peer-deps
 
 # Build application
 ARG VITE_API_URL

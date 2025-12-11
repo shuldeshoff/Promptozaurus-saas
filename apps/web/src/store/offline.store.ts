@@ -24,12 +24,12 @@ export const useOfflineStore = create<OfflineStore>()(
       isOnline: navigator.onLine,
       pendingChanges: [],
 
-      setOnline: (online) => set({ isOnline: online }),
+      setOnline: (online: boolean) => set({ isOnline: online }),
 
-      addPendingChange: (projectId, data) =>
-        set((state) => {
+      addPendingChange: (projectId: string, data: ProjectData) =>
+        set((state: OfflineStore) => {
           const existing = state.pendingChanges.findIndex(
-            (change) => change.projectId === projectId
+            (change: OfflineChange) => change.projectId === projectId
           );
 
           if (existing >= 0) {
@@ -50,18 +50,18 @@ export const useOfflineStore = create<OfflineStore>()(
           };
         }),
 
-      removePendingChange: (projectId) =>
-        set((state) => ({
+      removePendingChange: (projectId: string) =>
+        set((state: OfflineStore) => ({
           pendingChanges: state.pendingChanges.filter(
-            (change) => change.projectId !== projectId
+            (change: OfflineChange) => change.projectId !== projectId
           ),
         })),
 
       clearPendingChanges: () => set({ pendingChanges: [] }),
 
-      getPendingChange: (projectId) => {
+      getPendingChange: (projectId: string) => {
         return get().pendingChanges.find(
-          (change) => change.projectId === projectId
+          (change: OfflineChange) => change.projectId === projectId
         );
       },
     }),
